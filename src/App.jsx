@@ -1,0 +1,3393 @@
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer, Cell } from 'recharts';
+
+// ─── Retirement Spending Page ─────────────────────────────────────────────────
+const RetirementSpendingPage = () => {
+  const ages = ['45–54', '55–64', '65–74', '75+'];
+
+  const totalSpending = [
+    { age: '45–54', value: 97319 },
+    { age: '55–64', value: 83379 },
+    { age: '65–74', value: 65149 },
+    { age: '75+',   value: 53031 },
+  ];
+
+  const housingSpending = [
+    { age: '45–54', value: 29095 },
+    { age: '55–64', value: 25595 },
+    { age: '65–74', value: 22216 },
+    { age: '75+',   value: 20370 },
+  ];
+
+  const healthcareSpending = [
+    { age: '45–54', value: 6338 },
+    { age: '55–64', value: 7164 },
+    { age: '65–74', value: 7942 },
+    { age: '75+',   value: 8145 },
+  ];
+
+  const replacementRates = [
+    { income: 'Less than $50,000', rate: '80%' },
+    { income: '$50,000–$80,000',   rate: '75%' },
+    { income: '$80,000–$120,000',  rate: '70%' },
+    { income: 'More than $120,000',rate: '55–65%' },
+  ];
+
+  const fmt = (v) => '$' + v.toLocaleString();
+
+  const ChartCard = ({ title, subtitle, data, color, note }) => (
+    <div className="rounded shadow-md mb-6 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.2)'}}>
+      <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>{title}</h3>
+      {subtitle && <p className="text-sm text-[#4B4B4B] mb-4">{subtitle}</p>}
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{top: 16, right: 16, left: 8, bottom: 0}}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0efeb" vertical={false} />
+          <XAxis dataKey="age" tick={{fontSize: 13, fill: '#4B4B4B'}} axisLine={false} tickLine={false} />
+          <YAxis hide />
+          <Bar dataKey="value" radius={[3,3,0,0]} fill={color}>
+            {data.map((entry, i) => (
+              <Cell key={i} fill={color} fillOpacity={0.75 + i * 0.08} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+      {/* Value labels */}
+      <div className="flex justify-around mt-1">
+        {data.map((d, i) => (
+          <div key={i} className="text-center">
+            <div className="text-sm font-semibold" style={{color}}>{fmt(d.value)}</div>
+            <div className="text-xs text-[#4B4B4B]">Age {d.age}</div>
+          </div>
+        ))}
+      </div>
+      {note && <p className="text-xs text-[#4B4B4B] mt-4 italic">{note}</p>}
+    </div>
+  );
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-2" style={{color: 'rgb(14,50,60)'}}>What Will You Actually Spend in Retirement?</h1>
+      <p className="text-base text-[#4B4B4B] mb-8 leading-relaxed">One of the biggest unknowns in retirement planning is how much you'll actually need to spend. The good news: the data tells a calming story. Overall spending tends to decline with age — with one notable exception.</p>
+
+      {/* Replacement rate table */}
+      <div className="rounded shadow-md mb-6 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.2)'}}>
+        <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>The Income Replacement Rule of Thumb</h3>
+        <p className="text-sm text-[#4B4B4B] mb-4">Most people don't need 100% of their pre-retirement income in retirement. Commuting, work expenses, and saving itself all go away. Fidelity estimates these replacement ratios based on income level:</p>
+        <div className="overflow-hidden rounded border" style={{borderColor: '#e5e7eb'}}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{backgroundColor: '#f4f3ef'}}>
+                <th className="text-left px-4 py-3 font-semibold" style={{color: 'rgb(14,50,60)'}}>Annual income at retirement</th>
+                <th className="text-center px-4 py-3 font-semibold" style={{color: 'rgb(14,50,60)'}}>Estimated replacement ratio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {replacementRates.map((row, i) => (
+                <tr key={i} style={{borderTop: '1px solid #e5e7eb', backgroundColor: i % 2 === 0 ? 'white' : '#fafafa'}}>
+                  <td className="px-4 py-3 text-[#4B4B4B]">{row.income}</td>
+                  <td className="px-4 py-3 text-center font-semibold" style={{color: 'rgb(14,50,60)'}}>{row.rate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 p-3 rounded border" style={{backgroundColor: '#f0f7f4', borderColor: '#a7c9b8'}}>
+          <p className="text-sm text-[#4B4B4B]"><strong>SonderSave defaults to 70%</strong> — a reasonable middle-ground estimate. You can adjust this in the Income Goal section of the calculator to match your expected lifestyle.</p>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <ChartCard
+        title="Overall Spending Declines With Age"
+        subtitle="Average annual household spending drops significantly as people move through retirement — from nearly $100k in their late working years to around $53k by age 75+."
+        data={totalSpending}
+        color="#6E8F7C"
+        note="Many retirees find they naturally spend less as travel slows, children become independent, and lifestyle simplifies."
+      />
+
+      <ChartCard
+        title="Housing Costs Trend Lower Over Time"
+        subtitle="For most retirees, housing is the largest expense — but it decreases steadily with age, often as mortgages are paid off and people downsize."
+        data={housingSpending}
+        color="rgb(14,50,60)"
+        note="If you plan to pay off your mortgage before retirement or downsize, your housing costs could drop even more significantly."
+      />
+
+      <ChartCard
+        title="Healthcare Is the Exception: It Rises"
+        subtitle="Unlike most other expenses, healthcare costs increase with age. This is the one category worth planning for explicitly — especially before Medicare eligibility at 65."
+        data={healthcareSpending}
+        color="#C58B6A"
+        note="These figures are per person. Couples should plan for roughly double. Consider healthcare costs carefully if you plan to retire before age 65."
+      />
+
+      {/* Key takeaway */}
+      <div className="rounded shadow-md mb-6 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.2)'}}>
+        <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>The Big Picture</h3>
+        <p className="text-sm text-[#4B4B4B] mb-3 leading-relaxed">The story these charts tell together is reassuring: your overall spending will likely be meaningfully lower in retirement than during your peak earning years. Housing costs fall, discretionary spending simplifies, and many of the expenses tied to working life disappear.</p>
+        <p className="text-sm text-[#4B4B4B] leading-relaxed">The one wildcard is healthcare. Planning for rising healthcare costs — especially in your 70s and beyond — is one of the most important things you can do to protect your retirement security.</p>
+      </div>
+
+      {/* Sources */}
+      <div className="text-xs text-[#4B4B4B] mt-6 pt-4 border-t border-gray-200 space-y-1">
+        <p><strong>Sources:</strong></p>
+        <p>Income replacement ratios: Fidelity Financial Solutions, 2019.</p>
+        <p>Household spending, housing, and healthcare data: U.S. Bureau of Labor Statistics, Consumer Expenditure Survey, 2023.</p>
+        <p className="mt-2 italic">SonderSave is not affiliated with Fidelity. Data is presented for educational purposes only.</p>
+      </div>
+    </div>
+  );
+};
+
+// ─── Nav Bar ────────────────────────────────────────────────────────────────
+const NavBar = ({ currentPage, setCurrentPage }) => {
+  const [learnOpen, setLearnOpen] = useState(false);
+  const learnPages = ['faq', 'glossary', 'resources', 'spending'];
+  const isLearnPage = learnPages.includes(currentPage);
+
+  return (
+    <nav className="w-full border-b relative" style={{backgroundColor: 'rgb(14, 50, 60)', borderColor: '#2a3f45'}}>
+      <div className="max-w-4xl mx-auto px-4 flex items-center gap-1 h-12">
+        <button
+          onClick={() => { setCurrentPage('calculator'); setLearnOpen(false); }}
+          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          style={currentPage === 'calculator'
+            ? {backgroundColor: '#C58B6A', color: 'white'}
+            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+          }
+        >
+          Calculator
+        </button>
+        <button
+          onClick={() => { setCurrentPage('budget'); window.scrollTo(0, 0); setLearnOpen(false); }}
+          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          style={currentPage === 'budget'
+            ? {backgroundColor: '#C58B6A', color: 'white'}
+            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+          }
+        >
+          Budget
+        </button>
+
+        {/* Learn dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setLearnOpen(!learnOpen)}
+            className="px-4 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-1"
+            style={isLearnPage
+              ? {backgroundColor: '#C58B6A', color: 'white'}
+              : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+            }
+          >
+            Learn <span style={{fontSize: 9}}>{learnOpen ? '▲' : '▼'}</span>
+          </button>
+          {learnOpen && (
+            <div className="absolute left-0 top-full mt-1 rounded shadow-lg overflow-hidden z-50" style={{
+              backgroundColor: 'white',
+              border: '1px solid #c4c9cf',
+              minWidth: 130,
+            }}>
+              {[
+                { id: 'faq', label: 'FAQ' },
+                { id: 'glossary', label: 'Glossary' },
+                { id: 'resources', label: 'Resources' },
+                { id: 'spending', label: 'Retirement Spending' },
+              ].map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => { setCurrentPage(item.id); setLearnOpen(false); window.scrollTo(0, 0); }}
+                  className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-gray-50"
+                  style={{
+                    color: currentPage === item.id ? '#C58B6A' : 'rgb(14, 50, 60)',
+                    fontWeight: currentPage === item.id ? 600 : 400,
+                    borderBottom: '1px solid #f0f0f0',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={() => { setCurrentPage('about'); setLearnOpen(false); }}
+          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          style={currentPage === 'about'
+            ? {backgroundColor: '#C58B6A', color: 'white'}
+            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+          }
+        >
+          About
+        </button>
+      </div>
+
+      {/* Backdrop to close dropdown */}
+      {learnOpen && (
+        <div className="fixed inset-0 z-40" onClick={() => setLearnOpen(false)} />
+      )}
+    </nav>
+  );
+};
+
+// ─── Budget Page ─────────────────────────────────────────────────────────────
+const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retirementAge }) => {
+  const [netIncome, setNetIncome] = useState(Math.round(annualIncome / 12 * 0.75));
+  const [targetNeeds, setTargetNeeds] = useState(50);
+  const [targetWants, setTargetWants] = useState(30);
+  const [targetSavings, setTargetSavings] = useState(20);
+  const [expandedCategories, setExpandedCategories] = useState({});
+  const formatCurrency = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v || 0);
+  const formatNum = (v) => v === 0 ? '' : String(v);
+  const parseNum = (v) => parseFloat(v.replace(/[^0-9.]/g, '')) || 0;
+
+  // Flat budget categories
+  const buckets = [
+    {
+      id: 'needs', label: 'Needs', color: '#6E8F7C',
+      description: 'Mandatory, non-negotiable expenses required for living.',
+      categories: [
+        { id: 'housing', label: 'Housing' },
+        { id: 'utilities', label: 'Utilities' },
+        { id: 'groceries', label: 'Groceries' },
+        { id: 'transport', label: 'Transportation' },
+        { id: 'healthcare', label: 'Healthcare' },
+        { id: 'childcare', label: 'Childcare & Education' },
+        { id: 'creditcard', label: 'Credit Card Minimums' },
+        { id: 'studentloans', label: 'Student Loans' },
+        { id: 'mindebt', label: 'Other Debt Minimums' },
+      ]
+    },
+    {
+      id: 'wants', label: 'Wants', color: '#C58B6A',
+      description: 'Non-essential expenses that improve your quality of life.',
+      categories: [
+        { id: 'dining', label: 'Dining Out' },
+        { id: 'entertainment', label: 'Entertainment' },
+        { id: 'subscriptions', label: 'Subscriptions' },
+        { id: 'shopping', label: 'Shopping & Clothing' },
+        { id: 'hobbies', label: 'Hobbies' },
+        { id: 'personal', label: 'Personal Care' },
+        { id: 'travel', label: 'Travel & Vacation' },
+        { id: 'gifts', label: 'Gifts & Donations' },
+        { id: 'pets', label: 'Pets' },
+      ]
+    },
+    {
+      id: 'savings', label: 'Savings & Debt', color: '#3A4446',
+      description: 'Building future wealth and paying down non-essential debt.',
+      categories: [
+        { id: 'emergency', label: 'Emergency Fund' },
+        { id: 'retirement', label: 'Retirement (Post-Tax)', autoAmount: monthlyPostTaxSavings > 0 ? monthlyPostTaxSavings : 0 },
+        { id: 'investments', label: 'Other Investments' },
+        { id: 'extradebt', label: 'Extra Debt Repayment' },
+      ]
+    },
+  ];
+
+  // Simple amounts state: { [categoryId]: number }
+  const initAmounts = () => {
+    const a = {};
+    buckets.forEach(b => b.categories.forEach(c => {
+      a[c.id] = c.autoAmount || 0;
+    }));
+    return a;
+  };
+  const [amounts, setAmounts] = useState(initAmounts);
+
+  // Custom lines per bucket: { [bucketId]: [{ id, label, amount }] }
+  const [customLines, setCustomLines] = useState({ needs: [], wants: [], savings: [] });
+
+  const setAmount = (catId, value) => setAmounts(prev => ({ ...prev, [catId]: parseNum(value) }));
+
+  const addCustomLine = (bucketId) => {
+    setCustomLines(prev => ({
+      ...prev,
+      [bucketId]: [...prev[bucketId], { id: Date.now() + Math.random(), label: '', amount: 0 }]
+    }));
+  };
+
+  const updateCustomLine = (bucketId, lineId, field, value) => {
+    setCustomLines(prev => ({
+      ...prev,
+      [bucketId]: prev[bucketId].map(l => l.id === lineId ? { ...l, [field]: field === 'amount' ? parseNum(value) : value } : l)
+    }));
+  };
+
+  const removeCustomLine = (bucketId, lineId) => {
+    setCustomLines(prev => ({
+      ...prev,
+      [bucketId]: prev[bucketId].filter(l => l.id !== lineId)
+    }));
+  };
+
+  const catTotal = (catId) => amounts[catId] || 0;
+
+  const bucketTotal = (bucket) => {
+    const catSum = bucket.categories.reduce((s, c) => s + catTotal(c.id), 0);
+    const customSum = (customLines[bucket.id] || []).reduce((s, l) => s + (l.amount || 0), 0);
+    return catSum + customSum;
+  };
+
+  const grandTotal = () => buckets.reduce((s, b) => s + bucketTotal(b), 0);
+  const bucketPercent = (bucket) => netIncome > 0 ? (bucketTotal(bucket) / netIncome) * 100 : 0;
+
+  // Target slider: adjust others proportionally when one changes
+  const handleTargetChange = (which, val) => {
+    const v = Math.min(100, Math.max(0, Number(val)));
+    if (which === 'needs') {
+      const rem = 100 - v;
+      const wRatio = targetWants / (targetWants + targetSavings) || 0.6;
+      setTargetNeeds(v); setTargetWants(Math.round(rem * wRatio)); setTargetSavings(Math.round(rem * (1 - wRatio)));
+    } else if (which === 'wants') {
+      const rem = 100 - v;
+      const nRatio = targetNeeds / (targetNeeds + targetSavings) || 0.7;
+      setTargetWants(v); setTargetNeeds(Math.round(rem * nRatio)); setTargetSavings(Math.round(rem * (1 - nRatio)));
+    } else {
+      const rem = 100 - v;
+      const nRatio = targetNeeds / (targetNeeds + targetWants) || 0.625;
+      setTargetSavings(v); setTargetNeeds(Math.round(rem * nRatio)); setTargetWants(Math.round(rem * (1 - nRatio)));
+    }
+  };
+
+  const remaining = netIncome - grandTotal();
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6" style={{fontFamily: 'Inter, sans-serif'}}>
+
+      {/* Logo + Intro — matches calculator style */}
+      <div className="py-10 px-4">
+        <div className="flex justify-center mb-6">
+          <svg width="400" height="266" viewBox="0 0 400 266.667" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="266.667" fill="none"/>
+            <path d="M152.474 79.688 C 163.246 83.095,169.878 92.042,170.856 104.486 C 171.294 110.065,170.940 111.199,168.757 111.197 C 166.604 111.195,166.129 110.541,163.648 104.167 C 156.496 85.797,147.184 82.221,135.483 93.349 C 129.534 99.006,127.752 102.014,122.437 115.365 C 119.908 121.717,119.559 122.783,117.190 131.380 C 111.028 153.744,106.874 162.037,99.263 167.166 C 88.036 174.732,75.146 168.441,69.961 152.865 C 67.442 145.299,67.931 141.919,71.573 141.713 C 75.030 141.518,75.721 142.208,76.961 147.090 C 80.564 161.276,88.898 166.140,96.492 158.488 C 101.674 153.266,103.813 148.454,108.719 130.977 C 113.933 112.402,116.690 105.805,123.889 94.670 C 131.856 82.350,142.783 76.622,152.474 79.688 M217.906 136.654 L 217.839 151.172 215.885 151.172 L 213.932 151.172 213.852 150.052 L 213.771 148.932 212.823 149.764 C 209.764 152.450,204.618 152.070,202.047 148.967 C 198.560 144.760,198.818 136.338,202.549 132.608 C 205.106 130.050,210.027 129.700,212.877 131.873 L 213.672 132.479 213.649 127.503 C 213.622 121.560,213.381 122.135,215.903 122.135 L 217.973 122.135 217.906 136.654 M147.885 122.911 C 151.739 123.642,154.530 126.330,155.094 129.855 L 155.263 130.913 153.276 131.093 C 151.153 131.285,150.781 131.202,150.781 130.536 C 150.781 126.596,142.781 124.995,140.580 128.495 C 138.825 131.284,140.596 133.186,146.541 134.897 C 153.595 136.928,155.656 138.969,155.417 143.687 C 155.151 148.943,151.962 151.413,145.443 151.415 C 141.577 151.416,140.278 151.038,137.845 149.205 C 135.616 147.526,133.666 142.708,135.215 142.708 C 135.570 142.708,136.564 142.635,137.423 142.545 L 138.984 142.382 139.156 143.243 C 140.212 148.522,149.904 149.733,151.028 144.727 C 151.628 142.052,150.291 140.521,146.307 139.321 C 137.462 136.657,135.803 135.281,135.812 130.618 C 135.822 124.956,141.055 121.615,147.885 122.911 M268.274 122.951 C 272.312 123.817,274.831 126.260,275.408 129.869 L 275.574 130.909 273.543 131.080 C 271.276 131.272,271.302 131.285,270.871 129.766 C 269.483 124.884,259.989 125.720,260.501 130.680 C 260.712 132.722,261.663 133.378,266.430 134.765 C 273.989 136.965,275.973 138.869,275.729 143.687 C 275.462 148.960,272.295 151.414,265.755 151.414 C 259.733 151.414,256.264 149.111,255.211 144.414 C 254.855 142.826,254.911 142.778,257.322 142.561 L 259.305 142.382 259.488 143.392 C 260.517 149.075,271.348 149.477,271.353 143.832 C 271.356 141.240,270.270 140.374,265.092 138.835 C 257.776 136.660,256.151 135.167,256.130 130.599 C 256.105 124.949,261.563 121.511,268.274 122.951 M171.433 131.370 C 178.420 134.882,178.227 147.417,171.134 150.742 C 161.634 155.196,153.009 142.936,159.382 134.037 C 161.835 130.612,167.452 129.369,171.433 131.370 M192.841 130.954 C 195.932 132.359,196.354 133.889,196.354 143.678 L 196.354 151.324 194.336 151.248 L 192.318 151.172 192.188 143.880 C 192.025 134.795,191.607 133.789,188.148 134.179 C 184.293 134.614,184.001 135.295,183.908 144.076 L 183.831 151.302 181.759 151.302 L 179.688 151.302 179.624 146.549 C 179.567 142.279,179.579 137.512,179.659 132.476 L 179.688 130.707 181.706 130.783 L 183.724 130.859 183.854 131.990 L 183.984 133.121 184.635 132.412 C 186.319 130.577,190.410 129.850,192.841 130.954 M233.956 131.001 C 237.249 132.233,239.323 135.873,239.323 140.419 L 239.323 142.188 232.280 142.188 L 225.237 142.188 225.409 143.164 C 226.272 148.071,232.184 149.902,234.892 146.100 C 235.938 144.630,239.479 145.574,238.684 147.111 C 236.606 151.131,230.996 152.743,226.352 150.654 C 218.900 147.302,219.308 133.943,226.953 130.998 C 228.789 130.290,232.060 130.292,233.956 131.001 M253.772 130.723 C 253.858 130.863,253.852 131.829,253.757 132.871 L 253.585 134.766 251.707 134.766 C 247.291 134.766,246.628 136.080,246.620 144.857 L 246.615 151.302 244.531 151.302 L 242.448 151.302 242.448 141.016 L 242.448 130.729 244.531 130.729 L 246.615 130.729 246.615 132.212 L 246.615 133.695 247.225 132.867 C 248.690 130.882,252.998 129.471,253.772 130.723 M290.443 130.845 C 294.328 132.231,294.871 133.582,295.101 142.448 C 295.200 146.243,295.317 149.759,295.361 150.260 L 295.443 151.172 293.661 151.249 C 291.683 151.336,291.283 151.142,291.052 149.989 L 290.896 149.208 289.807 149.997 C 285.200 153.334,278.549 151.194,277.958 146.186 C 277.417 141.607,281.550 138.802,288.836 138.802 L 290.625 138.802 290.625 137.622 C 290.625 133.515,284.813 132.217,283.164 135.955 L 282.712 136.979 280.801 136.979 C 278.545 136.979,278.358 136.767,279.037 134.989 C 280.434 131.329,286.066 129.283,290.443 130.845 M329.384 131.270 C 332.542 132.848,334.105 135.790,334.111 140.169 L 334.115 142.188 327.214 142.188 L 320.313 142.188 320.318 143.034 C 320.349 147.546,326.120 149.718,329.396 146.450 C 330.706 145.144,331.624 144.987,333.008 145.830 C 334.040 146.460,334.044 146.540,333.106 147.812 C 328.876 153.559,319.904 152.666,316.877 146.198 C 312.640 137.144,321.050 127.105,329.384 131.270 M301.264 131.706 C 303.459 138.748,305.983 146.141,306.087 145.833 C 306.160 145.618,307.307 142.132,308.636 138.086 L 311.052 130.729 313.208 130.729 C 314.430 130.729,315.365 130.839,315.365 130.982 C 315.365 131.266,315.078 132.041,310.839 143.229 L 307.830 151.172 305.842 151.172 L 303.854 151.172 300.530 142.188 C 298.703 137.246,297.015 132.749,296.781 132.195 C 296.158 130.723,296.151 130.729,298.657 130.729 L 300.959 130.729 301.264 131.706 M228.207 134.360 C 226.993 134.912,225.857 136.399,225.525 137.874 L 225.315 138.802 230.236 138.802 C 232.942 138.802,235.156 138.714,235.155 138.607 C 235.129 135.166,231.423 132.900,228.207 134.360 M323.307 134.264 C 321.745 135.076,320.313 136.993,320.313 138.271 C 320.313 138.786,320.455 138.802,325.130 138.802 C 330.560 138.802,330.417 138.867,329.543 136.775 C 328.502 134.282,325.554 133.095,323.307 134.264 M164.539 134.642 C 160.702 136.669,160.702 144.985,164.538 147.329 C 168.359 149.664,172.199 146.515,172.237 141.016 C 172.275 135.534,168.604 132.495,164.539 134.642 M206.833 134.664 C 202.795 136.663,202.824 145.581,206.875 147.420 C 209.320 148.531,213.460 147.010,213.556 144.967 C 213.755 140.729,213.566 136.939,213.119 136.173 C 212.023 134.297,209.027 133.578,206.833 134.664 M284.240 142.541 C 280.671 144.203,282.285 148.590,286.271 148.062 C 289.270 147.664,290.622 146.264,290.624 143.555 L 290.625 141.927 288.086 141.930 C 285.975 141.932,285.327 142.035,284.240 142.541" stroke="none" fill="#0e323c" fillRule="evenodd"/>
+          </svg>
+        </div>
+        <p className="text-lg text-[#3A4446] leading-relaxed">This is your opportunity to see where your spending supports your goals — and where small shifts could create more room for saving over time.</p>
+      </div>
+
+      {/* Net Income Input */}
+      <div className="rounded mb-4 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Monthly Take-Home Pay</label>
+        <p className="text-sm text-[#4B4B4B] mb-3">
+          Enter your monthly income after taxes — the money that actually hits your bank account.
+        </p>
+        <div className="relative max-w-xs">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#4B4B4B]">$</span>
+          <input
+            type="text"
+            value={netIncome === 0 ? '' : netIncome.toLocaleString()}
+            onChange={e => setNetIncome(parseNum(e.target.value))}
+            inputMode="decimal"
+            className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg"
+            style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+            placeholder="e.g. 4,500"
+          />
+        </div>
+      </div>
+
+      {/* Target Split — single segmented bar */}
+      <div className="rounded mb-4 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Your Target Split</label>
+        <p className="text-sm text-[#4B4B4B] mb-3">The 50/30/20 rule is a common starting point. Drag the handles to adjust to your situation.</p>
+
+        {/* Labels above bar */}
+        <div className="flex mb-1" style={{fontSize: '0.75rem'}}>
+          <div className="font-medium text-center transition-all" style={{width: `${targetNeeds}%`, color: '#6E8F7C'}}>Needs</div>
+          <div className="font-medium text-center transition-all" style={{width: `${targetWants}%`, color: '#C58B6A'}}>Wants</div>
+          <div className="font-medium text-center transition-all" style={{width: `${targetSavings}%`, color: '#3A4446'}}>Savings</div>
+        </div>
+
+        {/* Three-segment bar */}
+        <div className="relative rounded-lg overflow-visible select-none" style={{height: 28, backgroundColor: '#e5e7eb'}}>
+          {/* Needs segment */}
+          <div className="absolute top-0 left-0 h-full rounded-l-lg flex items-center justify-center"
+            style={{width: `${targetNeeds}%`, backgroundColor: '#6E8F7C'}}>
+            <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{targetNeeds}%</span>
+          </div>
+          {/* Wants segment */}
+          <div className="absolute top-0 h-full flex items-center justify-center"
+            style={{left: `${targetNeeds}%`, width: `${targetWants}%`, backgroundColor: '#C58B6A'}}>
+            <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{targetWants}%</span>
+          </div>
+          {/* Savings segment */}
+          <div className="absolute top-0 h-full rounded-r-lg flex items-center justify-center"
+            style={{left: `${targetNeeds + targetWants}%`, width: `${targetSavings}%`, backgroundColor: '#3A4446'}}>
+            <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{targetSavings}%</span>
+          </div>
+
+          {/* Handle 1 — between Needs and Wants */}
+          <div
+            className="absolute z-10 flex items-center justify-center cursor-ew-resize"
+            style={{
+              left: `${targetNeeds}%`,
+              top: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
+              width: 12,
+              height: 38,
+              backgroundColor: 'white',
+              borderRadius: 3,
+              boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+              border: '1.5px solid #c4c9cf',
+              userSelect: 'none',
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const bar = e.currentTarget.parentElement;
+              const rect = bar.getBoundingClientRect();
+              const onMove = (me) => {
+                const pct = Math.round(Math.min(95, Math.max(5, ((me.clientX - rect.left) / rect.width) * 100)));
+                const newWants = Math.max(5, targetNeeds + targetWants - pct);
+                setTargetNeeds(pct);
+                setTargetWants(newWants);
+                setTargetSavings(100 - pct - newWants);
+              };
+              const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+              window.addEventListener('mousemove', onMove);
+              window.addEventListener('mouseup', onUp);
+            }}
+            onTouchStart={(e) => {
+              const bar = e.currentTarget.parentElement;
+              const rect = bar.getBoundingClientRect();
+              const onMove = (te) => {
+                const touch = te.touches[0];
+                const pct = Math.round(Math.min(95, Math.max(5, ((touch.clientX - rect.left) / rect.width) * 100)));
+                const newWants = Math.max(5, targetNeeds + targetWants - pct);
+                setTargetNeeds(pct);
+                setTargetWants(newWants);
+                setTargetSavings(100 - pct - newWants);
+              };
+              const onUp = () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onUp); };
+              window.addEventListener('touchmove', onMove);
+              window.addEventListener('touchend', onUp);
+            }}
+          >
+          </div>
+
+          {/* Handle 2 — between Wants and Savings */}
+          <div
+            className="absolute z-10 flex items-center justify-center cursor-ew-resize"
+            style={{
+              left: `${targetNeeds + targetWants}%`,
+              top: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
+              width: 12,
+              height: 38,
+              backgroundColor: 'white',
+              borderRadius: 3,
+              boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+              border: '1.5px solid #c4c9cf',
+              userSelect: 'none',
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const bar = e.currentTarget.parentElement;
+              const rect = bar.getBoundingClientRect();
+              const onMove = (me) => {
+                const pct = Math.round(Math.min(95, Math.max(targetNeeds + 5, ((me.clientX - rect.left) / rect.width) * 100)));
+                setTargetWants(pct - targetNeeds);
+                setTargetSavings(100 - pct);
+              };
+              const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+              window.addEventListener('mousemove', onMove);
+              window.addEventListener('mouseup', onUp);
+            }}
+            onTouchStart={(e) => {
+              const bar = e.currentTarget.parentElement;
+              const rect = bar.getBoundingClientRect();
+              const onMove = (te) => {
+                const touch = te.touches[0];
+                const pct = Math.round(Math.min(95, Math.max(targetNeeds + 5, ((touch.clientX - rect.left) / rect.width) * 100)));
+                setTargetWants(pct - targetNeeds);
+                setTargetSavings(100 - pct);
+              };
+              const onUp = () => { window.removeEventListener('touchmove', onMove); window.removeEventListener('touchend', onUp); };
+              window.addEventListener('touchmove', onMove);
+              window.addEventListener('touchend', onUp);
+            }}
+          >
+          </div>
+        </div>
+
+        {/* Dollar amounts below bar */}
+        <div className="flex mt-1" style={{fontSize: '0.7rem'}}>
+          <div className="text-center transition-all" style={{width: `${targetNeeds}%`, color: '#4B4B4B'}}>{formatCurrency(netIncome * targetNeeds / 100)}</div>
+          <div className="text-center transition-all" style={{width: `${targetWants}%`, color: '#4B4B4B'}}>{formatCurrency(netIncome * targetWants / 100)}</div>
+          <div className="text-center transition-all" style={{width: `${targetSavings}%`, color: '#4B4B4B'}}>{formatCurrency(netIncome * targetSavings / 100)}</div>
+        </div>
+      </div>
+
+      {/* Summary Bar */}
+      <div className="rounded mb-4 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <label className="block text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</label>
+        {buckets.map(bucket => {
+          const actual = bucketPercent(bucket);
+          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+          const over = actual > target;
+          return (
+            <div key={bucket.id} className="mb-4">
+              <div className="flex justify-between items-baseline mb-1">
+                <span className="text-sm font-medium" style={{color: bucket.color}}>{bucket.label}</span>
+                <span className="text-xs text-[#4B4B4B]">
+                  {formatCurrency(bucketTotal(bucket))} of {formatCurrency(netIncome * target / 100)} target
+                  {over && <span className="ml-2 text-red-500 font-medium">▲ {(actual - target).toFixed(1)}% over</span>}
+                  {!over && actual > 0 && <span className="ml-2 text-green-600 font-medium">✓</span>}
+                </span>
+              </div>
+              <div className="relative rounded-full bg-gray-100 overflow-hidden" style={{height: 24}}>
+                <div className="h-full rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                  style={{width: `${Math.min(100, actual)}%`, backgroundColor: over ? '#c0392b' : bucket.color, minWidth: actual > 0 ? 36 : 0}}>
+                  {actual > 0 && <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{actual.toFixed(1)}%</span>}
+                </div>
+                <div className="absolute top-0 bottom-0 w-0.5 bg-gray-400" style={{left: `${target}%`}} />
+              </div>
+            </div>
+          );
+        })}
+        {/* Overage growth callout */}
+        {(() => {
+          const yearsToRetirement = Math.max(1, (retirementAge || 65) - (currentAge || 30));
+          const overBuckets = buckets.filter(b => {
+            const target = b.id === 'needs' ? targetNeeds : b.id === 'wants' ? targetWants : targetSavings;
+            return bucketPercent(b) > target;
+          });
+          const totalOverage = overBuckets.reduce((sum, b) => {
+            const target = b.id === 'needs' ? targetNeeds : b.id === 'wants' ? targetWants : targetSavings;
+            return sum + (bucketTotal(b) - (netIncome * target / 100));
+          }, 0);
+          if (totalOverage < 10 || grandTotal() === 0) return null;
+          const growthFactor = Math.pow(1.07, yearsToRetirement);
+          const futureValue = totalOverage * ((growthFactor - 1) / 0.07) * 12;
+          return (
+            <div className="mt-3 pt-3 border-t border-gray-100 p-3 rounded" style={{backgroundColor: '#f4f3ef', border: '1px solid #e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+                <strong style={{color: '#C58B6A'}}>💡 Opportunity: </strong>
+                You're <strong>{formatCurrency(totalOverage)}/month</strong> over your targets in {overBuckets.map(b => b.label).join(' and ')}. Redirected to savings, that could grow to <strong style={{color: '#6E8F7C'}}>{formatCurrency(futureValue)}</strong> by retirement at age {retirementAge || 65} — assuming 7% average annual growth over {yearsToRetirement} years.
+              </p>
+            </div>
+          );
+        })()}
+
+        <div className="border-t border-gray-200 pt-3 mt-2 flex justify-between">
+          <span className="text-sm font-semibold text-[#3A4446]">Remaining unallocated</span>
+          <span className="text-sm font-semibold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>{formatCurrency(remaining)}</span>
+        </div>
+      </div>
+
+      {/* Buckets */}
+      {buckets.map(bucket => (
+        <div key={bucket.id} className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+          {/* Bucket Header — name only */}
+          <div className="px-5 py-3" style={{backgroundColor: bucket.color}}>
+            <h3 className="text-base font-bold text-white" style={{margin: 0}}>{bucket.label}</h3>
+          </div>
+
+          {/* Flat category rows */}
+          <div className="bg-white">
+            {bucket.categories.map((cat, idx) => (
+              <div key={cat.id} className={`flex items-center gap-3 px-5 py-3 ${idx > 0 ? 'border-t border-gray-100' : ''}`}>
+                <label className="flex-1 text-sm text-[#3A4446]">
+                  {cat.label}
+                  {cat.autoAmount > 0 && <span className="ml-2 text-xs px-1.5 py-0.5 rounded" style={{backgroundColor: '#f4f3ef', color: '#6E8F7C', border: '1px solid #c4c9cf'}}>auto-filled</span>}
+                </label>
+                <div className="relative flex-shrink-0">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#4B4B4B]">$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={amounts[cat.id] === 0 ? '' : amounts[cat.id].toLocaleString()}
+                    onChange={e => setAmount(cat.id, e.target.value)}
+                    placeholder="0"
+                    className="w-28 pl-7 pr-3 py-1.5 text-sm border rounded text-right"
+                    style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                  />
+                </div>
+              </div>
+            ))}
+
+            {/* Custom lines */}
+            {(customLines[bucket.id] || []).map(line => (
+              <div key={line.id} className="flex items-center gap-3 px-5 py-3 border-t border-gray-100">
+                <input
+                  type="text"
+                  value={line.label}
+                  onChange={e => updateCustomLine(bucket.id, line.id, 'label', e.target.value)}
+                  placeholder="Custom category"
+                  className="flex-1 min-w-0 text-sm px-3 py-1.5 border rounded"
+                  style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                />
+                <div className="relative flex-shrink-0">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#4B4B4B]">$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={line.amount === 0 ? '' : line.amount.toLocaleString()}
+                    onChange={e => updateCustomLine(bucket.id, line.id, 'amount', e.target.value)}
+                    placeholder="0"
+                    className="w-28 pl-7 pr-3 py-1.5 text-sm border rounded text-right"
+                    style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                  />
+                </div>
+                <button onClick={() => removeCustomLine(bucket.id, line.id)} className="text-gray-300 hover:text-red-400 text-lg leading-none flex-shrink-0">×</button>
+              </div>
+            ))}
+
+            {/* Add line */}
+            <div className="px-5 py-3 border-t border-gray-100">
+              <button onClick={() => addCustomLine(bucket.id)} className="text-sm" style={{color: bucket.color}}>+ Add line</button>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Pre-tax note */}
+      <div className="rounded mb-6 p-4" style={{backgroundColor: '#f4f3ef', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
+        <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+          <strong>Note on pre-tax contributions:</strong> Your 401(k) contributions are deducted before your paycheck arrives and are not included here. The Savings bucket above only reflects post-tax contributions like Roth IRA or brokerage investments.
+        </p>
+      </div>
+
+    </div>
+  );
+};
+
+// ─── FAQ Page ────────────────────────────────────────────────────────────────
+const FAQPage = () => {
+  const [openItem, setOpenItem] = useState(null);
+  const faqs = [
+    {
+      q: "How much do I need to retire?",
+      a: "A common guideline is to save 25x your expected annual retirement expenses — this is based on the 4% withdrawal rule, which suggests you can withdraw 4% of your savings each year without running out of money over a 30-year retirement. For example, if you expect to spend $50,000/year in retirement, you'd want roughly $1.25 million saved."
+    },
+    {
+      q: "What is the 4% rule?",
+      a: "The 4% rule is a guideline suggesting that retirees can withdraw 4% of their savings in the first year of retirement, then adjust that amount for inflation each year, and have a high probability of not outliving their money over a 30-year period. It originated from the Trinity Study in 1998. Some financial planners now suggest 3–3.5% given longer life expectancies and current market conditions."
+    },
+    {
+      q: "When should I start saving for retirement?",
+      a: "As early as possible. Thanks to compound interest, money saved in your 20s is worth significantly more at retirement than money saved in your 40s. A dollar saved at 25 could be worth $10–15 by age 65. That said, it's never too late to start — even saving aggressively in your 50s can meaningfully improve your retirement outcome."
+    },
+    {
+      q: "What's the difference between a Roth and Traditional IRA?",
+      a: "With a Traditional IRA, contributions may be tax-deductible now, and you pay taxes when you withdraw the money in retirement. With a Roth IRA, you contribute after-tax dollars, but withdrawals in retirement are completely tax-free. A Roth is generally better if you expect to be in a higher tax bracket in retirement; a Traditional IRA is better if you want the tax break now. Both have annual contribution limits ($7,000 in 2024, or $8,000 if you're 50+)."
+    },
+    {
+      q: "What's the difference between a 401(k) and an IRA?",
+      a: "A 401(k) is an employer-sponsored retirement account with higher contribution limits ($23,000 in 2024, $30,500 if 50+). Many employers offer matching contributions — free money you shouldn't leave on the table. An IRA is an individual account you open yourself, with lower limits but more investment choices. Most financial advisors suggest contributing to your 401(k) at least up to the employer match, then maxing out a Roth IRA, then going back to the 401(k)."
+    },
+    {
+      q: "How does Social Security factor into retirement?",
+      a: "Social Security provides a monthly benefit based on your lifetime earnings history. You can claim as early as 62 (reduced benefit) or as late as 70 (maximum benefit). Full retirement age is 66–67 depending on your birth year. Delaying to 70 can increase your benefit by up to 32% compared to claiming at full retirement age. Social Security typically replaces 30–40% of pre-retirement income for average earners."
+    },
+    {
+      q: "What is an employer match and why does it matter?",
+      a: "An employer match is when your employer contributes to your 401(k) based on your own contributions — for example, 100% match up to 6% of your salary means if you contribute 6%, your employer also puts in 6%. This is effectively a 100% instant return on that portion of your savings. Always contribute at least enough to capture the full match — it's the best guaranteed return available."
+    },
+    {
+      q: "What is inflation and how does it affect retirement?",
+      a: "Inflation is the gradual increase in the cost of goods and services over time. Historically, inflation has averaged around 2–3% per year in the US. This means $1,000 today will only buy roughly $550 worth of goods in 30 years at 2% inflation. For retirement planning, this matters because your savings need to grow faster than inflation to maintain purchasing power. SonderSave accounts for inflation in all its projections."
+    },
+    {
+      q: "What withdrawal rate should I use?",
+      a: "The 4% rule is the most commonly cited starting point, but your ideal withdrawal rate depends on your retirement age, expected lifespan, investment allocation, and spending flexibility. Retiring early (before 60) may warrant a more conservative 3–3.5% rate since your money needs to last longer. Retiring later with guaranteed income sources like a pension may allow a slightly higher rate."
+    },
+    {
+      q: "Should I pay off debt or save for retirement?",
+      a: "It depends on the interest rate. High-interest debt (credit cards, typically 15–25%) should generally be paid off aggressively before investing beyond your employer match. Lower-interest debt (mortgages, student loans under ~6%) can often be carried while still contributing to retirement, especially if you have employer matching. The employer match threshold is key — always capture that before aggressive debt repayment."
+    },
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6" style={{fontFamily: 'Inter, sans-serif'}}>
+      <div className="rounded mb-3 p-5" style={{backgroundColor: '#C58B6A', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <h2 className="text-2xl font-bold text-white" style={{margin: 0}}>Frequently Asked Questions</h2>
+      </div>
+      <div className="rounded" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', overflow: 'hidden'}}>
+        {faqs.map((item, i) => (
+          <div key={i} className={i > 0 ? 'border-t border-gray-100' : ''}>
+            <button
+              className="w-full text-left px-5 py-4 flex justify-between items-start gap-3"
+              onClick={() => setOpenItem(openItem === i ? null : i)}
+            >
+              <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>{item.q}</span>
+              <span className="text-lg leading-none flex-shrink-0" style={{color: '#C58B6A'}}>{openItem === i ? '−' : '+'}</span>
+            </button>
+            {openItem === i && (
+              <div className="px-5 pb-4">
+                <p className="text-sm text-[#4B4B4B] leading-relaxed" style={{margin: 0}}>{item.a}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── Glossary Page ────────────────────────────────────────────────────────────
+const GlossaryPage = () => {
+  const terms = [
+    { term: "401(k)", def: "An employer-sponsored retirement savings account that allows employees to contribute pre-tax dollars. Contributions reduce your taxable income now; taxes are paid upon withdrawal in retirement. Many employers offer matching contributions." },
+    { term: "403(b)", def: "Similar to a 401(k) but offered by public schools, nonprofits, and some government employers." },
+    { term: "Catch-Up Contributions", def: "Additional retirement account contributions allowed for people aged 50 and older. In 2024, you can contribute an extra $7,500 to a 401(k) and an extra $1,000 to an IRA beyond the standard limits." },
+    { term: "Compound Interest", def: "Interest calculated on both the initial principal and the accumulated interest from previous periods. Often called 'interest on interest' — it's the core mechanism that makes early saving so powerful." },
+    { term: "Defined Benefit Plan", def: "A pension plan in which an employer guarantees a specific monthly benefit at retirement, usually based on salary history and years of service. The employer bears the investment risk." },
+    { term: "Defined Contribution Plan", def: "A retirement plan (like a 401(k)) where the employee and/or employer contribute to an individual account. The final benefit depends on contributions made and investment performance. The employee bears the investment risk." },
+    { term: "Employer Match", def: "A contribution your employer makes to your 401(k) based on your own contributions. A common match is 100% up to 6% of salary. Always contribute at least enough to capture the full match — it's free money." },
+    { term: "Expected Return", def: "The anticipated annual percentage gain on your investments. Historically, a diversified stock portfolio has returned roughly 7–10% annually before inflation. SonderSave uses 5–7% as a conservative default." },
+    { term: "Full Retirement Age (FRA)", def: "The age at which you qualify for full Social Security benefits. It's 66–67 depending on your birth year. Claiming before FRA reduces your benefit; delaying past FRA (up to age 70) increases it." },
+    { term: "Inflation", def: "The rate at which prices rise over time, eroding purchasing power. The US Federal Reserve targets 2% annual inflation. Retirement projections must account for inflation to accurately reflect future costs." },
+    { term: "IRA (Individual Retirement Account)", def: "A personal retirement savings account with tax advantages. Traditional IRAs offer tax-deductible contributions; Roth IRAs offer tax-free withdrawals. 2024 contribution limit: $7,000 ($8,000 if 50+)." },
+    { term: "Nest Egg", def: "The total savings you've accumulated for retirement. SonderSave projects your nest egg at retirement based on your current savings, contributions, and expected investment returns." },
+    { term: "Pension", def: "A defined benefit retirement plan, typically offered by government employers and some corporations, that provides guaranteed monthly income in retirement based on years of service and final salary." },
+    { term: "Roth IRA", def: "An individual retirement account funded with after-tax dollars. Qualified withdrawals in retirement are completely tax-free — including all investment growth. Best suited for those who expect to be in a higher tax bracket in retirement, or who want tax-free income flexibility later. No required minimum distributions during the owner's lifetime." },
+    { term: "Roth vs. Traditional", def: "The core difference is when you pay taxes. Traditional accounts (401k, Traditional IRA) let you contribute pre-tax dollars, reducing taxable income now — but you pay taxes on every withdrawal in retirement. Roth accounts use after-tax dollars with no immediate tax break, but all qualified withdrawals — including decades of growth — are completely tax-free. Many 401(k) plans now offer both options, and splitting contributions between them is a common strategy to hedge against future tax rate uncertainty. Check with your HR or plan administrator to see what's available to you." },
+    { term: "SEP-IRA (Simplified Employee Pension)", def: "A retirement account designed for self-employed individuals and small business owners. Contributions are limited to 25% of net self-employment earnings, up to $70,000 in 2025. SEP-IRAs are straightforward to set up and have no annual filing requirements. Contributions are tax-deductible and grow tax-deferred until withdrawal." },
+    { term: "Sequence of Returns Risk", def: "The risk that poor investment returns early in retirement can permanently damage your portfolio even if long-term average returns are acceptable. This is why many retirees shift to more conservative investments near retirement." },
+    { term: "SIMPLE IRA", def: "A retirement plan for small businesses and self-employed individuals with lower administrative costs than a 401(k). Employee contribution limits are around $16,000–$17,000/year (2025), with catch-up contributions available for those 50+. Employers are required to make matching or non-elective contributions." },
+    { term: "Solo 401(k)", def: "A 401(k) plan designed for self-employed individuals with no employees (other than a spouse). Allows contributions both as employee (up to $23,500 in 2025) and employer (up to 25% of net earnings), with a combined limit of $70,000. Those 50+ can add a $7,500 catch-up contribution. Offers Roth and traditional options." },
+    { term: "Social Security", def: "A US government program providing monthly retirement income based on your lifetime earnings history. You can claim as early as 62 (reduced benefit) or as late as 70 (maximum benefit)." },
+    { term: "Target-Date Fund", def: "A mutual fund that automatically adjusts its asset allocation to become more conservative as a target retirement year approaches. A simple, hands-off investment option available in most 401(k) plans." },
+    { term: "Traditional IRA", def: "An individual retirement account where contributions may be tax-deductible, reducing your taxable income today. You pay ordinary income taxes on withdrawals in retirement. Best suited for those who expect to be in a lower tax bracket in retirement. Required minimum distributions begin at age 73." },
+    { term: "Withdrawal Rate", def: "The percentage of your retirement savings you withdraw each year. The 4% rule is a common guideline suggesting this rate is sustainable over a 30-year retirement. SonderSave lets you adjust this based on your situation." },
+    { term: "Vesting", def: "The process by which you earn the right to keep employer contributions to your retirement account. Some employers require you to stay for a set number of years before their matching contributions are fully yours." },
+  ].sort((a, b) => a.term.localeCompare(b.term));
+
+  const letters = [...new Set(terms.map(t => t.term[0]))];
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6" style={{fontFamily: 'Inter, sans-serif'}}>
+      <div className="rounded mb-3 p-5" style={{backgroundColor: '#C58B6A', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <h2 className="text-2xl font-bold text-white" style={{margin: 0}}>Glossary</h2>
+      </div>
+      <div className="rounded" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', overflow: 'hidden'}}>
+        {letters.map((letter, li) => (
+          <div key={letter}>
+            <div className="px-5 py-2" style={{backgroundColor: '#f4f3ef', borderTop: li > 0 ? '1px solid #e5e7eb' : 'none'}}>
+              <span className="text-sm font-bold" style={{color: '#C58B6A'}}>{letter}</span>
+            </div>
+            {terms.filter(t => t.term[0] === letter).map((item, i) => (
+              <div key={i} className="px-5 py-4 border-t border-gray-100">
+                <p className="text-sm font-semibold mb-1" style={{color: 'rgb(14,50,60)', margin: '0 0 4px 0'}}>{item.term}</p>
+                <p className="text-sm text-[#4B4B4B] leading-relaxed" style={{margin: 0}}>{item.def}</p>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ─── Resources Page ───────────────────────────────────────────────────────────
+const ResourcesPage = () => {
+  const resources = [
+    {
+      category: 'Retirement Planning',
+      links: [
+        { label: 'IRS Retirement Topics — Contribution Limits', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-contributions', desc: 'Official IRS page for current 401(k) and IRA contribution limits.' },
+        { label: 'Social Security Retirement Estimator', url: 'https://www.ssa.gov/benefits/retirement/estimator.html', desc: 'Estimate your future Social Security benefit based on your actual earnings record.' },
+        { label: 'Department of Labor — Savings Fitness Guide', url: 'https://www.dol.gov/sites/dolgov/files/EBSA/about-ebsa/our-activities/resource-center/publications/savings-fitness.pdf', desc: 'A practical guide to planning for your retirement.' },
+      ]
+    },
+    {
+      category: 'Investment Basics',
+      links: [
+        { label: 'Investor.gov Compound Interest Calculator', url: 'https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator', desc: 'See how compound interest grows your savings over time.' },
+        { label: 'SEC — Introduction to Investing', url: 'https://www.investor.gov/introduction-investing', desc: 'The SEC\'s beginner-friendly guide to investing fundamentals.' },
+        { label: 'Bogleheads Wiki', url: 'https://www.bogleheads.org/wiki/Main_Page', desc: 'A comprehensive community resource for evidence-based, low-cost investing.' },
+      ]
+    },
+    {
+      category: 'Budgeting & Debt',
+      links: [
+        { label: 'Consumer Financial Protection Bureau', url: 'https://www.consumerfinance.gov/consumer-tools/', desc: 'Tools and resources for managing debt, budgeting, and financial planning.' },
+        { label: 'National Foundation for Credit Counseling', url: 'https://www.nfcc.org', desc: 'Nonprofit credit counseling and debt management resources.' },
+      ]
+    },
+    {
+      category: 'Tax Resources',
+      links: [
+        { label: 'IRS Free File', url: 'https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free', desc: 'Free federal tax preparation and filing for eligible taxpayers.' },
+        { label: 'IRS Roth IRA Overview', url: 'https://www.irs.gov/retirement-plans/roth-iras', desc: 'Official IRS guidance on Roth IRA rules, limits, and eligibility.' },
+      ]
+    },
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6" style={{fontFamily: 'Inter, sans-serif'}}>
+      <div className="rounded mb-3 p-5" style={{backgroundColor: '#C58B6A', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <h2 className="text-2xl font-bold text-white" style={{margin: 0}}>Resources</h2>
+      </div>
+      <p className="text-sm text-[#4B4B4B] mb-4">Curated links to authoritative sources for retirement planning, investing, budgeting, and taxes.</p>
+      {resources.map((section, si) => (
+        <div key={si} className="rounded mb-3 overflow-hidden" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+          <div className="px-5 py-3" style={{backgroundColor: '#f4f3ef', borderBottom: '1px solid #e5e7eb'}}>
+            <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>{section.category}</span>
+          </div>
+          {section.links.map((link, li) => (
+            <div key={li} className={`px-5 py-4 ${li > 0 ? 'border-t border-gray-100' : ''}`}>
+              <a href={link.url} target="_blank" rel="noopener noreferrer"
+                className="text-sm font-semibold underline block mb-1"
+                style={{color: '#C58B6A'}}>
+                {link.label}
+              </a>
+              <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>{link.desc}</p>
+            </div>
+          ))}
+        </div>
+      ))}
+      <p className="text-xs text-[#4B4B4B] mt-4">SonderSave is not affiliated with any of the above resources. Links are provided for informational purposes only.</p>
+    </div>
+  );
+};
+
+// ─── About Page (stub) ───────────────────────────────────────────────────────
+const AboutPage = () => (
+  <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: '#C58B6A', borderRadius: '4px'}}>
+      <h2 className="text-2xl font-bold text-white" style={{margin: 0}}>About SonderSave</h2>
+    </div>
+    <div className="rounded shadow-md p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
+      <p className="text-base text-[#4B4B4B]">
+        Coming soon — the story behind SonderSave and the philosophy that retirement planning is deeply personal.
+      </p>
+    </div>
+  </div>
+);
+
+// ─── Calculator ──────────────────────────────────────────────────────────────
+const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
+  // Load Inter and Inter Display fonts
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Display:wght@400;500;600;700&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }, []);
+
+  // Input states
+  const [currentAge, setCurrentAge] = useState(30);
+  const [retirementAge, setRetirementAge] = useState(65);
+  const [annualIncome, setAnnualIncome] = useState(75000);
+  const [retirementIncomeGoal, setRetirementIncomeGoal] = useState(70);
+  const [hasPension, setHasPension] = useState(false);
+  const [pensionAmount, setPensionAmount] = useState(0);
+  const [pensionStartAge, setPensionStartAge] = useState(65);
+  const [hasSocialSecurity, setHasSocialSecurity] = useState(true); // Default true - most people collect SS
+  const [socialSecurityAmount, setSocialSecurityAmount] = useState(0);
+  const [socialSecurityPercent, setSocialSecurityPercent] = useState(30); // Default 30% (conservative estimate)
+  const [currentSavings, setCurrentSavings] = useState(25000);
+  const [breakdownByAccount, setBreakdownByAccount] = useState(false);
+  const [account401k, setAccount401k] = useState(0);
+  const [accountIRA, setAccountIRA] = useState(0);
+  const [accountRoth, setAccountRoth] = useState(0);
+  const [accountBrokerage, setAccountBrokerage] = useState(0);
+  const [accountPension, setAccountPension] = useState(0);
+  const [hasIndividualContributions, setHasIndividualContributions] = useState(false);
+  const [individualContribution, setIndividualContribution] = useState(0);
+  const [individualContributionPercent, setIndividualContributionPercent] = useState(0);
+  const [individualReturnRate, setIndividualReturnRate] = useState(5);
+  const [monthlyContribution, setMonthlyContribution] = useState(500);
+  const [contributionPercent, setContributionPercent] = useState(8);
+  const [useCatchupContributions, setUseCatchupContributions] = useState(false);
+  const [employerMatchRate, setEmployerMatchRate] = useState(100);
+  const [employerMatchUpTo, setEmployerMatchUpTo] = useState(6);
+  const [expectedReturn, setExpectedReturn] = useState(5);
+  const [inflationRate, setInflationRate] = useState(3);
+  const [annualRaise, setAnnualRaise] = useState(2);
+  const [withdrawalRate, setWithdrawalRate] = useState(4);
+  const [retirementReturnRate, setRetirementReturnRate] = useState(3.5);
+  const [whatIfWithdrawal, setWhatIfWithdrawal] = useState(4);
+  const [whatIfReturn, setWhatIfReturn] = useState(3.5);
+
+  // Projection what-if state
+  const [projWhatIfExtra, setProjWhatIfExtra] = useState(0);
+  const [projWhatIfReturn, setProjWhatIfReturn] = useState(null); // null = use actual
+  const [projWhatIfRetirementAge, setProjWhatIfRetirementAge] = useState(null); // null = use actual
+
+  // Sync what-if sliders when real inputs change
+  useEffect(() => {
+    setWhatIfWithdrawal(withdrawalRate);
+    setWhatIfReturn(retirementReturnRate);
+  }, [withdrawalRate, retirementReturnRate]);
+  
+  // Results states
+  const [totalAtRetirement, setTotalAtRetirement] = useState(0);
+  const [yearlyIncome, setYearlyIncome] = useState(0);
+  const [yearlyIncomeToday, setYearlyIncomeToday] = useState(0);
+  const [statusText, setStatusText] = useState('');
+  const [resultsBarCollapsed, setResultsBarCollapsed] = useState(true);
+  const [quickMode, setQuickMode] = useState(false);
+  const [suggestionsCollapsed, setSuggestionsCollapsed] = useState(true);
+  const [stickyBarMinimal, setStickyBarMinimal] = useState(false);
+  const [quickCatchupExpanded, setQuickCatchupExpanded] = useState(false);
+  const [quickTargetDateExpanded, setQuickTargetDateExpanded] = useState(false);
+  const [is401kOverLimit, setIs401kOverLimit] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [growthData, setGrowthData] = useState([]);
+  const [tooltip, setTooltip] = useState(null);
+  const [showTodaysDollars, setShowTodaysDollars] = useState(true);
+  const [textSize, setTextSize] = useState('normal'); // 'small', 'normal', 'large'
+  const [chartViewMode, setChartViewMode] = useState('age'); // 'age', 'dollar', 'percent'
+  const [nestEggProgress, setNestEggProgress] = useState(0); // Progress based on nest egg vs goal
+  const [showStickyBar, setShowStickyBar] = useState(false); // Show sticky bar after scrolling past logo
+  
+  // Home equity states
+  const [considerHomeEquity, setConsiderHomeEquity] = useState(false);
+  const [considerAnticipatedAssets, setConsiderAnticipatedAssets] = useState(false);
+  const [anticipatedAmount, setAnticipatedAmount] = useState(0);
+  const [homePurchasePrice, setHomePurchasePrice] = useState(300000);
+  const [homePurchaseYear, setHomePurchaseYear] = useState(2020);
+  const [homeAppreciationRate, setHomeAppreciationRate] = useState(3);
+  const [downsizeAmount, setDownsizeAmount] = useState(200000);
+
+  // Calculate results whenever inputs change
+  useEffect(() => {
+    const yearsToRetirement = retirementAge - currentAge;
+    
+    // Calculate total savings (either single field or sum of accounts)
+    const totalCurrentSavings = breakdownByAccount 
+      ? account401k + accountIRA + accountRoth + accountBrokerage + accountPension
+      : currentSavings;
+    
+    if (yearsToRetirement <= 0) {
+      setTotalAtRetirement(totalCurrentSavings);
+      const income = totalCurrentSavings * (withdrawalRate / 100);
+      setYearlyIncome(income);
+      setYearlyIncomeToday(income);
+      setStatusText("You're at retirement age");
+      return;
+    }
+
+    // Calculate monthly contribution from percentage with annual raises
+    // Future value of current savings
+    const futureCurrentSavings = totalCurrentSavings * Math.pow(1 + expectedReturn / 100, yearsToRetirement);
+    
+    let futureEmployerContributions = 0;
+    let futureIndividualContributions = 0;
+    
+    for (let year = 0; year < yearsToRetirement; year++) {
+      // Income grows with annual raises
+      const yearIncome = annualIncome * Math.pow(1 + annualRaise / 100, year);
+      const yearMonthlyIncome = yearIncome / 12;
+      
+      // Calculate this year's contributions with catch-up
+      const currentAgeInYear = currentAge + year;
+      const baseLimit = 24500;
+      const catchupMax = 32500;
+      
+      let yearContributionAmount;
+      
+      // If catch-up is enabled and they're 50+, contribute the maximum
+      if (currentAgeInYear >= 50 && useCatchupContributions) {
+        yearContributionAmount = catchupMax / 12;
+      } else {
+        // Otherwise use their slider amount, capped at base limit
+        const yearDesiredContribution = yearMonthlyIncome * (contributionPercent / 100);
+        const yearMonthlyLimit = baseLimit / 12;
+        yearContributionAmount = Math.min(yearDesiredContribution, yearMonthlyLimit);
+      }
+      
+      // Employer match for this year
+      const yearMatchablePercent = Math.min(contributionPercent, employerMatchUpTo);
+      const yearEmployerMatch = (yearMonthlyIncome * (yearMatchablePercent / 100)) * (employerMatchRate / 100);
+      
+      const yearEmployerTotal = yearContributionAmount + yearEmployerMatch;
+      
+      // Individual contributions for this year
+      const yearIndividualAmount = hasIndividualContributions 
+        ? (yearMonthlyIncome * (individualContributionPercent / 100)) 
+        : 0;
+      
+      // Calculate how many years this contribution will grow
+      const yearsOfGrowth = yearsToRetirement - year;
+      
+      // Add to totals with appropriate growth
+      const monthlyEmployerRate = expectedReturn / 100 / 12;
+      const monthlyIndividualRate = individualReturnRate / 100 / 12;
+      const monthsOfGrowth = yearsOfGrowth * 12;
+      
+      futureEmployerContributions += yearEmployerTotal * 12 * Math.pow(1 + expectedReturn / 100, yearsOfGrowth);
+      futureIndividualContributions += yearIndividualAmount * 12 * Math.pow(1 + individualReturnRate / 100, yearsOfGrowth);
+    }
+    
+    const total = futureCurrentSavings + futureEmployerContributions + futureIndividualContributions;
+    const income = total * (withdrawalRate / 100);
+    
+    // Build year-by-year growth data for chart (stacked: startingGrowth, contributions, returns)
+    const chartData = [];
+    let runningBalance = totalCurrentSavings;
+    let cumulativeContributions = 0;
+    let cumulativeIndividualBalance = 0; // tracked separately to apply individualReturnRate
+    for (let year = 0; year <= yearsToRetirement; year++) {
+      if (year === 0) {
+        chartData.push({ year: currentAge, balance: Math.round(runningBalance), startingGrowth: Math.round(totalCurrentSavings), contributions: 0, returns: 0 });
+        continue;
+      }
+      const yearIncome = annualIncome * Math.pow(1 + annualRaise / 100, (year - 1));
+      const yearMonthlyIncome = yearIncome / 12;
+      const currentAgeInYear = currentAge + (year - 1);
+      const baseLimit = 24500;
+      const catchupMax = 32500;
+      let yearContributionAmount;
+      if (currentAgeInYear >= 50 && useCatchupContributions) {
+        yearContributionAmount = catchupMax / 12;
+      } else {
+        const yearDesiredContribution = yearMonthlyIncome * (contributionPercent / 100);
+        yearContributionAmount = Math.min(yearDesiredContribution, baseLimit / 12);
+      }
+      const yearMatchablePercent = Math.min(contributionPercent, employerMatchUpTo);
+      const yearEmployerMatch = (yearMonthlyIncome * (yearMatchablePercent / 100)) * (employerMatchRate / 100);
+      const yearIndividualAmount = hasIndividualContributions ? (yearMonthlyIncome * (individualContributionPercent / 100)) : 0;
+      const year401kContributed = (yearContributionAmount + yearEmployerMatch) * 12;
+      const yearIndividualContributed = yearIndividualAmount * 12;
+      const yearTotalContributed = year401kContributed + yearIndividualContributed;
+      // Track 401k and individual balances separately to apply different return rates
+      const growth401k = (runningBalance - cumulativeIndividualBalance) * (expectedReturn / 100);
+      const growthIndividual = cumulativeIndividualBalance * (individualReturnRate / 100);
+      const growthThisYear = growth401k + growthIndividual;
+      cumulativeIndividualBalance = cumulativeIndividualBalance * (1 + individualReturnRate / 100) + yearIndividualContributed;
+      runningBalance = runningBalance + growthThisYear + yearTotalContributed;
+      cumulativeContributions += yearTotalContributed;
+      // startingGrowth = initial savings compounded to this year
+      const startingGrowth = totalCurrentSavings * Math.pow(1 + expectedReturn / 100, year);
+      chartData.push({
+        year: currentAge + year,
+        balance: Math.round(runningBalance),
+        startingGrowth: Math.round(startingGrowth),
+        contributions: Math.round(cumulativeContributions),
+        returns: Math.round(runningBalance - startingGrowth - cumulativeContributions)
+      });
+    }
+    setGrowthData(chartData);
+    
+    // Use the final balance from chart data (year-by-year simulation) for consistency
+    const finalBalance = chartData.length > 0 ? chartData[chartData.length - 1].balance : total;
+    
+    // Adjust for inflation to get today's dollars
+    const realIncome = income / Math.pow(1 + inflationRate / 100, yearsToRetirement);
+    
+    // Add pension income (yearly amount)
+    const pensionActive = hasPension && pensionStartAge <= retirementAge;
+    const socialSecurityFuture = socialSecurityAmount * Math.pow(1 + inflationRate / 100, yearsToRetirement);
+    const totalYearlyIncome = income + (pensionActive ? pensionAmount * 12 : 0) + (hasSocialSecurity ? socialSecurityFuture * 12 : 0);
+    const totalRealIncome = realIncome + (pensionActive ? pensionAmount * 12 : 0) + (hasSocialSecurity ? socialSecurityAmount * 12 : 0);
+    
+    setTotalAtRetirement(finalBalance);
+    setYearlyIncome(totalYearlyIncome);
+    setYearlyIncomeToday(totalRealIncome);
+    
+    // Calculate nest egg progress (for sticky bar and chart alignment)
+    const retirementIncomeTargetFuture = (annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, yearsToRetirement);
+    const grossGoalNestEgg = retirementIncomeTargetFuture / (withdrawalRate / 100);
+    // Pension and SS reduce how much nest egg you need — convert their income to equivalent capital
+    const pensionCapitalEquivalent = pensionActive ? (pensionAmount * 12) / (withdrawalRate / 100) : 0;
+    const ssCapitalEquivalent = hasSocialSecurity ? (socialSecurityFuture * 12) / (withdrawalRate / 100) : 0;
+    const goalNestEgg = Math.max(0, grossGoalNestEgg - pensionCapitalEquivalent - ssCapitalEquivalent);
+    const nestEggProgressPercent = goalNestEgg > 0 ? (finalBalance / goalNestEgg) * 100 : 100;
+    setNestEggProgress(nestEggProgressPercent);
+
+    // Push shared data up to App for Budget page
+    if (onDataChange) {
+      const monthlyPostTax = hasIndividualContributions
+        ? (annualIncome / 12) * (individualContributionPercent / 100)
+        : 0;
+      onDataChange({ annualIncome, monthlyPostTaxSavings: Math.round(monthlyPostTax), currentAge, retirementAge });
+    }
+    
+    // Calculate suggestions if under goal
+    const goalIncome = annualIncome * (retirementIncomeGoal / 100);
+    const progressPercent = (totalRealIncome / goalIncome) * 100;
+    
+    if (progressPercent < 100) {
+      const suggestionsList = [];
+      
+      // Suggestion 1: Increase contribution percentage
+      const incomeGap = goalIncome - totalRealIncome;
+      const neededExtraContribution = incomeGap / withdrawalRate * 100;
+      const monthlyGap = neededExtraContribution / yearsToRetirement / 12;
+      const extraPercent = (monthlyGap / (annualIncome / 12)) * 100;
+      // Cap at IRS limit: $24,500/year unless catch-up enabled ($32,500)
+      const irsLimit = useCatchupContributions && currentAge >= 50 ? 32500 : 24500;
+      const irsLimitPercent = (irsLimit / annualIncome) * 100;
+      const suggestedPercent = Math.min(30, irsLimitPercent, contributionPercent + extraPercent);
+      
+      if (suggestedPercent <= 30) {
+        const atIrsLimit = suggestedPercent >= irsLimitPercent - 0.1;
+        suggestionsList.push({
+          type: 'contribution',
+          description: `Increase your 401(k) contribution from ${contributionPercent.toFixed(1)}% to ${suggestedPercent.toFixed(1)}%${atIrsLimit ? ` (IRS maximum of ${formatCurrency(irsLimit)}/year)` : ''}`,
+          impact: `Would reach ~${Math.min(100, progressPercent + ((100 - progressPercent) * 0.8)).toFixed(0)}% of your goal`
+        });
+      }
+      
+      // Suggestion 2: Work longer
+      const yearsNeeded = Math.ceil((100 - progressPercent) / 10); // Rough estimate
+      if (retirementAge + yearsNeeded <= 75) {
+        suggestionsList.push({
+          type: 'retirement_age',
+          description: `Work until age ${retirementAge + yearsNeeded} (${yearsNeeded} more ${yearsNeeded === 1 ? 'year' : 'years'})`,
+          impact: `Would reach ~${Math.min(100, progressPercent + (yearsNeeded * 8)).toFixed(0)}% of your goal`
+        });
+      }
+      
+      // Suggestion 3: Catch-up contributions (if applicable)
+      if (currentAge >= 50 && !useCatchupContributions) {
+        suggestionsList.push({
+          type: 'catchup',
+          description: 'Enable catch-up contributions (age 50+) for an extra $8,000/year contribution limit',
+          impact: 'Could significantly boost your retirement savings over time'
+        });
+      } else if (currentAge < 50 && retirementAge > 50 && !useCatchupContributions) {
+        const yearsWithCatchup = retirementAge - 50;
+        suggestionsList.push({
+          type: 'catchup',
+          description: `Enable catch-up contributions after age 50 (+$8,000/year for ${yearsWithCatchup} years)`,
+          impact: 'Could increase savings by 5-10% depending on years until retirement'
+        });
+      }
+      
+      // Suggestion 4: Budget check
+      const recommendedSavings = (annualIncome / 12) * 0.20;
+      const currentSaving = (annualIncome / 12) * (contributionPercent / 100);
+      if (currentSaving < recommendedSavings) {
+        suggestionsList.push({
+          type: 'budget',
+          description: `Budget check: The 50/30/20 guideline suggests saving about 20% toward savings and debt. You're saving ${contributionPercent.toFixed(1)}% for retirement — could you increase toward 20%?`,
+          impact: `Saving ${formatCurrency(recommendedSavings)}/month would reach ~${Math.min(100, progressPercent + ((recommendedSavings - currentSaving) / currentSaving * progressPercent * 0.5)).toFixed(0)}% of your goal`
+        });
+      }
+      
+      // Suggestion 5: Adjust retirement income goal (last resort option)
+      const achievablePercent = Math.floor((totalRealIncome / annualIncome) * 100 / 5) * 5; // Round down to nearest 5%
+      if (achievablePercent >= 50 && achievablePercent < retirementIncomeGoal) {
+        suggestionsList.push({
+          type: 'goal_adjustment',
+          description: `Adjust your retirement income goal from ${retirementIncomeGoal}% to ${achievablePercent}% of current income`,
+          impact: `Note: This means planning for ${formatCurrency(annualIncome * (achievablePercent / 100))}/year (in today's dollars), which may require lifestyle adjustments like downsizing, relocating to a lower cost area, or reducing discretionary spending in retirement.`
+        });
+      }
+      
+      setSuggestions(suggestionsList.slice(0, 4)); // Show top 4
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+    }
+    
+    // Determine status
+    const incomeReplacement = (income / annualIncome) * 100;
+    if (incomeReplacement >= 80) {
+      setStatusText("You're on track");
+    } else if (incomeReplacement >= 60) {
+      setStatusText("Getting closer");
+    } else if (incomeReplacement >= 40) {
+      setStatusText("Building momentum");
+    } else {
+      setStatusText("You're getting started");
+    }
+  }, [currentAge, retirementAge, annualIncome, retirementIncomeGoal, hasPension, pensionAmount, pensionStartAge, hasSocialSecurity, socialSecurityAmount, currentSavings, breakdownByAccount, account401k, accountIRA, accountRoth, accountBrokerage, accountPension, hasIndividualContributions, individualContribution, individualContributionPercent, individualReturnRate, contributionPercent, useCatchupContributions, monthlyContribution, employerMatchRate, employerMatchUpTo, expectedReturn, annualRaise, inflationRate, withdrawalRate]);
+
+  // Load saved inputs from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('sondersave_inputs');
+      if (saved) {
+        const d = JSON.parse(saved);
+        if (d.currentAge !== undefined) setCurrentAge(d.currentAge);
+        if (d.retirementAge !== undefined) setRetirementAge(d.retirementAge);
+        if (d.annualIncome !== undefined) setAnnualIncome(d.annualIncome);
+        if (d.retirementIncomeGoal !== undefined) setRetirementIncomeGoal(d.retirementIncomeGoal);
+        if (d.hasPension !== undefined) setHasPension(d.hasPension);
+        if (d.pensionAmount !== undefined) setPensionAmount(d.pensionAmount);
+        if (d.pensionStartAge !== undefined) setPensionStartAge(d.pensionStartAge);
+        if (d.hasSocialSecurity !== undefined) setHasSocialSecurity(d.hasSocialSecurity);
+        if (d.socialSecurityPercent !== undefined) setSocialSecurityPercent(d.socialSecurityPercent);
+        if (d.currentSavings !== undefined) setCurrentSavings(d.currentSavings);
+        if (d.breakdownByAccount !== undefined) setBreakdownByAccount(d.breakdownByAccount);
+        if (d.account401k !== undefined) setAccount401k(d.account401k);
+        if (d.accountIRA !== undefined) setAccountIRA(d.accountIRA);
+        if (d.accountRoth !== undefined) setAccountRoth(d.accountRoth);
+        if (d.accountBrokerage !== undefined) setAccountBrokerage(d.accountBrokerage);
+        if (d.accountPension !== undefined) setAccountPension(d.accountPension);
+        if (d.hasIndividualContributions !== undefined) setHasIndividualContributions(d.hasIndividualContributions);
+        if (d.individualContribution !== undefined) setIndividualContribution(d.individualContribution);
+        if (d.individualContributionPercent !== undefined) setIndividualContributionPercent(d.individualContributionPercent);
+        if (d.individualReturnRate !== undefined) setIndividualReturnRate(d.individualReturnRate);
+        if (d.monthlyContribution !== undefined) setMonthlyContribution(d.monthlyContribution);
+        if (d.contributionPercent !== undefined) setContributionPercent(d.contributionPercent);
+        if (d.useCatchupContributions !== undefined) setUseCatchupContributions(d.useCatchupContributions);
+        if (d.employerMatchRate !== undefined) setEmployerMatchRate(d.employerMatchRate);
+        if (d.employerMatchUpTo !== undefined) setEmployerMatchUpTo(d.employerMatchUpTo);
+        if (d.expectedReturn !== undefined) setExpectedReturn(d.expectedReturn);
+        if (d.inflationRate !== undefined) setInflationRate(d.inflationRate);
+        if (d.annualRaise !== undefined) setAnnualRaise(d.annualRaise);
+        if (d.withdrawalRate !== undefined) setWithdrawalRate(d.withdrawalRate);
+        if (d.retirementReturnRate !== undefined) setRetirementReturnRate(d.retirementReturnRate);
+        if (d.considerHomeEquity !== undefined) setConsiderHomeEquity(d.considerHomeEquity);
+        if (d.homePurchasePrice !== undefined) setHomePurchasePrice(d.homePurchasePrice);
+        if (d.homePurchaseYear !== undefined) setHomePurchaseYear(d.homePurchaseYear);
+        if (d.homeAppreciationRate !== undefined) setHomeAppreciationRate(d.homeAppreciationRate);
+        if (d.downsizeAmount !== undefined) setDownsizeAmount(d.downsizeAmount);
+        if (d.quickMode !== undefined) setQuickMode(d.quickMode);
+      }
+    } catch (e) {
+      // Silently ignore if localStorage is unavailable
+    }
+  }, []);
+
+  // Save inputs to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('sondersave_inputs', JSON.stringify({
+        currentAge, retirementAge, annualIncome, retirementIncomeGoal,
+        hasPension, pensionAmount, pensionStartAge, hasSocialSecurity, socialSecurityPercent,
+        currentSavings, breakdownByAccount, account401k, accountIRA, accountRoth,
+        accountBrokerage, accountPension, hasIndividualContributions,
+        individualContribution, individualContributionPercent, individualReturnRate,
+        monthlyContribution, contributionPercent, useCatchupContributions,
+        employerMatchRate, employerMatchUpTo, expectedReturn, inflationRate,
+        annualRaise, withdrawalRate, retirementReturnRate,
+        considerHomeEquity, homePurchasePrice, homePurchaseYear,
+        homeAppreciationRate, downsizeAmount, quickMode,
+      }));
+    } catch (e) {
+      // Silently ignore if localStorage is unavailable
+    }
+  }, [
+    currentAge, retirementAge, annualIncome, retirementIncomeGoal,
+    hasPension, pensionAmount, hasSocialSecurity, socialSecurityPercent,
+    currentSavings, breakdownByAccount, account401k, accountIRA, accountRoth,
+    accountBrokerage, accountPension, hasIndividualContributions,
+    individualContribution, individualContributionPercent, individualReturnRate,
+    monthlyContribution, contributionPercent, useCatchupContributions,
+    employerMatchRate, employerMatchUpTo, expectedReturn, inflationRate,
+    annualRaise, withdrawalRate, retirementReturnRate,
+    considerHomeEquity, homePurchasePrice, homePurchaseYear,
+    homeAppreciationRate, downsizeAmount, quickMode,
+  ]);
+  useEffect(() => {
+    const handleScroll = () => {
+      const target = document.getElementById('income-planning-section');
+      const threshold = target ? target.offsetTop : 600;
+      setShowStickyBar(window.scrollY > threshold);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const formatCompact = (value) => {
+    if (Math.abs(value) >= 10000000) {
+      return '$' + (value / 1000000).toFixed(1) + 'M';
+    }
+    return formatCurrency(value);
+  };
+
+  const formatNumberWithCommas = (value) => {
+    return new Intl.NumberFormat('en-US').format(value);
+  };
+
+  const parseFormattedNumber = (value) => {
+    return Number(value.replace(/,/g, ''));
+  };
+  
+  // Check if 401k is over limit (for warning display)
+  const checkMonthlyIncome = annualIncome / 12;
+  const checkDesiredAnnual = (checkMonthlyIncome * (contributionPercent / 100)) * 12;
+  const showOverLimitWarning = checkDesiredAnnual > 24500;
+
+  return (
+    <div className={`${textSize === 'normal' ? 'text-sm' : textSize === 'medium' ? 'text-lg' : 'text-2xl'}`} style={{backgroundColor: '#FFFFFF', fontFamily: 'Inter, sans-serif'}}>
+      <style>{`
+        /* Apply Inter Display to headers, titles, and labels */
+        h1, h2, h3, h4, h5, h6,
+        label,
+        .text-xl,
+        .text-2xl,
+        .font-bold,
+        .font-semibold,
+        .font-medium {
+          font-family: 'Inter Display', sans-serif !important;
+        }
+        
+        input[type="range"] {
+          -webkit-appearance: none;
+          appearance: none;
+          background: transparent;
+          cursor: pointer;
+        }
+        
+        /* Track */
+        input[type="range"]::-webkit-slider-runnable-track {
+          background: #e5e7eb;
+          height: 6px;
+          border-radius: 3px;
+        }
+        
+        input[type="range"]::-moz-range-track {
+          background: #e5e7eb;
+          height: 6px;
+          border-radius: 3px;
+        }
+        
+        /* Thumb */
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #6E8F7C;
+          cursor: grab;
+          margin-top: -9px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #6E8F7C;
+          cursor: grab;
+          border: none;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        input[type="range"]:active::-webkit-slider-thumb {
+          cursor: grabbing;
+        }
+        
+        input[type="range"]:active::-moz-range-thumb {
+          cursor: grabbing;
+        }
+
+        /* About You section slider customization */
+        input[type="range"].about-you-slider::-webkit-slider-thumb {
+          background: #6E8F7C;
+        }
+        
+        input[type="range"].about-you-slider::-moz-range-thumb {
+          background: #6E8F7C;
+        }
+
+
+        /* Print styles */
+        @media print {
+          body {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+          
+          /* Hide interactive elements when printing */
+          input[type="range"],
+          input[type="checkbox"],
+          input[type="text"],
+          button {
+            display: none !important;
+          }
+          
+          /* Hide the "Show more/less" and collapse buttons */
+          .print-hide {
+            display: none !important;
+          }
+          
+          /* Make sure results are always visible in print */
+          .print-show {
+            display: block !important;
+          }
+          
+          /* Page breaks */
+          .page-break-before {
+            page-break-before: always;
+          }
+          
+          .page-break-avoid {
+            page-break-inside: avoid;
+          }
+          
+          /* Ensure backgrounds print */
+          * {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+        }
+      
+        
+        /* Darker shadow for sections */
+        .shadow-md {
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Section borders */
+        .border-[\#3A4446] {
+          border-color: #3A4446 !important;
+        }
+        
+        /* Scroll margin for sections to account for sticky bar */
+        [id$='-section'] {
+          scroll-margin-top: 180px;
+        }
+
+        /* Scroll margin for module deep links */
+        [id^='module-'] {
+          scroll-margin-top: 210px;
+        }
+        `}</style>
+      {/* Sticky Results Bar */}
+      <div 
+        className="sticky z-10 border-b border-[#3A4446] shadow-md"
+        style={{
+          backgroundColor: 'white',
+          top: '0px',
+          opacity: showStickyBar ? 1 : 0,
+          transform: showStickyBar ? 'translateY(0)' : 'translateY(-8px)',
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
+          pointerEvents: showStickyBar ? 'auto' : 'none',
+        }}
+      >
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          {/* Always visible: progress bar + single toggle arrow */}
+          <div className="flex items-center gap-3">
+            <div className="text-base text-[#4B4B4B] flex-shrink-0">Progress:</div>
+            <div className="text-base font-semibold text-[#3A4446] flex-shrink-0">{Math.round(nestEggProgress)}%</div>
+            <div className="flex-1 bg-gray-200 rounded-full h-3">
+              <div
+                className="h-3 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(100, nestEggProgress)}%`, backgroundColor: '#6E8F7C' }}
+              />
+            </div>
+            <button
+              onClick={() => setResultsBarCollapsed(!resultsBarCollapsed)}
+              className="text-lg hover:text-[#3A4446] transition-transform flex-shrink-0"
+              style={{color: 'rgb(107, 114, 128)', transform: resultsBarCollapsed ? 'rotate(0deg)' : 'rotate(180deg)'}}
+              title={resultsBarCollapsed ? 'Show navigation' : 'Hide navigation'}
+            >
+              ▼
+            </button>
+          </div>
+
+          {/* Expanded: Guided/Quick + unified navigation */}
+          {!resultsBarCollapsed && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              {/* Guided/Quick toggle */}
+              <div className="flex mb-4 rounded-lg overflow-hidden border" style={{borderColor: '#d1d5db', width: 'fit-content'}}>
+                <button
+                  onClick={() => { setQuickMode(false); setResultsBarCollapsed(true); }}
+                  className="px-4 py-1.5 text-sm font-medium transition-colors"
+                  style={!quickMode
+                    ? {backgroundColor: '#6E8F7C', color: 'white'}
+                    : {backgroundColor: 'white', color: '#6b7280'}
+                  }
+                >
+                  Guided
+                </button>
+                <button
+                  onClick={() => { setQuickMode(true); setResultsBarCollapsed(true); }}
+                  className="px-4 py-1.5 text-sm font-medium transition-colors"
+                  style={quickMode
+                    ? {backgroundColor: '#6E8F7C', color: 'white'}
+                    : {backgroundColor: 'white', color: '#6b7280'}
+                  }
+                >
+                  Quick
+                </button>
+              </div>
+
+              {/* Section + module nav */}
+              {[
+                { label: 'About You', id: 'about-you-section', modules: [] },
+                { label: 'Income & Growth Planning', id: 'income-planning-section', modules: [
+                  { label: 'Income', id: 'module-income' },
+                  { label: 'Salary Growth', id: 'module-salary-growth' },
+                  { label: 'Inflation', id: 'module-inflation' },
+                  { label: 'Income Goal', id: 'module-income-goal' },
+                ]},
+                { label: 'Your Savings', id: 'your-savings-section', modules: [
+                  { label: 'Savings Balance', id: 'module-savings-balance' },
+                  { label: 'Employer Contributions', id: 'module-contributions' },
+                  { label: 'Employer Match', id: 'module-employer-match' },
+                  { label: 'Personal Accounts', id: 'module-personal-accounts' },
+                  { label: 'Return Rate', id: 'module-return-rate' },
+                ]},
+                { label: 'Retirement Income', id: 'retirement-income-section', modules: [
+                  { label: 'Pension', id: 'module-pension' },
+                  { label: 'Social Security', id: 'module-social-security' },
+                  { label: 'Withdrawal', id: 'module-withdrawal' },
+                ]},
+                { label: 'Home Equity', id: 'home-equity-section', modules: [] },
+                { label: 'Anticipated Assets', id: 'anticipated-assets-section', modules: [] },
+                { label: 'Results', id: 'results-section', modules: [] },
+              ].map(({ label, id, modules }) => (
+                <div key={id} className="mb-2">
+                  <button
+                    onClick={() => {
+                      setResultsBarCollapsed(true);
+                      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }}
+                    className="text-sm font-semibold px-3 py-1 rounded transition-colors"
+                    style={{backgroundColor: '#C58B6A', color: 'white', border: '1px solid #b87a59'}}
+                  >
+                    {label}
+                  </button>
+                  {modules.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-1 ml-6">
+                      {modules.map(({ label: mlabel, id: mid }) => (
+                        <button
+                          key={mid}
+                          onClick={() => {
+                            setResultsBarCollapsed(true);
+                            setTimeout(() => document.getElementById(mid)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                          }}
+                          className="px-2 py-0.5 rounded font-medium transition-colors"
+                          style={{backgroundColor: '#f4f3ef', color: '#3A4446', border: '1px solid #c4c9cf', fontSize: '0.75rem'}}
+                        >
+                          {mlabel}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Reset */}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <button
+                  onClick={() => {
+                    if (window.confirm('Reset all inputs to defaults?')) {
+                      setCurrentAge(30);
+                      setRetirementAge(65);
+                      setAnnualIncome(75000);
+                      setRetirementIncomeGoal(70);
+                      setHasPension(false);
+                      setPensionAmount(0);
+                      setPensionStartAge(65);
+                      setHasSocialSecurity(true);
+                      setSocialSecurityPercent(30);
+                      setCurrentSavings(25000);
+                      setBreakdownByAccount(false);
+                      setAccount401k(0);
+                      setAccountIRA(0);
+                      setAccountRoth(0);
+                      setAccountBrokerage(0);
+                      setAccountPension(0);
+                      setHasIndividualContributions(false);
+                      setIndividualContribution(0);
+                      setIndividualContributionPercent(0);
+                      setIndividualReturnRate(5);
+                      setMonthlyContribution(500);
+                      setContributionPercent(8);
+                      setUseCatchupContributions(false);
+                      setEmployerMatchRate(100);
+                      setEmployerMatchUpTo(6);
+                      setExpectedReturn(5);
+                      setInflationRate(3);
+                      setAnnualRaise(2);
+                      setWithdrawalRate(4);
+                      setRetirementReturnRate(3.5);
+                      setConsiderHomeEquity(false);
+                      setHomePurchasePrice(300000);
+                      setHomePurchaseYear(2020);
+                      setHomeAppreciationRate(3);
+                      setDownsizeAmount(200000);
+                      setQuickMode(false);
+                      setResultsBarCollapsed(true);
+                      window.scrollTo(0, 0);
+                    }
+                  }}
+                  className="text-xs"
+                  style={{color: 'rgb(156, 163, 175)'}}
+                >
+                  Reset to defaults
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Logo */}
+        <div className="flex justify-center mb-8" style={{backgroundColor: 'white', padding: '20px', borderRadius: '8px'}}>
+          <svg width="400" height="266" viewBox="0, 0, 400,266.6666666666667" xmlns="http://www.w3.org/2000/svg">
+            <g>
+              <path d="M0.000 133.333 L 0.000 266.667 200.000 266.667 L 400.000 266.667 400.000 133.333 L 400.000 0.000 200.000 0.000 L 0.000 0.000 0.000 133.333 M152.474 79.688 C 163.246 83.095,169.878 92.042,170.856 104.486 C 171.294 110.065,170.940 111.199,168.757 111.197 C 166.604 111.195,166.129 110.541,163.648 104.167 C 156.496 85.797,147.184 82.221,135.483 93.349 C 129.534 99.006,127.752 102.014,122.437 115.365 C 119.908 121.717,119.559 122.783,117.190 131.380 C 111.028 153.744,106.874 162.037,99.263 167.166 C 88.036 174.732,75.146 168.441,69.961 152.865 C 67.442 145.299,67.931 141.919,71.573 141.713 C 75.030 141.518,75.721 142.208,76.961 147.090 C 80.564 161.276,88.898 166.140,96.492 158.488 C 101.674 153.266,103.813 148.454,108.719 130.977 C 113.933 112.402,116.690 105.805,123.889 94.670 C 131.856 82.350,142.783 76.622,152.474 79.688 M217.906 136.654 L 217.839 151.172 215.885 151.172 L 213.932 151.172 213.852 150.052 L 213.771 148.932 212.823 149.764 C 209.764 152.450,204.618 152.070,202.047 148.967 C 198.560 144.760,198.818 136.338,202.549 132.608 C 205.106 130.050,210.027 129.700,212.877 131.873 L 213.672 132.479 213.649 127.503 C 213.622 121.560,213.381 122.135,215.903 122.135 L 217.973 122.135 217.906 136.654 M147.885 122.911 C 151.739 123.642,154.530 126.330,155.094 129.855 L 155.263 130.913 153.276 131.093 C 151.153 131.285,150.781 131.202,150.781 130.536 C 150.781 126.596,142.781 124.995,140.580 128.495 C 138.825 131.284,140.596 133.186,146.541 134.897 C 153.595 136.928,155.656 138.969,155.417 143.687 C 155.151 148.943,151.962 151.413,145.443 151.415 C 141.577 151.416,140.278 151.038,137.845 149.205 C 135.616 147.526,133.666 142.708,135.215 142.708 C 135.570 142.708,136.564 142.635,137.423 142.545 L 138.984 142.382 139.156 143.243 C 140.212 148.522,149.904 149.733,151.028 144.727 C 151.628 142.052,150.291 140.521,146.307 139.321 C 137.462 136.657,135.803 135.281,135.812 130.618 C 135.822 124.956,141.055 121.615,147.885 122.911 M268.274 122.951 C 272.312 123.817,274.831 126.260,275.408 129.869 L 275.574 130.909 273.543 131.080 C 271.276 131.272,271.302 131.285,270.871 129.766 C 269.483 124.884,259.989 125.720,260.501 130.680 C 260.712 132.722,261.663 133.378,266.430 134.765 C 273.989 136.965,275.973 138.869,275.729 143.687 C 275.462 148.960,272.295 151.414,265.755 151.414 C 259.733 151.414,256.264 149.111,255.211 144.414 C 254.855 142.826,254.911 142.778,257.322 142.561 L 259.305 142.382 259.488 143.392 C 260.517 149.075,271.348 149.477,271.353 143.832 C 271.356 141.240,270.270 140.374,265.092 138.835 C 257.776 136.660,256.151 135.167,256.130 130.599 C 256.105 124.949,261.563 121.511,268.274 122.951 M171.433 131.370 C 178.420 134.882,178.227 147.417,171.134 150.742 C 161.634 155.196,153.009 142.936,159.382 134.037 C 161.835 130.612,167.452 129.369,171.433 131.370 M192.841 130.954 C 195.932 132.359,196.354 133.889,196.354 143.678 L 196.354 151.324 194.336 151.248 L 192.318 151.172 192.188 143.880 C 192.025 134.795,191.607 133.789,188.148 134.179 C 184.293 134.614,184.001 135.295,183.908 144.076 L 183.831 151.302 181.759 151.302 L 179.688 151.302 179.624 146.549 C 179.567 142.279,179.579 137.512,179.659 132.476 L 179.688 130.707 181.706 130.783 L 183.724 130.859 183.854 131.990 L 183.984 133.121 184.635 132.412 C 186.319 130.577,190.410 129.850,192.841 130.954 M233.956 131.001 C 237.249 132.233,239.323 135.873,239.323 140.419 L 239.323 142.188 232.280 142.188 L 225.237 142.188 225.409 143.164 C 226.272 148.071,232.184 149.902,234.892 146.100 C 235.938 144.630,239.479 145.574,238.684 147.111 C 236.606 151.131,230.996 152.743,226.352 150.654 C 218.900 147.302,219.308 133.943,226.953 130.998 C 228.789 130.290,232.060 130.292,233.956 131.001 M253.772 130.723 C 253.858 130.863,253.852 131.829,253.757 132.871 L 253.585 134.766 251.707 134.766 C 247.291 134.766,246.628 136.080,246.620 144.857 L 246.615 151.302 244.531 151.302 L 242.448 151.302 242.448 141.016 L 242.448 130.729 244.531 130.729 L 246.615 130.729 246.615 132.212 L 246.615 133.695 247.225 132.867 C 248.690 130.882,252.998 129.471,253.772 130.723 M290.443 130.845 C 294.328 132.231,294.871 133.582,295.101 142.448 C 295.200 146.243,295.317 149.759,295.361 150.260 L 295.443 151.172 293.661 151.249 C 291.683 151.336,291.283 151.142,291.052 149.989 L 290.896 149.208 289.807 149.997 C 285.200 153.334,278.549 151.194,277.958 146.186 C 277.417 141.607,281.550 138.802,288.836 138.802 L 290.625 138.802 290.625 137.622 C 290.625 133.515,284.813 132.217,283.164 135.955 L 282.712 136.979 280.801 136.979 C 278.545 136.979,278.358 136.767,279.037 134.989 C 280.434 131.329,286.066 129.283,290.443 130.845 M329.384 131.270 C 332.542 132.848,334.105 135.790,334.111 140.169 L 334.115 142.188 327.214 142.188 L 320.313 142.188 320.318 143.034 C 320.349 147.546,326.120 149.718,329.396 146.450 C 330.706 145.144,331.624 144.987,333.008 145.830 C 334.040 146.460,334.044 146.540,333.106 147.812 C 328.876 153.559,319.904 152.666,316.877 146.198 C 312.640 137.144,321.050 127.105,329.384 131.270 M301.264 131.706 C 303.459 138.748,305.983 146.141,306.087 145.833 C 306.160 145.618,307.307 142.132,308.636 138.086 L 311.052 130.729 313.208 130.729 C 314.430 130.729,315.365 130.839,315.365 130.982 C 315.365 131.266,315.078 132.041,310.839 143.229 L 307.830 151.172 305.842 151.172 L 303.854 151.172 300.530 142.188 C 298.703 137.246,297.015 132.749,296.781 132.195 C 296.158 130.723,296.151 130.729,298.657 130.729 L 300.959 130.729 301.264 131.706 M228.207 134.360 C 226.993 134.912,225.857 136.399,225.525 137.874 L 225.315 138.802 230.236 138.802 C 232.942 138.802,235.156 138.714,235.155 138.607 C 235.129 135.166,231.423 132.900,228.207 134.360 M323.307 134.264 C 321.745 135.076,320.313 136.993,320.313 138.271 C 320.313 138.786,320.455 138.802,325.130 138.802 C 330.560 138.802,330.417 138.867,329.543 136.775 C 328.502 134.282,325.554 133.095,323.307 134.264 M164.539 134.642 C 160.702 136.669,160.702 144.985,164.538 147.329 C 168.359 149.664,172.199 146.515,172.237 141.016 C 172.275 135.534,168.604 132.495,164.539 134.642 M206.833 134.664 C 202.795 136.663,202.824 145.581,206.875 147.420 C 209.320 148.531,213.460 147.010,213.556 144.967 C 213.755 140.729,213.566 136.939,213.119 136.173 C 212.023 134.297,209.027 133.578,206.833 134.664 M284.240 142.541 C 280.671 144.203,282.285 148.590,286.271 148.062 C 289.270 147.664,290.622 146.264,290.624 143.555 L 290.625 141.927 288.086 141.930 C 285.975 141.932,285.327 142.035,284.240 142.541 " stroke="none" fill="white" fillRule="evenodd"/>
+              <path d="M142.219 79.578 C 133.191 82.006,125.182 90.669,117.441 106.380 C 114.186 112.987,112.454 118.064,108.068 133.854 C 103.382 150.726,99.180 158.356,92.859 161.468 C 86.250 164.721,79.271 158.208,76.568 146.262 C 75.753 142.662,75.231 142.105,72.546 141.970 C 68.717 141.776,68.109 142.653,68.816 147.347 C 71.193 163.133,83.448 173.497,94.777 169.303 C 104.577 165.675,109.784 157.110,116.283 133.926 C 119.602 122.087,119.612 122.056,122.586 114.583 C 127.391 102.511,129.615 98.733,134.930 93.613 C 139.904 88.821,142.875 87.380,147.786 87.374 C 155.051 87.365,158.944 91.585,164.240 105.208 C 166.218 110.294,166.724 110.938,168.748 110.938 C 170.776 110.938,170.950 110.499,170.752 105.910 C 170.221 93.587,164.984 85.289,154.869 80.739 C 151.391 79.175,145.669 78.650,142.219 79.578 M213.802 127.519 L 213.802 132.903 213.216 132.372 C 210.062 129.509,204.363 130.129,201.842 133.609 C 199.548 136.776,199.057 143.018,200.809 146.745 C 203.105 151.629,209.206 153.006,212.942 149.483 C 214.019 148.467,214.063 148.482,214.063 149.870 L 214.063 151.042 215.885 151.042 L 217.708 151.042 217.708 136.589 L 217.708 122.135 215.755 122.135 L 213.802 122.135 213.802 127.519 M142.121 123.186 C 138.236 124.155,135.884 126.945,135.870 130.598 C 135.855 134.835,137.826 136.619,144.792 138.672 C 149.978 140.201,151.302 141.234,151.302 143.750 C 151.302 149.217,140.809 149.482,139.234 144.055 C 138.839 142.695,138.299 142.490,136.010 142.834 C 134.447 143.068,134.707 145.343,136.577 147.795 C 140.577 153.038,151.876 152.495,154.609 146.927 C 157.302 141.442,154.346 137.119,146.484 135.050 C 141.733 133.798,140.016 132.568,140.019 130.414 C 140.025 125.220,149.275 124.818,150.811 129.944 L 151.124 130.990 153.071 130.990 L 155.019 130.990 154.850 129.762 C 154.174 124.829,148.104 121.693,142.121 123.186 M261.550 123.440 C 258.158 124.544,256.246 127.135,256.256 130.616 C 256.268 135.037,257.976 136.584,265.173 138.690 C 271.240 140.465,273.122 142.880,270.886 146.020 C 268.258 149.710,259.375 147.669,259.375 143.376 C 259.375 142.648,258.445 142.502,256.185 142.875 C 253.316 143.350,256.956 149.246,261.000 150.673 C 268.506 153.322,275.537 149.814,275.594 143.391 C 275.635 138.791,273.854 137.118,266.690 135.028 C 261.992 133.657,260.886 132.991,260.417 131.253 C 258.926 125.714,269.489 124.361,271.111 129.883 L 271.437 130.990 273.349 130.990 C 275.556 130.990,275.598 130.918,274.850 128.401 C 273.562 124.062,267.074 121.642,261.550 123.440 M164.626 130.868 C 156.223 132.692,154.755 146.416,162.538 150.403 C 169.618 154.030,176.572 149.002,176.242 140.495 C 175.958 133.175,171.400 129.398,164.626 130.868 M188.021 130.713 C 186.719 130.975,185.580 131.629,184.517 132.723 L 183.594 133.674 183.594 132.332 L 183.594 130.990 181.641 130.990 L 179.688 130.990 179.688 141.016 L 179.688 151.042 181.641 151.042 L 183.594 151.042 183.594 144.418 C 183.594 140.371,183.702 137.509,183.871 137.061 C 185.115 133.768,190.428 132.959,191.802 135.854 C 192.237 136.771,192.390 139.461,192.427 146.810 L 192.448 151.042 194.401 151.042 L 196.354 151.042 196.352 144.336 C 196.350 137.133,196.121 134.827,195.252 133.281 C 194.034 131.114,191.135 130.084,188.021 130.713 M228.420 130.734 C 219.812 132.545,218.382 146.987,226.457 150.559 C 230.147 152.191,234.904 151.393,237.300 148.741 C 238.205 147.739,238.936 146.625,238.758 146.519 C 238.711 146.490,238.470 146.313,238.224 146.125 C 236.974 145.170,235.887 145.272,234.758 146.451 C 231.410 149.945,225.639 147.840,225.210 142.969 L 225.130 142.057 232.096 141.988 L 239.063 141.919 239.063 139.997 C 239.063 133.550,234.385 129.478,228.420 130.734 M250.582 130.718 C 249.382 131.011,247.780 132.131,247.230 133.063 C 246.559 134.198,246.354 134.048,246.354 132.422 L 246.354 130.990 244.401 130.990 L 242.448 130.990 242.448 141.016 L 242.448 151.042 244.401 151.042 L 246.354 151.042 246.382 148.242 C 246.479 138.473,246.505 138.124,247.207 136.926 C 248.167 135.287,249.661 134.517,251.897 134.511 L 253.665 134.505 253.590 132.552 L 253.516 130.599 252.474 130.555 C 251.901 130.530,251.050 130.604,250.582 130.718 M284.896 130.713 C 281.614 131.314,278.935 133.740,278.912 136.133 C 278.902 137.155,282.586 137.017,282.977 135.980 C 284.496 131.957,291.088 133.452,290.826 137.760 L 290.755 138.932 287.760 139.094 C 280.061 139.512,276.962 142.284,278.401 147.468 C 279.482 151.360,285.949 152.730,289.705 149.863 C 291.156 148.755,291.045 148.745,291.246 150.000 L 291.412 151.042 293.392 151.042 L 295.372 151.042 295.187 150.195 C 295.085 149.730,294.925 146.185,294.831 142.318 C 294.639 134.427,294.456 133.576,292.656 132.203 C 290.908 130.870,287.556 130.226,284.896 130.713 M323.235 130.730 C 314.875 132.495,313.221 146.565,320.929 150.340 C 325.322 152.490,330.914 151.271,333.002 147.708 L 333.688 146.539 333.129 146.087 C 331.941 145.125,330.748 145.171,329.889 146.213 C 327.027 149.685,321.365 148.396,320.319 144.036 C 319.784 141.807,319.390 141.927,327.205 141.927 L 334.115 141.927 334.115 140.673 C 334.115 133.706,329.427 129.422,323.235 130.730 M296.615 131.100 C 296.615 131.173,297.416 133.375,298.396 135.994 C 299.376 138.613,301.036 143.070,302.086 145.898 L 303.993 151.042 305.857 151.042 L 307.722 151.042 310.240 144.336 C 311.625 140.648,313.337 136.131,314.044 134.300 L 315.329 130.969 313.213 131.044 L 311.096 131.120 308.681 138.411 C 307.352 142.422,306.261 145.908,306.257 146.159 C 306.239 147.300,305.770 146.356,304.835 143.294 C 304.277 141.468,303.156 137.982,302.344 135.547 L 300.868 131.120 298.741 131.044 C 297.572 131.003,296.615 131.028,296.615 131.100 M233.082 134.481 C 234.177 135.205,235.156 136.977,235.156 138.233 L 235.156 139.063 230.208 139.063 L 225.260 139.063 225.260 138.401 C 225.260 134.898,230.070 132.487,233.082 134.481 M326.905 133.971 C 328.611 134.579,329.669 135.962,330.055 138.086 L 330.232 139.063 325.142 139.063 C 319.578 139.063,319.849 139.154,320.328 137.428 C 320.816 135.672,322.414 134.197,324.219 133.836 C 325.557 133.568,325.812 133.581,326.905 133.971 M168.950 134.257 C 171.777 135.438,173.114 139.349,172.155 143.632 C 170.922 149.142,163.973 149.814,162.134 144.601 C 159.882 138.217,163.886 132.141,168.950 134.257 M211.068 134.348 C 211.641 134.613,212.461 135.204,212.891 135.661 L 213.672 136.491 213.754 140.709 L 213.836 144.928 213.068 145.988 C 210.226 149.911,204.871 148.211,203.902 143.079 C 202.757 137.006,206.626 132.291,211.068 134.348 M290.844 143.607 C 290.578 148.890,282.173 150.273,282.173 145.035 C 282.173 142.870,284.355 141.716,288.505 141.685 L 290.942 141.667 290.844 143.607 " stroke="none" fill="#3A4446" fillRule="evenodd"/>
+              <path d="M134.367 94.206 L 132.682 95.964 134.440 94.278 C 135.407 93.352,136.198 92.560,136.198 92.521 C 136.198 92.329,135.933 92.573,134.367 94.206 M170.919 107.682 C 170.920 108.685,170.967 109.063,171.023 108.523 C 171.080 107.983,171.079 107.162,171.021 106.700 C 170.964 106.238,170.918 106.680,170.919 107.682 M213.620 123.698 C 213.620 124.486,213.669 124.808,213.728 124.414 C 213.788 124.020,213.788 123.376,213.728 122.982 C 213.669 122.588,213.620 122.910,213.620 123.698 M213.594 130.175 C 213.545 132.211,213.511 132.332,213.086 131.998 C 212.671 131.672,212.663 131.682,212.997 132.107 C 213.602 132.878,213.831 132.240,213.736 130.053 L 213.646 127.995 213.594 130.175 M151.015 131.067 C 151.137 131.189,151.632 131.247,152.115 131.197 C 152.973 131.109,152.968 131.104,151.895 130.977 C 151.290 130.905,150.894 130.946,151.015 131.067 M253.712 131.641 C 253.714 132.214,253.768 132.417,253.830 132.093 C 253.892 131.769,253.890 131.301,253.825 131.052 C 253.760 130.803,253.709 131.068,253.712 131.641 M271.323 131.062 C 271.448 131.188,271.888 131.249,272.299 131.197 C 272.987 131.112,272.969 131.093,272.071 130.969 C 271.511 130.891,271.192 130.931,271.323 131.062 M183.614 132.096 C 183.603 132.777,183.687 133.333,183.802 133.333 C 183.916 133.333,183.966 132.894,183.913 132.357 C 183.763 130.845,183.637 130.735,183.614 132.096 M166.471 134.034 C 166.722 134.099,167.132 134.099,167.383 134.034 C 167.633 133.968,167.428 133.915,166.927 133.915 C 166.426 133.915,166.221 133.968,166.471 134.034 M279.890 136.910 C 280.502 136.965,281.440 136.964,281.973 136.908 C 282.506 136.852,282.005 136.807,280.859 136.808 C 279.714 136.809,279.277 136.855,279.890 136.910 M294.902 142.448 C 294.902 145.527,294.940 146.787,294.986 145.247 C 295.032 143.708,295.032 141.188,294.986 139.648 C 294.940 138.109,294.902 139.368,294.902 142.448 M179.521 139.583 C 179.521 140.944,179.565 141.501,179.618 140.820 C 179.672 140.140,179.672 139.027,179.618 138.346 C 179.565 137.666,179.521 138.223,179.521 139.583 M320.279 138.873 C 320.390 138.984,322.640 139.042,325.279 139.003 L 330.078 138.931 325.078 138.802 C 322.327 138.730,320.168 138.762,320.279 138.873 M227.669 138.996 C 229.066 139.043,231.351 139.043,232.747 138.996 C 234.144 138.949,233.001 138.911,230.208 138.911 C 227.415 138.911,226.273 138.949,227.669 138.996 M287.044 138.989 C 287.438 139.048,288.083 139.048,288.477 138.989 C 288.870 138.929,288.548 138.880,287.760 138.880 C 286.973 138.880,286.650 138.929,287.044 138.989 M213.636 141.667 C 213.636 143.027,213.679 143.584,213.733 142.904 C 213.787 142.223,213.787 141.110,213.733 140.430 C 213.679 139.749,213.636 140.306,213.636 141.667 M199.550 141.146 C 199.550 141.790,199.601 142.054,199.663 141.732 C 199.725 141.410,199.725 140.882,199.663 140.560 C 199.601 140.238,199.550 140.501,199.550 141.146 M71.023 141.855 C 71.485 141.912,72.305 141.913,72.846 141.857 C 73.386 141.800,73.008 141.753,72.005 141.752 C 71.003 141.751,70.561 141.797,71.023 141.855 M288.593 141.857 L 290.597 141.948 290.700 143.111 L 290.803 144.274 290.779 143.036 L 290.755 141.797 288.672 141.781 L 286.589 141.765 288.593 141.857 M137.305 142.627 C 137.555 142.693,137.965 142.693,138.216 142.627 C 138.467 142.562,138.262 142.508,137.760 142.508 C 137.259 142.508,137.054 142.562,137.305 142.627 M166.471 148.096 C 166.722 148.162,167.132 148.162,167.383 148.096 C 167.633 148.031,167.428 147.977,166.927 147.977 C 166.426 147.977,166.221 148.031,166.471 148.096 M213.868 150.781 C 213.949 151.081,214.421 151.177,215.906 151.192 L 217.839 151.213 216.023 151.114 C 215.018 151.059,214.108 150.876,213.985 150.703 C 213.828 150.483,213.794 150.506,213.868 150.781 M303.816 151.107 C 303.883 151.214,304.802 151.302,305.859 151.302 C 306.917 151.302,307.836 151.214,307.902 151.107 C 307.969 150.999,307.049 150.911,305.859 150.911 C 304.669 150.911,303.750 150.999,303.816 151.107 M180.664 151.232 C 181.273 151.287,182.269 151.287,182.878 151.232 C 183.486 151.178,182.988 151.133,181.771 151.133 C 180.553 151.133,180.055 151.178,180.664 151.232 M193.431 151.233 C 194.044 151.288,194.981 151.287,195.515 151.231 C 196.048 151.175,195.547 151.130,194.401 151.131 C 193.255 151.132,192.819 151.178,193.431 151.233 M243.424 151.232 C 244.033 151.287,245.029 151.287,245.638 151.232 C 246.247 151.178,245.749 151.133,244.531 151.133 C 243.314 151.133,242.816 151.178,243.424 151.232 M292.513 151.231 C 293.050 151.288,293.929 151.288,294.466 151.231 C 295.003 151.175,294.564 151.129,293.490 151.129 C 292.415 151.129,291.976 151.175,292.513 151.231 " stroke="none" fill="#9c9c9c" fillRule="evenodd"/>
+              <path d="M203.712 141.016 C 203.714 141.589,203.768 141.792,203.830 141.468 C 203.892 141.144,203.890 140.676,203.825 140.427 C 203.760 140.178,203.709 140.443,203.712 141.016 M229.898 142.122 C 231.661 142.167,234.473 142.167,236.148 142.121 C 237.822 142.076,236.380 142.039,232.943 142.039 C 229.505 142.040,228.135 142.077,229.898 142.122 M323.372 142.115 C 323.838 142.173,324.600 142.173,325.065 142.115 C 325.531 142.058,325.150 142.010,324.219 142.010 C 323.288 142.010,322.907 142.058,323.372 142.115 M327.669 142.120 C 328.493 142.171,329.840 142.171,330.664 142.120 C 331.488 142.068,330.814 142.026,329.167 142.026 C 327.520 142.026,326.846 142.068,327.669 142.120 M332.617 142.107 C 332.868 142.172,333.278 142.172,333.529 142.107 C 333.779 142.041,333.574 141.988,333.073 141.988 C 332.572 141.988,332.367 142.041,332.617 142.107 " stroke="none" fill="#848484" fillRule="evenodd"/>
+              <path d="M145.762 79.094 C 146.225 79.152,147.045 79.153,147.585 79.096 C 148.126 79.040,147.747 78.993,146.745 78.992 C 145.742 78.991,145.300 79.037,145.762 79.094 M217.830 136.719 C 217.830 144.668,217.863 147.920,217.903 143.945 C 217.944 139.971,217.944 133.467,217.903 129.492 C 217.863 125.518,217.830 128.770,217.830 136.719 M256.055 130.599 C 256.058 131.172,256.111 131.376,256.174 131.052 C 256.236 130.728,256.234 130.259,256.169 130.010 C 256.103 129.761,256.052 130.026,256.055 130.599 M180.671 130.920 C 181.283 130.975,182.221 130.974,182.754 130.918 C 183.288 130.863,182.786 130.817,181.641 130.818 C 180.495 130.819,180.058 130.865,180.671 130.920 M243.431 130.920 C 244.044 130.975,244.981 130.974,245.515 130.918 C 246.048 130.863,245.547 130.817,244.401 130.818 C 243.255 130.819,242.819 130.865,243.431 130.920 M296.525 130.924 C 296.458 131.032,297.436 131.120,298.698 131.120 C 299.960 131.120,300.938 131.032,300.871 130.924 C 300.805 130.817,299.827 130.729,298.698 130.729 C 297.569 130.729,296.591 130.817,296.525 130.924 M311.107 130.924 C 311.040 131.032,311.707 131.087,312.589 131.047 C 315.285 130.924,315.604 130.809,313.362 130.768 C 312.189 130.747,311.174 130.817,311.107 130.924 M229.886 133.778 C 230.210 133.840,230.679 133.838,230.928 133.773 C 231.176 133.707,230.911 133.657,230.339 133.659 C 229.766 133.662,229.562 133.716,229.886 133.778 M286.396 133.778 C 286.720 133.840,287.189 133.838,287.438 133.773 C 287.687 133.707,287.422 133.657,286.849 133.659 C 286.276 133.662,286.072 133.716,286.396 133.778 M183.707 144.271 C 183.707 148.066,183.744 149.619,183.788 147.721 C 183.833 145.824,183.833 142.718,183.788 140.820 C 183.744 138.923,183.707 140.475,183.707 144.271 M239.143 140.495 C 239.145 141.354,239.193 141.674,239.251 141.206 C 239.309 140.738,239.308 140.035,239.249 139.644 C 239.189 139.252,239.142 139.635,239.143 140.495 M192.258 140.365 C 192.258 141.009,192.309 141.273,192.371 140.951 C 192.433 140.628,192.433 140.101,192.371 139.779 C 192.309 139.456,192.258 139.720,192.258 140.365 M161.536 140.885 C 161.536 141.673,161.585 141.995,161.645 141.602 C 161.705 141.208,161.705 140.563,161.645 140.169 C 161.585 139.775,161.536 140.098,161.536 140.885 M246.429 142.839 C 246.431 143.555,246.481 143.817,246.541 143.421 C 246.601 143.025,246.599 142.439,246.537 142.119 C 246.476 141.799,246.427 142.122,246.429 142.839 M225.164 142.133 C 225.094 142.246,225.438 142.292,225.930 142.235 C 226.421 142.177,226.823 142.085,226.823 142.029 C 226.823 141.833,225.290 141.929,225.164 142.133 M320.902 142.114 C 321.298 142.174,321.884 142.172,322.204 142.110 C 322.524 142.049,322.201 142.000,321.484 142.002 C 320.768 142.004,320.506 142.054,320.902 142.114 M192.294 146.745 C 192.294 149.180,192.333 150.211,192.381 149.036 C 192.429 147.862,192.429 145.869,192.382 144.609 C 192.334 143.349,192.294 144.310,192.294 146.745 M246.453 148.177 C 246.453 149.824,246.495 150.498,246.547 149.674 C 246.598 148.851,246.598 147.503,246.547 146.680 C 246.495 145.856,246.453 146.530,246.453 148.177 M208.398 148.096 C 208.649 148.162,209.059 148.162,209.310 148.096 C 209.561 148.031,209.355 147.977,208.854 147.977 C 208.353 147.977,208.148 148.031,208.398 148.096 M88.350 170.499 C 88.746 170.559,89.332 170.558,89.652 170.496 C 89.972 170.434,89.648 170.385,88.932 170.387 C 88.216 170.389,87.954 170.440,88.350 170.499 " stroke="none" fill="#7d847c" fillRule="evenodd"/>
+            </g>
+          </svg>
+        </div>
+        
+        <div className="mb-8">
+          <p className="text-lg text-[#3A4446] leading-relaxed" style={{fontFamily: '"Inter Display", sans-serif'}}>Everyone's retirement path is different. SonderSave helps you bring clarity to the numbers — so you can plan a retirement lifestyle that fits your life.</p>
+        </div>
+
+        {/* Print-only Summary */}
+        <div className="hidden print:block page-break-avoid bg-[#F5F1EB] rounded-lg shadow-md border border-[#3A4446] p-6 mb-6">
+          <h2 className="text-2xl font-bold mb-4" style={{fontWeight: 700, color: 'rgb(14, 50, 60)'}}>Your Retirement Plan Summary</h2>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-base text-[#4B4B4B]">Current Age</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{currentAge}</p>
+            </div>
+            <div>
+              <p className="text-base text-[#4B4B4B]">Retirement Age</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{retirementAge}</p>
+            </div>
+            <div>
+              <p className="text-base text-[#4B4B4B]">Annual Income</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(annualIncome)}</p>
+            </div>
+            <div>
+              <p className="text-base text-[#4B4B4B]">Retirement Income Goal</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{retirementIncomeGoal}%</p>
+            </div>
+            <div>
+              <p className="text-base text-[#4B4B4B]">Current Savings</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(currentSavings)}</p>
+            </div>
+            <div>
+              <p className="text-base text-[#4B4B4B]">Monthly Contribution</p>
+              <p className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(monthlyContribution)} ({contributionPercent.toFixed(1)}%)</p>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-[#3A4446]">
+            <p className="text-base text-[#4B4B4B] mb-2">Projected Results:</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-base text-[#4B4B4B]">Total at Retirement</p>
+                <p className="text-2xl font-bold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(totalAtRetirement)}</p>
+              </div>
+              <div>
+                <p className="text-base text-[#4B4B4B]">Yearly Income in Retirement</p>
+                <p className="text-2xl font-bold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(yearlyIncome)}</p>
+                <p className="text-sm text-[#4B4B4B]">({formatCurrency(yearlyIncomeToday)} in today's dollars)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* About You Section - Modular Design */}
+
+        <p className="text-base text-[#4B4B4B] mt-20 mb-3">Enter a few details below to see how your choices today may shape your future.</p>
+
+        {/* Section Title Card */}
+        <div id="about-you-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>About You</h2>
+        </div>
+        
+        {/* Module: Current Age */}
+        <div id="module-ages" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Current Age: {currentAge}
+          </label>
+          <input
+            type="range"
+            min="18"
+            max="80"
+            value={currentAge}
+            onChange={(e) => setCurrentAge(Number(e.target.value))}
+            className="w-full about-you-slider"
+            style={{accentColor: '#6E8F7C'}}
+          />
+        </div>
+        
+        {/* Module: Retirement Age */}
+        <div className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Desired Retirement Age: {retirementAge}
+          </label>
+          <input
+            type="range"
+            min="50"
+            max="80"
+            value={retirementAge}
+            onChange={(e) => setRetirementAge(Number(e.target.value))}
+            className="w-full about-you-slider"
+            style={{accentColor: '#6E8F7C'}}
+          />
+          <p className="text-sm text-[#4B4B4B] mt-3">
+            {retirementAge - currentAge} years until retirement
+          </p>
+        </div>
+
+        {/* Income & Growth Planning Section */}
+
+        {/* Section Title Card */}
+        <div id="income-planning-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Income & Growth Planning</h2>
+        </div>
+
+        {/* Module: Current Annual Income */}
+        <div id="module-income" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Current Annual Income
+          </label>
+          <div className="relative mb-4">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={formatNumberWithCommas(annualIncome)}
+              onChange={(e) => setAnnualIncome(parseFormattedNumber(e.target.value) || 0)}
+              className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+              style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+            />
+          </div>
+          <input
+            type="range"
+            min="20000"
+            max="150000"
+            step="1000"
+            value={Math.min(annualIncome, 150000)}
+            onChange={(e) => setAnnualIncome(Number(e.target.value))}
+            className="w-full"
+          />
+          {!quickMode && <p className="text-sm text-[#4B4B4B] mt-3">For income above $150k, enter the amount directly.</p>}
+        </div>
+
+        {/* Module: Potential Career Salary Growth */}
+        <div id="module-salary-growth" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Potential Career Salary Growth
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            A 3% raise typically keeps pace with inflation. Sustained career growth is often higher. Adjust this to reflect your expected trajectory.
+          </p>}
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Expected Annual Raise</p>
+              <p className="text-2xl font-bold text-[#3A4446]">{annualRaise}%</p>
+            </div>
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Career-End Salary</p>
+              <p className="text-2xl font-bold text-[#3A4446]">
+                {formatCurrency((annualIncome * Math.pow(1 + annualRaise / 100, retirementAge - currentAge)) / Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
+              </p>
+              <p className="text-xs text-[#4B4B4B]">(in today's dollars)</p>
+            </div>
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step="0.1"
+            value={annualRaise}
+            onChange={(e) => setAnnualRaise(Number(e.target.value))}
+            className="w-full"
+          />
+
+          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+              <strong>Note:</strong> Career growth often isn't linear — raises may be higher early on and slower later. This tool uses a consistent rate for simplicity. Adjust your percentage to reflect your overall expectations.
+            </p>
+          </div>}
+        </div>
+
+        {/* Module: Expected Inflation Rate */}
+        <div id="module-inflation" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Expected Inflation Rate: {inflationRate}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="6"
+            step="0.5"
+            value={inflationRate}
+            onChange={(e) => setInflationRate(Number(e.target.value))}
+            className="w-full"
+          />
+          {!quickMode && <p className="text-base text-[#4B4B4B] mt-3">
+            Historical inflation has averaged about 2.5–3%. We use 3% as the default.
+          </p>}
+        </div>
+
+        {/* Module: Retirement Income Goal */}
+        <div id="module-income-goal" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Retirement Income Goal
+          </label>
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Think of retirement as the income you'll need each year — not just a savings total. These scenarios show what percentage of your current income you might aim for.
+          </p>}
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
+              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+                {formatCurrency(annualIncome * (retirementIncomeGoal / 100))}
+              </p>
+            </div>
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
+              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+                {formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mb-2">
+            <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+              {retirementIncomeGoal}% of current income
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="200"
+            step="5"
+            value={retirementIncomeGoal}
+            onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
+            style={{accentColor: 'rgb(14, 50, 60)'}}
+            className="w-full"
+          />
+
+          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>50–70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>70–80%</strong><br/>Most major debts cleared, reduced work-related costs</p>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>90–100%+</strong><br/>Ongoing housing costs and monthly obligations</p>
+          </div>}
+        </div>
+
+        {/* Your Savings Section - Modular Design */}
+        
+        {/* Section Title Card */}
+        <div id="your-savings-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Your Savings</h2>
+        </div>
+        
+        {/* Temporary: Keep old format for modules while testing */}
+        
+        {/* Module: Current Retirement Account Balances */}
+        <div id="module-savings-balance" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Current Retirement Account Balances
+          </label>
+          <div className="relative mb-4">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={formatNumberWithCommas(currentSavings)}
+              onChange={(e) => setCurrentSavings(parseFormattedNumber(e.target.value) || 0)}
+              className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+              style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+            />
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="1000000"
+            step="1000"
+            value={currentSavings}
+            onChange={(e) => setCurrentSavings(Number(e.target.value))}
+            className="w-full"
+          />
+          <p className="text-base text-[#4B4B4B] mt-3">Total across all 401(k), IRA, Roth, and other retirement accounts</p>
+        </div>
+                
+        {/* Module: Employer-Supported Contributions */}
+        <div id="module-contributions" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14, 50, 60)'}}>
+            Employer-Supported Contributions
+          </label>
+          <p className="text-base text-[#4B4B4B] mb-3">(401k, 403b, etc.)</p>
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Enter how much you contribute each month to your employer-sponsored retirement plan. If your employer offers matching, we'll factor that in below.
+          </p>}
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={formatNumberWithCommas(monthlyContribution)}
+              onChange={(e) => {
+                const value = parseFormattedNumber(e.target.value) || 0;
+                setMonthlyContribution(value);
+                setContributionPercent(((value / (annualIncome / 12)) * 100));
+              }}
+              className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+              style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+            />
+          </div>
+          <p className="text-base text-[#4B4B4B] mt-1 mb-3">
+            That's {contributionPercent.toFixed(1)}% of your monthly income
+          </p>
+          <input
+            type="range"
+            min="0"
+            max="30"
+            step="0.5"
+            value={contributionPercent}
+            onChange={(e) => {
+              const percent = Number(e.target.value);
+              setContributionPercent(percent);
+              setMonthlyContribution(Math.round((annualIncome / 12) * (percent / 100)));
+            }}
+            style={{accentColor: 'rgb(14, 50, 60)'}}
+            className="w-full"
+          />
+          
+          {(() => {
+            const desiredAnnual = monthlyContribution * 12;
+            const baseLimit = 24500;
+            const isOverBaseLimit = desiredAnnual > baseLimit;
+            
+            // Only show warning if they're over base limit without catch-up checked
+            if (isOverBaseLimit && !useCatchupContributions) {
+              return (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-600 text-lg">💡</span>
+                    <div className="flex-1">
+                      <p className="text-base font-medium text-blue-900 mb-1">
+                        401(k) Base Limit Reached
+                      </p>
+                      <p className="text-sm text-blue-800 mb-2">
+                        <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
+                        <strong>Current limit:</strong> {formatCurrency(baseLimit)}/year
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        Your contributions are capped at $24,500/year. If you plan to contribute more at age 50+, 
+                        check the "Plan to max out contributions at age 50+" box below.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            
+            return null;
+          })()}
+
+          <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            {quickMode ? (
+              <>
+                <div
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setQuickCatchupExpanded(!quickCatchupExpanded)}
+                >
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" onClick={e => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={useCatchupContributions}
+                      onChange={(e) => setUseCatchupContributions(e.target.checked)}
+                      className="rounded mt-0.5"
+                      style={{accentColor: 'rgb(14, 50, 60)'}}
+                    />
+                    <span className="font-medium" style={{color: 'rgb(14, 50, 60)'}}>Plan to max out contributions at age 50+ ($32,500/year)</span>
+                  </label>
+                  <span className="text-sm ml-2 flex-shrink-0" style={{color: 'rgb(107, 114, 128)'}}>{quickCatchupExpanded ? '−' : '+'}</span>
+                </div>
+                {quickCatchupExpanded && (
+                  <p className="text-sm text-[#4B4B4B] mt-2 ml-5">
+                    Check this if you plan to maximize your 401(k) contributions once you turn 50.
+                    From age 50 until retirement, your projections will use the maximum contribution of $32,500/year.
+                    This is a common strategy to accelerate savings as you approach retirement.
+                  </p>
+                )}
+              </>
+            ) : (
+              <label className="flex items-start gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={useCatchupContributions}
+                  onChange={(e) => setUseCatchupContributions(e.target.checked)}
+                  className="rounded mt-0.5"
+                  style={{accentColor: 'rgb(14, 50, 60)'}}
+                />
+                <div>
+                  <span className="font-medium" style={{color: 'rgb(14, 50, 60)'}}>
+                    Plan to max out contributions at age 50+ ($32,500/year)
+                  </span>
+                  <p className="text-sm text-[#4B4B4B] mt-1">
+                    Check this if you plan to maximize your 401(k) contributions once you turn 50.
+                    From age 50 until retirement, your projections will use the maximum contribution of $32,500/year.
+                    This is a common strategy to accelerate savings as you approach retirement.
+                  </p>
+                </div>
+              </label>
+            )}
+          </div>
+        </div>
+        
+        {/* Employer Match Module */}
+        <div id="module-employer-match" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Employer Match: {employerMatchRate}% up to {employerMatchUpTo}%
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-3">
+            Example: 100% match up to 6% means if you contribute 6%+, employer adds another 6%
+          </p>}
+
+          <div className="space-y-4">
+            <div>
+              <div className="mb-1">
+                <span style={{color: 'rgb(14, 50, 60)', fontWeight: 600, fontSize: '0.875rem'}}>{employerMatchRate}%</span>
+                <span className="text-sm text-[#4B4B4B] ml-2">Match rate</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="200"
+                step="25"
+                value={employerMatchRate}
+                onChange={(e) => setEmployerMatchRate(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <div className="mb-1">
+                <span style={{color: 'rgb(14, 50, 60)', fontWeight: 600, fontSize: '0.875rem'}}>{employerMatchUpTo}%</span>
+                <span className="text-sm text-[#4B4B4B] ml-2">Up to % of salary</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="15"
+                step="0.5"
+                value={employerMatchUpTo}
+                onChange={(e) => setEmployerMatchUpTo(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {!quickMode && <>
+          <p className="text-sm text-[#4B4B4B] mt-4">
+            No employer match? Slide both to 0%
+          </p>
+          <p className="text-sm text-[#4B4B4B] mt-4">
+            <strong>Important:</strong> Employer match contributions don't count toward IRS contribution limits. Try to contribute at least enough to receive the full employer match — it's one of the most effective ways to boost your savings.
+          </p>
+          <div className="mt-4 p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>Roth vs. Traditional — do you have a choice?</p>
+            <p className="text-sm text-[#4B4B4B] mb-2">Many 401(k) plans now offer both options, and you can split contributions between them:</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>Traditional:</strong> Contributions reduce your taxable income today. You pay taxes on withdrawals in retirement. Better if you expect a lower tax rate later.</p>
+            <p className="text-sm text-[#4B4B4B] mb-2"><strong>Roth:</strong> Contributions are after-tax — no immediate break — but all withdrawals in retirement (including decades of growth) are completely tax-free. Better if you expect a higher tax rate later.</p>
+            <p className="text-sm text-[#4B4B4B]">SonderSave calculates your total savings regardless of tax treatment, but it's worth checking with your HR or plan administrator to see which options are available to you.</p>
+          </div>
+          </>}
+
+        </div>
+
+        {/* Expected Return Rate Module */}
+        <div id="module-return-rate" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Expected Return Rate: {expectedReturn}%
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Your investment approach influences how your savings grow over time. If you're not sure, a moderate default of 6.5% is a reasonable starting point for most long-term investors.
+          </p>}
+
+          <input
+            type="range"
+            min="0"
+            max="12"
+            step="0.5"
+            value={expectedReturn}
+            onChange={(e) => setExpectedReturn(Number(e.target.value))}
+            className="w-full"
+          />
+          {!quickMode && <>
+          <p className="text-base text-[#4B4B4B] mt-3">
+            <strong>Conservative</strong> (4-6%): Lower risk, steadier returns. Typically 60-80% bonds, 20-40% stocks.
+          </p>
+          <p className="text-base text-[#4B4B4B] mt-1">
+            <strong>Moderate</strong> (6-8%): Balanced growth and safety. Typically 50-60% stocks, 40-50% bonds.
+          </p>
+          <p className="text-base text-[#4B4B4B] mt-1">
+            <strong>Aggressive</strong> (8-10%+): Higher growth potential, higher risk. Typically 80-100% stocks, 0-20% bonds.
+          </p>
+          </>}
+
+          <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            {quickMode ? (
+              <>
+                <div
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setQuickTargetDateExpanded(!quickTargetDateExpanded)}
+                >
+                  <label className="flex items-center gap-2 text-sm cursor-pointer" onClick={e => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      onChange={(e) => { if (e.target.checked) setExpectedReturn(6.5); }}
+                      className="rounded mt-0.5"
+                      style={{accentColor: 'rgb(14, 50, 60)'}}
+                    />
+                    <span className="font-medium" style={{color: 'rgb(14, 50, 60)'}}>Have a target-date fund?</span>
+                  </label>
+                  <span className="text-sm ml-2 flex-shrink-0" style={{color: 'rgb(107, 114, 128)'}}>{quickTargetDateExpanded ? '−' : '+'}</span>
+                </div>
+                {quickTargetDateExpanded && (
+                  <p className="text-sm text-[#4B4B4B] mt-2 ml-5">
+                    Target-date funds automatically shift from more aggressive investments early on to more conservative ones near retirement. We use 6.5% as a blended long-term estimate.
+                  </p>
+                )}
+              </>
+            ) : (
+              <label className="flex items-start gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  onChange={(e) => { if (e.target.checked) setExpectedReturn(6.5); }}
+                  className="rounded mt-0.5"
+                  style={{accentColor: 'rgb(14, 50, 60)'}}
+                />
+                <div>
+                  <span className="font-medium" style={{color: 'rgb(14, 50, 60)'}}>Have a target-date fund?</span>
+                  <p className="text-sm text-[#4B4B4B] mt-1">
+                    Target-date funds automatically shift from more aggressive investments early on to more conservative ones near retirement. We use 6.5% as a blended long-term estimate.
+                  </p>
+                </div>
+              </label>
+            )}
+          </div>
+
+          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+              <strong>Note:</strong> Investment strategies often shift when entering retirement. Many people move from aggressive to moderate or conservative accounts to protect their funds from market volatility.
+            </p>
+          </div>}
+        </div>
+
+        {/* Individual Accounts Module */}
+        <div id="module-personal-accounts" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14, 50, 60)'}}>
+            Personal Retirement Accounts
+          </label>
+          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-4">For contributions to IRAs, Roth IRAs, brokerage accounts, or any personal retirement savings — including SEP-IRAs and Solo 401(k)s for the self-employed. Leave at zero if this doesn't apply to you.</p>}
+
+          <div className="mb-4">
+            <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+              Monthly Contribution
+            </label>
+            <div className="relative mb-2">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={formatNumberWithCommas(individualContribution)}
+                onChange={(e) => {
+                  const value = parseFormattedNumber(e.target.value) || 0;
+                  setIndividualContribution(value);
+                  setIndividualContributionPercent(((value / (annualIncome / 12)) * 100));
+                  setHasIndividualContributions(value > 0);
+                }}
+                className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+                style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+              />
+            </div>
+            <p className="text-sm text-[#4B4B4B] mb-2">
+              That's {individualContributionPercent.toFixed(1)}% of your monthly income
+            </p>
+            <input
+              type="range"
+              min="0"
+              max="30"
+              step="0.5"
+              value={individualContributionPercent}
+              onChange={(e) => {
+                const percent = Number(e.target.value);
+                setIndividualContributionPercent(percent);
+                setIndividualContribution(Math.round((annualIncome / 12) * (percent / 100)));
+                setHasIndividualContributions(percent > 0);
+              }}
+              style={{accentColor: 'rgb(14, 50, 60)'}}
+              className="w-full"
+            />
+            {individualContribution > 583 && !quickMode && (
+              <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#fef9f0', borderColor: '#f4c06f'}}>
+                <p className="text-sm text-[#4B4B4B]"><strong>IRA contribution limit:</strong> Standard IRAs (Traditional and Roth) are capped at $7,000/year ($583/month) in 2025, or $8,000 if you're 50+. If you're contributing more than this, you may be using a SEP-IRA, Solo 401(k), or brokerage account — which have different limits. See the <strong>Glossary</strong> or consult a tax professional for guidance.</p>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+              Expected Return Rate: {individualReturnRate}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="12"
+              step="0.5"
+              value={individualReturnRate}
+              onChange={(e) => setIndividualReturnRate(Number(e.target.value))}
+              className="w-full mb-2"
+            />
+            <p className="text-sm text-[#4B4B4B]">
+              Personal accounts can have different investment strategies than employer plans
+            </p>
+            {!quickMode && <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B]"><strong>Self-employed?</strong> Solo 401(k)s and SEP-IRAs have significantly higher contribution limits than standard IRAs — up to $70,000/year in 2025. The right plan depends on your net earnings and business structure. See the <strong>Glossary</strong> for an overview, or speak with a tax professional to find the best fit.</p>
+            </div>}
+            {individualReturnRate > 10 && (
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                <p className="text-xs text-blue-800">
+                  💡 <strong>High expected returns (10%+)</strong> are possible with aggressive, diversified portfolios (growth stocks, small-cap funds), especially for younger investors. However, if these returns are based on Bitcoin, single stocks, or other speculative investments, consider using more conservative estimates (4-7%) for reliable long-term planning.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Retirement Income Sources Section */}
+
+        {/* Section Title Card */}
+        <div id="retirement-income-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Retirement Income Sources</h2>
+        </div>
+
+        {/* Module: Pension */}
+        <div id="module-pension" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Pension
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-3">
+            Beyond your savings and investments, you may have other income sources in retirement.
+          </p>}
+
+          <label className="flex items-center gap-2 text-base text-[#4B4B4B] cursor-pointer mb-3">
+            <input
+              type="checkbox"
+              checked={hasPension}
+              onChange={(e) => setHasPension(e.target.checked)}
+              className="rounded"
+              style={{accentColor: 'rgb(14, 50, 60)'}}
+            />
+            I'll have pension income at retirement
+          </label>
+
+          {hasPension && (
+            <div className="p-4 rounded-lg" style={{backgroundColor: '#f4f3ef', border: '1px solid #e5e7eb'}}>
+
+              {/* Amount slider */}
+              <div className="flex justify-between items-baseline mb-2">
+                <label className="text-base font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+                  Monthly Pension: {formatCurrency(pensionAmount)}
+                </label>
+                <span className="text-sm text-[#4B4B4B]">{formatCurrency(pensionAmount * 12)}/yr · {((pensionAmount * 12 / annualIncome) * 100).toFixed(1)}% of income</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="20000"
+                step="100"
+                value={pensionAmount}
+                onChange={(e) => setPensionAmount(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full mb-5"
+              />
+
+              {/* Pension start age slider */}
+              <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                Pension Starts at Age: {pensionStartAge}
+              </label>
+              <input
+                type="range"
+                min="55"
+                max="75"
+                step="1"
+                value={pensionStartAge}
+                onChange={(e) => setPensionStartAge(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full mb-4"
+              />
+
+              {/* Gap warning if pension starts after retirement */}
+              {pensionStartAge > retirementAge && (
+                <div className="rounded border p-3" style={{backgroundColor: '#fef9f0', borderColor: '#f4c06f'}}>
+                  <p className="text-sm font-semibold mb-1" style={{color: '#b45309'}}>
+                    ⚠️ Income gap: {pensionStartAge - retirementAge} year{pensionStartAge - retirementAge !== 1 ? 's' : ''}
+                  </p>
+                  <p className="text-sm" style={{color: '#92400e'}}>
+                    You'll retire at {retirementAge} but your pension won't start until {pensionStartAge}. Your savings will need to cover {formatCurrency(pensionAmount * 12)}/year in pension income for {pensionStartAge - retirementAge} years before it kicks in.
+                  </p>
+                </div>
+              )}
+
+              {/* Pension starts before retirement — just note it */}
+              {pensionStartAge < retirementAge && (
+                <div className="rounded border p-3" style={{backgroundColor: '#f0f7f4', borderColor: '#a7c9b8'}}>
+                  <p className="text-sm" style={{color: '#3A4446'}}>
+                    ✓ Your pension starts {retirementAge - pensionStartAge} year{retirementAge - pensionStartAge !== 1 ? 's' : ''} before retirement — that income will be included in your retirement outlook.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Module: Social Security */}
+        <div id="module-social-security" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Monthly Social Security Benefit
+          </label>
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-3">
+            Most people receive Social Security benefits in retirement. The current average monthly benefit is about $1,900. Use the slider to enter if you think you'll receive about average, more, or less. Maximum benefit is $5,100/month.
+          </p>}
+
+          {retirementAge < 62 && (
+            <div className="bg-amber-50 border border-amber-200 rounded p-3 mb-3">
+              <p className="text-xs text-amber-800">
+                <strong>Important:</strong> Social Security benefits aren't available until age 62 (reduced) or 67 (full benefits).
+                Your retirement plan from age {retirementAge} to 62 ({62 - retirementAge} years) will rely entirely on your savings and other income sources.
+              </p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Monthly Benefit (Today's Dollars)</p>
+              <p className="text-2xl font-bold text-[#3A4446]">{formatCurrency(socialSecurityAmount)}</p>
+            </div>
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Monthly Benefit (Future Dollars)</p>
+              <p className="text-2xl font-bold text-[#3A4446]">
+                {formatCurrency(socialSecurityAmount * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
+              </p>
+              <p className="text-xs text-[#4B4B4B]">At retirement</p>
+            </div>
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="5100"
+            step="100"
+            value={socialSecurityAmount}
+            onChange={(e) => {
+              const amount = Number(e.target.value);
+              setSocialSecurityAmount(amount);
+              setSocialSecurityPercent(((amount * 12 / annualIncome) * 100));
+            }}
+            className="w-full mb-3"
+          />
+
+          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-2">
+            <strong>Based on today's dollars.</strong> Average benefit is ~$1,900/month. Maximum is $5,100/month.
+          </p>}
+          <p className="text-base text-[#4B4B4B] mt-3">
+            Annual benefit: {formatCurrency(socialSecurityAmount * 12)} per year
+          </p>
+
+          <p className="text-sm text-[#4B4B4B] mt-4">
+            Get your personalized estimate at <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener noreferrer" className="underline" style={{color: 'rgb(14, 50, 60)'}}>ssa.gov/myaccount</a>
+          </p>
+          {!quickMode && <div className="p-3 rounded border mt-3" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+              <strong>Note:</strong> Your actual benefit depends on your earnings history and when you claim (ages 62-70). You may also want to review claiming strategies with a financial advisor.
+            </p>
+          </div>}
+        </div>
+
+        {/* Module: Withdrawal Rate */}
+        <div id="module-withdrawal" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Retirement Withdrawal
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Your withdrawal rate determines how much income your savings can support in retirement. For example, if you've saved $500,000 and set a 4% withdrawal rate, you'd have $20,000 per year to draw from your savings. Combined with Social Security or other income, this becomes your retirement salary. A lower rate means less income but savings that last longer; a higher rate means more income but savings that may run out sooner.
+          </p>}
+
+          <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+            Withdrawal Rate: {withdrawalRate}%
+          </label>
+          <input
+            type="range"
+            min="2"
+            max="6"
+            step="0.1"
+            value={withdrawalRate}
+            onChange={(e) => setWithdrawalRate(Number(e.target.value))}
+            style={{accentColor: 'rgb(14, 50, 60)'}}
+            className="w-full"
+          />
+
+          {/* Post-retirement return rate */}
+          <div className="mt-6">
+            <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+              Expected Return Rate in Retirement: {retirementReturnRate}%
+            </label>
+            {!quickMode && <p className="text-sm text-[#4B4B4B] mb-3">
+              Many people shift to more conservative investments in retirement to protect against market downturns. This is often lower than your pre-retirement rate. We default to 3.5% as a conservative estimate.
+            </p>}
+            <input
+              type="range"
+              min="0"
+              max="10"
+              step="0.5"
+              value={retirementReturnRate}
+              onChange={(e) => setRetirementReturnRate(Number(e.target.value))}
+              style={{accentColor: 'rgb(14, 50, 60)'}}
+              className="w-full"
+            />
+          </div>
+
+
+          {/* Withdrawal rate guidance */}
+          {!quickMode && <div className="p-3 rounded border mt-6" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>2-3%:</strong> Very conservative — your savings will likely outlast you, but you'll have less annual income.</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>4%:</strong> The Safe Withdrawal Rule default — historically sustainable for a 30-year retirement.</p>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>5-6%:</strong> More aggressive — higher annual income but savings may be depleted earlier.</p>
+          </div>}
+
+          {!quickMode && <div className="p-3 rounded border mt-3" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+              Withdrawal strategies can be complex. Consider consulting a Certified Financial Planner (CFP) for personalized guidance.
+            </p>
+          </div>}
+        </div>
+
+
+        {/* Suggestions Section */}
+        {showSuggestions && suggestions.length > 0 && (
+          <>
+            {/* Title Card — collapsible in Quick mode */}
+            <div
+              className="rounded shadow-md mb-3 page-break-avoid"
+              onClick={() => quickMode && setSuggestionsCollapsed(!suggestionsCollapsed)}
+              style={{
+                backgroundColor: '#C58B6A',
+                padding: '16px',
+                borderRadius: quickMode && !suggestionsCollapsed ? '4px 4px 0 0' : '4px',
+                boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+                border: '1px solid #c4c9cf',
+                cursor: quickMode ? 'pointer' : 'default'
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Ways to Reach Your Goal</h2>
+                {quickMode && (
+                  <span className="text-white text-xl">{suggestionsCollapsed ? '+' : '−'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Content Card — always shown in Guided, collapsible in Quick */}
+            {(!quickMode || !suggestionsCollapsed) && (
+              <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+                backgroundColor: 'white',
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+                border: '1px solid #c4c9cf'
+              }}>
+                <p className="text-base text-[#4B4B4B] mb-4">
+                  Based on your current plan, here are some options to help you reach {retirementIncomeGoal}% of your income in retirement:
+                </p>
+                <div className="space-y-3">
+                  {suggestions.map((suggestion, index) => (
+                    <div key={index} className="p-4 rounded-lg border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold"
+                             style={{backgroundColor: 'rgb(14, 50, 60)', color: 'white'}}>
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium" style={{color: 'rgb(14, 50, 60)'}}>{suggestion.description}</p>
+                          <p className="text-base text-[#4B4B4B] mt-1">{suggestion.impact}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-[#4B4B4B] mt-4 text-center">
+                  These are estimates to help guide your planning. Consider consulting a financial advisor for personalized advice.
+                </p>
+                <button
+                  onClick={() => { setCurrentPage('budget'); window.scrollTo(0, 0); }}
+                  className="mt-3 text-sm font-medium underline"
+                  style={{color: '#C58B6A'}}
+                >
+                  Get a detailed spending breakdown in the Budget tool →
+                </button>
+              </div>
+            )}
+          </>
+        )}
+        
+        {/* Home Equity Section */}
+        <div id="home-equity-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <div
+            className="cursor-pointer flex justify-between items-center"
+            style={{
+              backgroundColor: '#C58B6A',
+              padding: '16px',
+              borderRadius: considerHomeEquity ? '4px 4px 0 0' : '4px'
+            }}
+            onClick={() => setConsiderHomeEquity(!considerHomeEquity)}
+          >
+            <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Home Equity (Optional)</h2>
+            <span className="text-white text-2xl">{considerHomeEquity ? '−' : '+'}</span>
+          </div>
+          
+          {considerHomeEquity && (
+            <div className="p-6 space-y-6">
+              {!quickMode && <p className="text-base text-[#4B4B4B]">
+                If you plan to downsize in retirement, you could unlock home equity to supplement your income.
+                This calculator estimates your home's value at retirement and potential equity if you sell and move to a smaller home.
+              </p>}
+
+              <div className="py-2">
+                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+                  Home Purchase Price: {formatCurrency(homePurchasePrice)}
+                </label>
+                <input
+                  type="number"
+                  value={homePurchasePrice}
+                  onChange={(e) => setHomePurchasePrice(Number(e.target.value))}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{borderColor: '#e5e7eb'}}
+                />
+              </div>
+
+              <div className="py-2">
+                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+                  Year Purchased
+                </label>
+                <input
+                  type="number"
+                  value={homePurchaseYear}
+                  onChange={(e) => setHomePurchaseYear(Number(e.target.value))}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{borderColor: '#e5e7eb'}}
+                  min="1950"
+                  max={new Date().getFullYear()}
+                />
+                <p className="text-base text-[#4B4B4B] mt-1">
+                  We'll assume a standard 30-year mortgage
+                </p>
+              </div>
+
+              <div className="py-2">
+                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+                  Expected Home Appreciation Rate: {homeAppreciationRate}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  step="0.5"
+                  value={homeAppreciationRate}
+                  onChange={(e) => setHomeAppreciationRate(Number(e.target.value))}
+                  className="w-full"
+              />
+              <p className="text-base text-[#4B4B4B] mt-3">
+                  Historical average is around 3-4% annually
+                </p>
+              </div>
+              
+              <div className="py-2">
+                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+                  Downsized Home Purchase Price: {formatCurrency(downsizeAmount)}
+                </label>
+                <input
+                  type="number"
+                  value={downsizeAmount}
+                  onChange={(e) => setDownsizeAmount(Number(e.target.value))}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{borderColor: '#e5e7eb'}}
+                />
+                <p className="text-base text-[#4B4B4B] mt-1">
+                  Enter in today's dollars. At retirement ({retirementAge - currentAge} years), this would be approximately <strong>{formatCurrency(downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge))}</strong> adjusted for {homeAppreciationRate}% home appreciation.
+                </p>
+              </div>
+              
+              {(() => {
+                const currentYear = new Date().getFullYear();
+                const yearsOwned = retirementAge - currentAge + (currentYear - homePurchaseYear);
+                const mortgagePayoffYear = homePurchaseYear + 30;
+                const yearsUntilPayoff = Math.max(0, mortgagePayoffYear - (currentYear + (retirementAge - currentAge)));
+                const homeValueAtRetirement = homePurchasePrice * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge);
+                
+                // Simplified mortgage calculation - assume 20% down, rest financed
+                const loanAmount = homePurchasePrice * 0.8;
+                const remainingMortgage = yearsUntilPayoff > 0 ? loanAmount * (yearsUntilPayoff / 30) : 0;
+                const netHomeEquity = homeValueAtRetirement - remainingMortgage;
+                const downsizeAmountFuture = downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge);
+                const cashFromDownsize = netHomeEquity - downsizeAmountFuture;
+                const additionalYearlyIncome = cashFromDownsize > 0 ? cashFromDownsize * (withdrawalRate / 100) : 0;
+                
+                return (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                    <h3 className="font-semibold mb-3" style={{color: 'rgb(14, 50, 60)'}}>
+                      Home Equity Projection at Retirement
+                    </h3>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-[#3A4446]">Estimated home value:</span>
+                        <span className="font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+                          {formatCurrency(homeValueAtRetirement)}
+                        </span>
+                      </div>
+                      
+                      {yearsUntilPayoff > 0 ? (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-[#3A4446]">Remaining mortgage:</span>
+                            <span className="font-semibold text-red-600">
+                              -{formatCurrency(remainingMortgage)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm text-[#4B4B4B]">
+                            <span>Mortgage paid off in {mortgagePayoffYear}</span>
+                            <span>({yearsUntilPayoff} years after retirement)</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-xs text-green-600">
+                          ✓ Mortgage will be paid off before retirement ({mortgagePayoffYear})
+                        </div>
+                      )}
+                      
+                      <div className="border-t border-blue-300 my-2"></div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-[#3A4446]">Net home equity:</span>
+                        <span className="font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+                          {formatCurrency(netHomeEquity)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-[#3A4446]">Downsized home cost:</span>
+                        <span className="font-semibold text-[#3A4446]">
+                          -{formatCurrency(downsizeAmountFuture)}
+                        </span>
+                      </div>
+                      <div className="text-sm text-[#4B4B4B] text-right">
+                        {formatCurrency(downsizeAmount)} in today's dollars, adjusted for home appreciation
+                      </div>
+                      
+                      <div className="border-t border-blue-300 my-2"></div>
+                      
+                      <div className="flex justify-between text-base">
+                        <span className="font-semibold text-[#3A4446]">Cash available to invest:</span>
+                        <span className="font-bold" style={{color: cashFromDownsize > 0 ? 'rgb(14, 50, 60)' : '#dc2626'}}>
+                          {formatCurrency(cashFromDownsize)}
+                        </span>
+                      </div>
+                      
+                      {cashFromDownsize > 0 && (
+                        <div className="mt-3 pt-3 border-t border-blue-300">
+                          <div className="flex justify-between text-base">
+                            <span className="font-semibold text-[#3A4446]">Additional yearly income ({withdrawalRate}%):</span>
+                            <span className="font-bold text-green-600">
+                              +{formatCurrency(additionalYearlyIncome)}/year
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-blue-300">
+                      <p className="text-sm text-[#4B4B4B]">
+                        <strong>Note:</strong> This is a simplified estimate. Actual costs include selling fees, moving expenses, closing costs, 
+                        and capital gains taxes. Downsizing involves significant life changes. Consider consulting a financial advisor and real estate 
+                        professional for personalized guidance.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+
+        {/* Anticipated Assets Section */}
+        <div id="anticipated-assets-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <div
+            className="cursor-pointer flex justify-between items-center"
+            style={{
+              backgroundColor: '#C58B6A',
+              padding: '16px',
+              borderRadius: considerAnticipatedAssets ? '4px 4px 0 0' : '4px'
+            }}
+            onClick={() => setConsiderAnticipatedAssets(!considerAnticipatedAssets)}
+          >
+            <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Anticipated Assets (Optional)</h2>
+            <span className="text-white text-2xl">{considerAnticipatedAssets ? '−' : '+'}</span>
+          </div>
+
+          {considerAnticipatedAssets && (
+            <div className="p-6">
+              {!quickMode && <p className="text-base text-[#4B4B4B] mb-4 leading-relaxed">If you expect to come into a meaningful sum before retirement — whether through inheritance, a trust, a business sale, or another windfall — you can note it here. We'll show it separately so it doesn't cloud your core plan.</p>}
+
+              <div className="mb-4">
+                <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                  Anticipated amount
+                </label>
+                <div className="relative mb-2">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={formatNumberWithCommas(anticipatedAmount)}
+                    onChange={(e) => setAnticipatedAmount(parseFormattedNumber(e.target.value) || 0)}
+                    className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+                    style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="2000000"
+                  step="10000"
+                  value={anticipatedAmount}
+                  onChange={(e) => setAnticipatedAmount(Number(e.target.value))}
+                  style={{accentColor: 'rgb(14, 50, 60)'}}
+                  className="w-full"
+                />
+              </div>
+
+              {!quickMode && <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                <p className="text-sm text-[#4B4B4B]">This amount will appear as a faded overlay on your retirement projection — a possible future, not a guarantee. Your core plan remains unchanged.</p>
+              </div>}
+            </div>
+          )}
+        </div>
+
+        {/* Retirement Outlook Section */}
+        {/* Section Title Card */}
+        <div id="results-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Your Retirement Outlook</h2>
+        </div>
+
+        {/* Retirement Outlook Content */}
+        <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <div>
+            {!quickMode && <p className="text-base text-[#4B4B4B] mb-5">
+              See how your savings are projected to grow from now until retirement.
+            </p>}
+
+          {/* Total at retirement callout */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="p-4 rounded border text-center" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <div className="text-sm text-[#4B4B4B] mb-1">Estimated total at retirement</div>
+              <div className="text-2xl font-bold" style={{color: 'rgb(14, 50, 60)'}}>{formatCompact(totalAtRetirement)}</div>
+              {projWhatIfExtra > 0 || projWhatIfReturn !== null || (projWhatIfRetirementAge !== null && projWhatIfRetirementAge !== retirementAge) ? (() => {
+                // Inline delta — needs whatIfFinalBalance but that's computed inside the graph IIFE
+                // So we compute it here too with same logic
+                const projWhatIfRetAge = projWhatIfRetirementAge ?? retirementAge;
+                const projWhatIfRet = projWhatIfReturn ?? expectedReturn;
+                const startingBalance = breakdownByAccount
+                  ? (account401k + accountIRA + accountRoth + accountBrokerage + accountPension)
+                  : currentSavings;
+                let bal = startingBalance;
+                const years = projWhatIfRetAge - currentAge;
+                for (let yr = 1; yr <= years; yr++) {
+                  const yearIncome = annualIncome * Math.pow(1 + annualRaise / 100, yr - 1);
+                  const yearMonthly = yearIncome / 12;
+                  const ageInYear = currentAge + yr - 1;
+                  const baseLimit = 24500, catchupMax = 32500;
+                  const contrib = ageInYear >= 50 && useCatchupContributions
+                    ? catchupMax / 12
+                    : Math.min(yearMonthly * (contributionPercent / 100), baseLimit / 12);
+                  const matchPct = Math.min(contributionPercent, employerMatchUpTo);
+                  const match = (yearMonthly * (matchPct / 100)) * (employerMatchRate / 100);
+                  const indiv = hasIndividualContributions ? yearMonthly * (individualContributionPercent / 100) : 0;
+                  bal = bal * (1 + projWhatIfRet / 100) + (contrib + match) * 12 + indiv * 12 + projWhatIfExtra * 12;
+                }
+                const delta = bal - totalAtRetirement;
+                const isPos = delta >= 0;
+                return (
+                  <div className="mt-1 text-sm font-semibold" style={{color: isPos ? '#6E8F7C' : '#b45309'}}>
+                    What if: {isPos ? '+' : ''}{formatCompact(delta)}
+                  </div>
+                );
+              })() : null}
+              {considerAnticipatedAssets && anticipatedAmount > 0 && (
+                <div className="mt-2 pt-2 border-t border-dashed" style={{borderColor: '#c4c9cf'}}>
+                  <div className="text-xs text-[#4B4B4B] mb-0.5" style={{opacity: 0.7}}>With anticipated assets</div>
+                  <div className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)', opacity: 0.45}}>{formatCompact(totalAtRetirement + anticipatedAmount)}</div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 rounded border text-center" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <div className="text-sm text-[#4B4B4B]">Yearly income</div>
+                <button
+                  onClick={() => setShowTodaysDollars(!showTodaysDollars)}
+                  className="text-xs px-2 py-0.5 rounded hover:bg-gray-100 transition-colors"
+                  style={{color: 'rgb(107, 114, 128)', border: '1px solid #e5e7eb', backgroundColor: 'white'}}
+                  title={showTodaysDollars ? "Switch to future dollars" : "Switch to today's dollars"}
+                >
+                  ⇄
+                </button>
+              </div>
+              <div className="text-2xl font-bold" style={{color: 'rgb(14, 50, 60)'}}>{formatCompact(showTodaysDollars ? yearlyIncomeToday : yearlyIncome)}</div>
+              <div className="text-sm text-[#4B4B4B] mt-1">{showTodaysDollars ? "today's dollars" : "future dollars"}</div>
+            </div>
+          </div>
+
+          {/* Projection Graph */}
+          {growthData.length > 1 && (() => {
+            const yearsToRetirement = retirementAge - currentAge;
+            const retirementIncomeTargetFuture = (annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, yearsToRetirement);
+            const grossGoalNestEgg = retirementIncomeTargetFuture / (withdrawalRate / 100);
+            const pensionActive = hasPension && pensionStartAge <= retirementAge;
+            const socialSecurityFuture = socialSecurityAmount * Math.pow(1 + inflationRate / 100, yearsToRetirement);
+            const pensionCapEq = pensionActive ? (pensionAmount * 12) / (withdrawalRate / 100) : 0;
+            const ssCapEq = hasSocialSecurity ? (socialSecurityFuture * 12) / (withdrawalRate / 100) : 0;
+            const goalNestEgg = Math.max(0, grossGoalNestEgg - pensionCapEq - ssCapEq);
+            const finalBalance = growthData[growthData.length - 1].balance;
+            const onTrack = finalBalance >= goalNestEgg;
+
+            const formatK = (v) => {
+              if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
+              if (v >= 1000) return `$${Math.round(v / 1000)}k`;
+              return '$0';
+            };
+
+            const milestoneLines = [];
+            if (currentAge < 50 && retirementAge > 50) milestoneLines.push({ age: 50, label: 'Age 50' });
+            if (retirementAge > 62 && currentAge < 62) milestoneLines.push({ age: 62, label: 'Age 62' });
+            if (retirementAge > 65 && currentAge < 65) milestoneLines.push({ age: 65, label: 'Age 65' });
+
+            const CustomDot = (props) => {
+              const { cx, cy, payload } = props;
+              if (payload.year === retirementAge) {
+                return <circle cx={cx} cy={cy} r={6} fill="#C58B6A" stroke="white" strokeWidth={2}/>;
+              }
+              const isMilestone = milestoneLines.some(m => m.age === payload.year);
+              if (isMilestone) {
+                return <circle cx={cx} cy={cy} r={4} fill="rgb(14,50,60)" stroke="white" strokeWidth={2}/>;
+              }
+              return null;
+            };
+
+            // Build what-if projection data
+            const projWhatIfRetAge = projWhatIfRetirementAge ?? retirementAge;
+            const projWhatIfRet = projWhatIfReturn ?? expectedReturn;
+            const projIsDifferent = projWhatIfExtra > 0 ||
+              projWhatIfReturn !== null || (projWhatIfRetirementAge !== null && projWhatIfRetirementAge !== retirementAge);
+
+            const buildWhatIfProjection = () => {
+              const startingBalance = breakdownByAccount
+                ? (account401k + accountIRA + accountRoth + accountBrokerage + accountPension)
+                : currentSavings;
+              const data = [];
+              let bal = startingBalance;
+              const years = projWhatIfRetAge - currentAge;
+              for (let yr = 0; yr <= years; yr++) {
+                if (yr === 0) { data.push({ year: currentAge, whatif: Math.round(bal) }); continue; }
+                const yearIncome = annualIncome * Math.pow(1 + annualRaise / 100, yr - 1);
+                const yearMonthly = yearIncome / 12;
+                const ageInYear = currentAge + yr - 1;
+                const baseLimit = 24500, catchupMax = 32500;
+                let contrib = ageInYear >= 50 && useCatchupContributions
+                  ? catchupMax / 12
+                  : Math.min(yearMonthly * (contributionPercent / 100), baseLimit / 12);
+                const matchPct = Math.min(contributionPercent, employerMatchUpTo);
+                const match = (yearMonthly * (matchPct / 100)) * (employerMatchRate / 100);
+                const indiv = hasIndividualContributions ? yearMonthly * (individualContributionPercent / 100) : 0;
+                const extra = projWhatIfExtra;
+                const totalContrib = (contrib + match) * 12 + indiv * 12 + extra * 12;
+                bal = bal * (1 + projWhatIfRet / 100) + totalContrib;
+                data.push({ year: currentAge + yr, whatif: Math.round(bal) });
+              }
+              return data;
+            };
+
+            const whatIfProjData = projIsDifferent ? buildWhatIfProjection() : [];
+
+            // Merge what-if into growthData by year for Recharts
+            const mergedProjData = growthData.map(d => ({
+              ...d,
+              whatif: whatIfProjData.find(w => w.year === d.year)?.whatif ?? null
+            }));
+            // Extend if what-if retirement age is later
+            if (projWhatIfRetAge > retirementAge) {
+              for (let age = retirementAge + 1; age <= projWhatIfRetAge; age++) {
+                const wi = whatIfProjData.find(w => w.year === age);
+                if (wi) mergedProjData.push({ year: age, balance: null, whatif: wi.whatif });
+              }
+            }
+
+            const whatIfFinalBalance = whatIfProjData.length > 0
+              ? whatIfProjData[whatIfProjData.length - 1].whatif : null;
+
+            const maxProjVal = Math.max(
+              goalNestEgg,
+              growthData[growthData.length - 1]?.balance ?? 0,
+              whatIfFinalBalance ?? 0,
+              considerAnticipatedAssets && anticipatedAmount > 0 ? finalBalance + anticipatedAmount : 0
+            ) * 1.1;
+
+            const CustomTooltipWithWhatIf = ({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const d = payload[0]?.payload;
+                return (
+                  <div style={{backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', boxShadow: '0 2px 8px rgba(0,0,0,0.12)'}}>
+                    <p style={{margin: 0, fontSize: 13, fontWeight: 600, color: 'rgb(14,50,60)'}}>Age {d.year}</p>
+                    {d.balance !== null && <p style={{margin: '2px 0 0', fontSize: 12, color: 'rgb(14,50,60)'}}>Your plan: {formatK(d.balance)}</p>}
+                    {d.whatif !== null && <p style={{margin: '2px 0 0', fontSize: 12, color: '#C58B6A'}}>What if: {formatK(d.whatif)}</p>}
+                  </div>
+                );
+              }
+              return null;
+            };
+
+            return (
+              <div className="mb-6">
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={mergedProjData} margin={{top: 10, right: 24, left: 8, bottom: 8}}>
+                    <CartesianGrid vertical={false} stroke="#f3f4f6"/>
+                    <XAxis
+                      dataKey="year"
+                      tickLine={false}
+                      axisLine={{stroke: '#d1d5db'}}
+                      tick={{fontSize: 13, fill: '#6b7280'}}
+                      ticks={[currentAge, ...milestoneLines.map(m => m.age), Math.max(retirementAge, projWhatIfRetAge)]}
+                      tickFormatter={(v) => v === currentAge ? 'Today' : `${v}`}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{fontSize: 13, fill: '#6b7280'}}
+                      tickFormatter={formatK}
+                      width={52}
+                      domain={[0, maxProjVal]}
+                    />
+                    <Tooltip content={<CustomTooltipWithWhatIf/>}/>
+                    <ReferenceLine
+                      y={goalNestEgg}
+                      stroke={onTrack ? '#6E8F7C' : '#e57373'}
+                      strokeDasharray="6 4"
+                      strokeWidth={2}
+                      label={{value: 'Goal', position: 'insideTopLeft', fontSize: 12, fontWeight: 600, fill: onTrack ? '#6E8F7C' : '#e57373'}}
+                    />
+                    {considerAnticipatedAssets && anticipatedAmount > 0 && (
+                      <ReferenceLine
+                        y={finalBalance + anticipatedAmount}
+                        stroke="rgb(14,50,60)"
+                        strokeDasharray="3 6"
+                        strokeWidth={1.5}
+                        strokeOpacity={0.35}
+                        label={{value: 'With anticipated assets', position: 'insideTopLeft', fontSize: 11, fill: 'rgb(14,50,60)', fillOpacity: 0.4}}
+                      />
+                    )}
+                    {milestoneLines.map(m => (
+                      <ReferenceLine key={m.age} x={m.age} stroke="#e5e7eb" strokeDasharray="4 3"/>
+                    ))}
+                    {/* What-if line */}
+                    {projIsDifferent && <Line
+                      type="monotone"
+                      dataKey="whatif"
+                      stroke="#C58B6A"
+                      strokeWidth={2}
+                      strokeDasharray="2 5"
+                      dot={false}
+                      connectNulls={false}
+                    />}
+                    {/* Your plan */}
+                    <Line
+                      type="monotone"
+                      dataKey="balance"
+                      stroke="rgb(14,50,60)"
+                      strokeWidth={3}
+                      dot={<CustomDot/>}
+                      activeDot={{r: 5, fill: 'rgb(14,50,60)', stroke: 'white', strokeWidth: 2}}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+
+                {/* Legend */}
+                <div className="flex gap-4 flex-wrap mt-2">
+                  <div className="flex items-center gap-2">
+                    <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="rgb(14,50,60)" strokeWidth="2.5"/></svg>
+                    <span className="text-sm text-[#4B4B4B]">Your plan</span>
+                  </div>
+                  {projIsDifferent && <div className="flex items-center gap-2">
+                    <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="#C58B6A" strokeWidth="2" strokeDasharray="2,5"/></svg>
+                    <span className="text-sm text-[#4B4B4B]">What if: {formatK(whatIfFinalBalance)}</span>
+                  </div>}
+                  <div className="flex items-center gap-2">
+                    <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke={onTrack ? '#6E8F7C' : '#e57373'} strokeWidth="2" strokeDasharray="5,3"/></svg>
+                    <span className="text-sm text-[#4B4B4B]">Target ({formatK(goalNestEgg)})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#C58B6A"/></svg>
+                    <span className="text-sm text-[#4B4B4B]">Retirement age ({retirementAge})</span>
+                  </div>
+                </div>
+
+                {/* What-if explorer */}
+                <div className="mt-4 p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                  <p className="text-sm font-semibold text-[#3A4446] mb-3">Explore a scenario</p>
+
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-[#4B4B4B]">Extra monthly savings</span>
+                      <span className="text-sm font-semibold" style={{color: '#C58B6A'}}>{projWhatIfExtra === 0 ? '—' : `+${formatCurrency(projWhatIfExtra)}/mo`}</span>
+                    </div>
+                    <input type="range" min="0" max="2000" step="50"
+                      value={projWhatIfExtra}
+                      onChange={e => setProjWhatIfExtra(Number(e.target.value))}
+                      style={{accentColor: '#C58B6A'}} className="w-full"/>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-[#4B4B4B]">Return rate</span>
+                      <span className="text-sm font-semibold" style={{color: '#C58B6A'}}>{projWhatIfReturn === null ? `${expectedReturn}% (current)` : `${projWhatIfReturn}%`}</span>
+                    </div>
+                    <input type="range" min="1" max="12" step="0.5"
+                      value={projWhatIfReturn ?? expectedReturn}
+                      onChange={e => setProjWhatIfReturn(Number(e.target.value))}
+                      style={{accentColor: '#C58B6A'}} className="w-full"/>
+                  </div>
+
+                  <div className="mb-2">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-[#4B4B4B]">Retirement age</span>
+                      <span className="text-sm font-semibold" style={{color: '#C58B6A'}}>{projWhatIfRetirementAge === null ? `${retirementAge} (current)` : projWhatIfRetirementAge}</span>
+                    </div>
+                    <input type="range" min="55" max="75" step="1"
+                      value={projWhatIfRetirementAge ?? retirementAge}
+                      onChange={e => setProjWhatIfRetirementAge(Number(e.target.value))}
+                      style={{accentColor: '#C58B6A'}} className="w-full"/>
+                  </div>
+
+                  {projIsDifferent && (
+                    <button
+                      onClick={() => { setProjWhatIfExtra(0); setProjWhatIfReturn(null); setProjWhatIfRetirementAge(null); }}
+                      className="text-xs mt-2"
+                      style={{color: '#9ca3af', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0}}
+                    >
+                      Reset to your plan
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <button
+              onClick={() => { setCurrentPage('budget'); window.scrollTo(0, 0); }}
+              className="text-sm font-medium underline"
+              style={{color: '#C58B6A'}}
+            >
+              Not on track? Find savings in the Budget tool →
+            </button>
+          </div>
+
+          {/* Savings Longevity Graph */}
+          {totalAtRetirement > 0 && (() => {
+            const buildLongevity = (rate, returnRate) => {
+              const data = [];
+              let balance = totalAtRetirement;
+              const initialWithdrawal = totalAtRetirement * (rate / 100);
+              let age = retirementAge;
+              let year = 0;
+              while (balance > 0 && age <= 100) {
+                data.push({ age, balance: Math.round(balance) });
+                const inflationAdjustedWithdrawal = initialWithdrawal * Math.pow(1 + inflationRate / 100, year);
+                balance = balance * (1 + returnRate / 100) - inflationAdjustedWithdrawal;
+                age++;
+                year++;
+              }
+              if (age <= 100) data.push({ age, balance: 0 });
+              return data;
+            };
+
+            const ages = Array.from({ length: 101 - retirementAge }, (_, i) => retirementAge + i);
+            const yourData = buildLongevity(withdrawalRate, retirementReturnRate);
+            const whatIfData = buildLongevity(whatIfWithdrawal, whatIfReturn);
+
+            const isWhatIfDifferent = whatIfWithdrawal !== withdrawalRate || whatIfReturn !== retirementReturnRate;
+
+            const merged = ages.map(age => ({
+              age,
+              yours: yourData.find(d => d.age === age)?.balance ?? null,
+              whatif: whatIfData.find(d => d.age === age)?.balance ?? null,
+            }));
+
+            const formatK = (v) => {
+              if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
+              if (v >= 1000) return `$${Math.round(v / 1000)}k`;
+              return '$0';
+            };
+
+            // Calculate lasts-until ages
+            const yourLastAge = yourData[yourData.length - 1]?.age ?? 100;
+            const whatIfLastAge = whatIfData[whatIfData.length - 1]?.age ?? 100;
+
+            const LongevityTooltip = ({ active, payload, label }) => {
+              if (active && payload && payload.length) {
+                return (
+                  <div style={{backgroundColor: 'white', border: '1px solid #e5e7eb', borderRadius: 6, padding: '8px 12px', boxShadow: '0 2px 8px rgba(0,0,0,0.12)'}}>
+                    <p style={{margin: 0, fontSize: 13, fontWeight: 600, color: 'rgb(14,50,60)'}}>Age {label}</p>
+                    {payload.map(p => p.value !== null && (
+                      <p key={p.dataKey} style={{margin: '2px 0 0', fontSize: 12, color: p.color}}>{formatK(p.value)}</p>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            };
+
+            return (
+              <div className="mt-6">
+                <h4 className="text-base font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Savings Longevity</h4>
+                <p className="text-sm text-[#4B4B4B] mb-4">How long your savings last, with withdrawals increasing {inflationRate}% annually for inflation.</p>
+
+                <ResponsiveContainer width="100%" height={240}>
+                  <LineChart data={merged} margin={{top: 10, right: 16, left: 8, bottom: 8}}>
+                    <CartesianGrid vertical={false} stroke="#f3f4f6"/>
+                    <XAxis
+                      dataKey="age"
+                      tickLine={false}
+                      axisLine={{stroke: '#d1d5db'}}
+                      tick={{fontSize: 13, fill: '#6b7280'}}
+                      ticks={[retirementAge, retirementAge + 10, retirementAge + 20, retirementAge + 30, 100].filter(a => a <= 100)}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{fontSize: 13, fill: '#6b7280'}}
+                      tickFormatter={formatK}
+                      width={52}
+                    />
+                    <Tooltip content={<LongevityTooltip/>}/>
+                    <ReferenceLine x={90} stroke="#e5e7eb" strokeDasharray="4 3"
+                      label={{value: 'Age 90', position: 'insideTopLeft', fontSize: 11, fill: '#9ca3af'}}/>
+
+                    {/* What-if line — behind, dashed */}
+                    {isWhatIfDifferent && <Line
+                      type="monotone"
+                      dataKey="whatif"
+                      name={`${whatIfWithdrawal}% / ${whatIfReturn}% return`}
+                      stroke="#C58B6A"
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="2 5"
+                      connectNulls={false}
+                    />}
+
+                    {/* Your rate — bold, primary */}
+                    <Line
+                      type="monotone"
+                      dataKey="yours"
+                      name={`${withdrawalRate}% / ${retirementReturnRate}% return`}
+                      stroke="rgb(14,50,60)"
+                      strokeWidth={3}
+                      dot={false}
+                      connectNulls={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+
+                {/* What-if sliders */}
+                <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                  <p className="text-sm font-semibold text-[#3A4446] mb-3">Explore a scenario</p>
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-[#4B4B4B]">Withdrawal rate</span>
+                      <span className="text-sm font-semibold" style={{color: '#C58B6A'}}>{whatIfWithdrawal}%</span>
+                    </div>
+                    <input type="range" min="2" max="7" step="0.1"
+                      value={whatIfWithdrawal}
+                      onChange={e => setWhatIfWithdrawal(Number(e.target.value))}
+                      style={{accentColor: '#C58B6A'}}
+                      className="w-full"/>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm text-[#4B4B4B]">Retirement return</span>
+                      <span className="text-sm font-semibold" style={{color: '#C58B6A'}}>{whatIfReturn}%</span>
+                    </div>
+                    <input type="range" min="0" max="8" step="0.5"
+                      value={whatIfReturn}
+                      onChange={e => setWhatIfReturn(Number(e.target.value))}
+                      style={{accentColor: '#C58B6A'}}
+                      className="w-full"/>
+                  </div>
+                  {isWhatIfDifferent && (
+                    <button
+                      onClick={() => { setWhatIfWithdrawal(withdrawalRate); setWhatIfReturn(retirementReturnRate); }}
+                      className="text-xs mt-3"
+                      style={{color: '#9ca3af', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', padding: 0}}
+                    >
+                      Reset to your plan
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            );
+          })()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── App ─────────────────────────────────────────────────────────────────────
+const SonderSave = () => {
+  const [currentPage, setCurrentPage] = useState('calculator');
+  const [sharedData, setSharedData] = useState({
+    annualIncome: 75000,
+    monthlyPostTaxSavings: 0,
+    currentAge: 30,
+    retirementAge: 65,
+  });
+
+  return (
+    <div style={{minHeight: '100vh', backgroundColor: '#ffffff'}}>
+      <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      {currentPage === 'calculator' && <Calculator currentPage={currentPage} setCurrentPage={setCurrentPage} onDataChange={setSharedData} />}
+      {currentPage === 'budget' && <BudgetPage annualIncome={sharedData.annualIncome} monthlyPostTaxSavings={sharedData.monthlyPostTaxSavings} currentAge={sharedData.currentAge} retirementAge={sharedData.retirementAge} />}
+      {currentPage === 'resources' && <ResourcesPage />}
+      {currentPage === 'faq' && <FAQPage />}
+      {currentPage === 'glossary' && <GlossaryPage />}
+      {currentPage === 'spending' && <RetirementSpendingPage />}
+      {currentPage === 'about' && <AboutPage />}
+    </div>
+  );
+};
+
+export default SonderSave;
