@@ -146,14 +146,24 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
   const isLearnPage = learnPages.includes(currentPage);
 
   return (
-    <nav className="w-full border-b relative" style={{backgroundColor: 'rgb(14, 50, 60)', borderColor: '#2a3f45'}}>
+    <nav className="w-full border-b relative" style={{backgroundColor: 'white', borderColor: '#e5e7eb'}}>
       <div className="max-w-4xl mx-auto px-4 flex items-center gap-1 h-12">
+        <button
+          onClick={() => { setCurrentPage('home'); setLearnOpen(false); window.scrollTo(0, 0); }}
+          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          style={currentPage === 'home'
+            ? {backgroundColor: '#C58B6A', color: 'white'}
+            : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
+          }
+        >
+          Home
+        </button>
         <button
           onClick={() => { setCurrentPage('calculator'); setLearnOpen(false); }}
           className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
           style={currentPage === 'calculator'
             ? {backgroundColor: '#C58B6A', color: 'white'}
-            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+            : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
           }
         >
           Calculator
@@ -163,7 +173,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
           className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
           style={currentPage === 'budget'
             ? {backgroundColor: '#C58B6A', color: 'white'}
-            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+            : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
           }
         >
           Budget
@@ -176,7 +186,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
             className="px-4 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-1"
             style={isLearnPage
               ? {backgroundColor: '#C58B6A', color: 'white'}
-              : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+              : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
             }
           >
             Learn <span style={{fontSize: 9}}>{learnOpen ? '▲' : '▼'}</span>
@@ -215,7 +225,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
           className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
           style={currentPage === 'about'
             ? {backgroundColor: '#C58B6A', color: 'white'}
-            : {backgroundColor: 'transparent', color: 'rgb(200, 210, 210)'}
+            : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
           }
         >
           About
@@ -843,6 +853,20 @@ const ResourcesPage = () => {
 };
 
 // ─── About Page (stub) ───────────────────────────────────────────────────────
+// ─── Landing Page ─────────────────────────────────────────────────────────────
+const LandingPage = ({ setCurrentPage }) => (
+  <div style={{height: 'calc(100vh - 48px)', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+
+    {/* Centered logo + tagline */}
+    <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
+      <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{width: 340, maxWidth: '80vw'}} />
+      <p className="text-base leading-relaxed mt-6 text-center" style={{color: '#4B4B4B', maxWidth: 420, fontFamily: '"Inter Display", sans-serif'}}>
+        Everyone's retirement path is different. SonderSave helps you bring clarity to the numbers — so you can plan a retirement lifestyle that fits your life.
+      </p>
+    </div>
+  </div>
+);
+
 const AboutPage = () => (
   <div className="max-w-4xl mx-auto px-4 py-8">
     <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: '#C58B6A', borderRadius: '4px'}}>
@@ -936,6 +960,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
   
   // Home equity states
   const [considerHomeEquity, setConsiderHomeEquity] = useState(false);
+  const [hasNetMonthly, setHasNetMonthly] = useState(false);
+  const [netMonthlyTakeHome, setNetMonthlyTakeHome] = useState(0);
   const [considerAnticipatedAssets, setConsiderAnticipatedAssets] = useState(false);
   const [anticipatedAmount, setAnticipatedAmount] = useState(0);
   const [homePurchasePrice, setHomePurchasePrice] = useState(300000);
@@ -1508,8 +1534,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               {/* Section + module nav */}
               {[
                 { label: 'About You', id: 'about-you-section', modules: [] },
-                { label: 'Income & Growth Planning', id: 'income-planning-section', modules: [
-                  { label: 'Income', id: 'module-income' },
+                { label: 'Growth Planning', id: 'income-planning-section', modules: [
                   { label: 'Salary Growth', id: 'module-salary-growth' },
                   { label: 'Inflation', id: 'module-inflation' },
                   { label: 'Income Goal', id: 'module-income-goal' },
@@ -1741,21 +1766,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </p>
         </div>
 
-        {/* Income & Growth Planning Section */}
-
-        {/* Section Title Card */}
-        <div id="income-planning-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
-          backgroundColor: '#C58B6A',
-          padding: '16px',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Income & Growth Planning</h2>
-        </div>
-
         {/* Module: Current Annual Income */}
-        <div id="module-income" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+        <div id="module-income" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
           backgroundColor: 'white',
           borderRadius: '4px',
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
@@ -1785,6 +1797,91 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             className="w-full"
           />
           {!quickMode && <p className="text-sm text-[#4B4B4B] mt-3">For income above $150k, enter the amount directly.</p>}
+        </div>
+
+        {/* Module: Net Monthly Take-Home (Optional) */}
+        <div className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+              Monthly Take-Home Pay <span className="text-sm font-normal text-[#4B4B4B]">(optional)</span>
+            </label>
+            <button
+              onClick={() => { setHasNetMonthly(!hasNetMonthly); if (hasNetMonthly) setNetMonthlyTakeHome(0); }}
+              className="text-sm px-3 py-1 rounded border transition-colors"
+              style={{
+                backgroundColor: hasNetMonthly ? 'rgb(14,50,60)' : 'white',
+                color: hasNetMonthly ? 'white' : 'rgb(14,50,60)',
+                borderColor: 'rgb(14,50,60)'
+              }}
+            >{hasNetMonthly ? 'Remove' : 'Add'}</button>
+          </div>
+          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-4 leading-relaxed">What actually hits your bank account each month — after taxes and deductions. This helps us show your retirement income in a way that feels familiar, so you can compare future monthly income to what you live on today.</p>}
+          {hasNetMonthly && (
+            <div className="mt-3">
+              <div className="relative mb-2">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={formatNumberWithCommas(netMonthlyTakeHome)}
+                  onChange={(e) => setNetMonthlyTakeHome(parseFormattedNumber(e.target.value) || 0)}
+                  className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+                  style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+                  placeholder="e.g. 4200"
+                />
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="15000"
+                step="100"
+                value={netMonthlyTakeHome}
+                onChange={(e) => setNetMonthlyTakeHome(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Section Title Card */}
+        <div id="income-planning-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Growth Planning</h2>
+        </div>
+
+        {/* Module: Expected Inflation Rate */}
+        <div id="module-inflation" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Expected Inflation Rate: {inflationRate}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="6"
+            step="0.5"
+            value={inflationRate}
+            onChange={(e) => setInflationRate(Number(e.target.value))}
+            className="w-full"
+          />
+          {!quickMode && <p className="text-base text-[#4B4B4B] mt-3">
+            Historical inflation has averaged about 2.5–3%. We use 3% as the default.
+          </p>}
         </div>
 
         {/* Module: Potential Career Salary Growth */}
@@ -1831,30 +1928,6 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               <strong>Note:</strong> Career growth often isn't linear — raises may be higher early on and slower later. This tool uses a consistent rate for simplicity. Adjust your percentage to reflect your overall expectations.
             </p>
           </div>}
-        </div>
-
-        {/* Module: Expected Inflation Rate */}
-        <div id="module-inflation" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Expected Inflation Rate: {inflationRate}%
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="6"
-            step="0.5"
-            value={inflationRate}
-            onChange={(e) => setInflationRate(Number(e.target.value))}
-            className="w-full"
-          />
-          {!quickMode && <p className="text-base text-[#4B4B4B] mt-3">
-            Historical inflation has averaged about 2.5–3%. We use 3% as the default.
-          </p>}
         </div>
 
         {/* Module: Retirement Income Goal */}
@@ -2961,6 +3034,36 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             </div>
           </div>
 
+          {/* Monthly Income Comparison — only shown if net monthly was entered */}
+          {hasNetMonthly && netMonthlyTakeHome > 0 && (() => {
+            const retirementMonthlyGross = yearlyIncomeToday / 12;
+            // Add back retirement contributions to get true spending baseline
+            const monthlyContribAddBack = (annualIncome / 12) * (contributionPercent / 100);
+            const currentMonthlyBaseline = netMonthlyTakeHome + monthlyContribAddBack;
+            // Estimate taxes on retirement income (flat 18% estimate — simplified)
+            const estimatedTaxRate = 0.18;
+            const retirementMonthlyNet = retirementMonthlyGross * (1 - estimatedTaxRate);
+            const isComfortable = retirementMonthlyNet >= currentMonthlyBaseline * 0.85;
+            return (
+              <div className="mb-6 p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                <h4 className="text-sm font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Monthly Income Comparison</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded border text-center" style={{backgroundColor: 'white', borderColor: '#e5e7eb'}}>
+                    <div className="text-xs text-[#4B4B4B] mb-1">You live on today</div>
+                    <div className="text-xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(currentMonthlyBaseline)}<span className="text-sm font-normal">/mo</span></div>
+                    {contributionPercent > 0 && !quickMode && <div className="text-xs text-[#4B4B4B] mt-1">incl. {formatCurrency(monthlyContribAddBack)} contributions</div>}
+                  </div>
+                  <div className="p-3 rounded border text-center" style={{backgroundColor: 'white', borderColor: '#e5e7eb'}}>
+                    <div className="text-xs text-[#4B4B4B] mb-1">Est. retirement monthly</div>
+                    <div className="text-xl font-bold" style={{color: isComfortable ? '#6E8F7C' : '#C58B6A'}}>{formatCurrency(retirementMonthlyNet)}<span className="text-sm font-normal">/mo</span></div>
+                    <div className="text-xs text-[#4B4B4B] mt-1">after ~18% est. taxes</div>
+                  </div>
+                </div>
+                {!quickMode && <p className="text-xs text-[#4B4B4B] mt-3 italic">Tax estimate is approximate and based on today's rates. Tax laws are subject to change. Consult a tax professional for personalized guidance.</p>}
+              </div>
+            );
+          })()}
+
           {/* Projection Graph */}
           {growthData.length > 1 && (() => {
             const yearsToRetirement = retirementAge - currentAge;
@@ -3090,7 +3193,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                       width={52}
                       domain={[0, maxProjVal]}
                     />
-                    <Tooltip content={<CustomTooltipWithWhatIf/>}/>
+                    <Tooltip content={<CustomTooltipWithWhatIf/>} wrapperStyle={{outline: 'none', border: 'none'}}/>
                     <ReferenceLine
                       y={goalNestEgg}
                       stroke={onTrack ? '#6E8F7C' : '#e57373'}
@@ -3291,7 +3394,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                       tickFormatter={formatK}
                       width={52}
                     />
-                    <Tooltip content={<LongevityTooltip/>}/>
+                    <Tooltip content={<LongevityTooltip/>} wrapperStyle={{outline: 'none', border: 'none'}}/>
                     <ReferenceLine x={90} stroke="#e5e7eb" strokeDasharray="4 3"
                       label={{value: 'Age 90', position: 'insideTopLeft', fontSize: 11, fill: '#9ca3af'}}/>
 
@@ -3368,7 +3471,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 const SonderSave = () => {
-  const [currentPage, setCurrentPage] = useState('calculator');
+  const [currentPage, setCurrentPage] = useState('home');
   const [sharedData, setSharedData] = useState({
     annualIncome: 75000,
     monthlyPostTaxSavings: 0,
@@ -3379,6 +3482,7 @@ const SonderSave = () => {
   return (
     <div style={{minHeight: '100vh', backgroundColor: '#ffffff'}}>
       <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      {currentPage === 'home' && <LandingPage setCurrentPage={setCurrentPage} />}
       {currentPage === 'calculator' && <Calculator currentPage={currentPage} setCurrentPage={setCurrentPage} onDataChange={setSharedData} />}
       {currentPage === 'budget' && <BudgetPage annualIncome={sharedData.annualIncome} monthlyPostTaxSavings={sharedData.monthlyPostTaxSavings} currentAge={sharedData.currentAge} retirementAge={sharedData.retirementAge} />}
       {currentPage === 'resources' && <ResourcesPage />}
