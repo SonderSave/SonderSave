@@ -147,20 +147,11 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
 
   return (
     <nav className="w-full border-b relative" style={{backgroundColor: 'white', borderColor: '#e5e7eb'}}>
-      <div className="max-w-4xl mx-auto px-4 flex items-center gap-1 h-12">
-        <button
-          onClick={() => { setCurrentPage('home'); setLearnOpen(false); window.scrollTo(0, 0); }}
-          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
-          style={currentPage === 'home'
-            ? {backgroundColor: '#C58B6A', color: 'white'}
-            : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
-          }
-        >
-          Home
-        </button>
+      <div className="max-w-4xl mx-auto px-2 flex items-center gap-0.5 h-12">
+
         <button
           onClick={() => { setCurrentPage('calculator'); setLearnOpen(false); }}
-          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          className="px-2 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap"
           style={currentPage === 'calculator'
             ? {backgroundColor: '#C58B6A', color: 'white'}
             : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
@@ -170,7 +161,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
         </button>
         <button
           onClick={() => { setCurrentPage('budget'); window.scrollTo(0, 0); setLearnOpen(false); }}
-          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          className="px-2 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap"
           style={currentPage === 'budget'
             ? {backgroundColor: '#C58B6A', color: 'white'}
             : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
@@ -183,7 +174,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
         <div className="relative">
           <button
             onClick={() => setLearnOpen(!learnOpen)}
-            className="px-4 py-1.5 rounded text-sm font-medium transition-colors flex items-center gap-1"
+            className="px-2 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
             style={isLearnPage
               ? {backgroundColor: '#C58B6A', color: 'white'}
               : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
@@ -222,7 +213,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
 
         <button
           onClick={() => { setCurrentPage('about'); setLearnOpen(false); }}
-          className="px-4 py-1.5 rounded text-sm font-medium transition-colors"
+          className="px-2 sm:px-4 py-1.5 rounded text-xs sm:text-sm font-medium transition-colors whitespace-nowrap"
           style={currentPage === 'about'
             ? {backgroundColor: '#C58B6A', color: 'white'}
             : {backgroundColor: 'transparent', color: 'rgb(14, 50, 60)'}
@@ -230,6 +221,18 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
         >
           About
         </button>
+
+        {/* Logo — far right, only when not on home page */}
+        {currentPage !== 'home' && (
+          <button
+            onClick={() => { setCurrentPage('home'); setLearnOpen(false); window.scrollTo(0, 0); }}
+            className="flex items-center justify-center rounded transition-opacity hover:opacity-70 flex-shrink-0"
+            style={{marginLeft: 'auto', padding: '4px'}}
+            title="Home"
+          >
+            <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{height: 28, width: 'auto'}} />
+          </button>
+        )}
       </div>
 
       {/* Backdrop to close dropdown */}
@@ -365,15 +368,9 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
   return (
     <div className="max-w-4xl mx-auto px-4 py-6" style={{fontFamily: 'Inter, sans-serif'}}>
 
-      {/* Logo + Intro — matches calculator style */}
-      <div className="py-10 px-4">
-        <div className="flex justify-center mb-6">
-          <svg width="400" height="266" viewBox="0 0 400 266.667" xmlns="http://www.w3.org/2000/svg">
-            <rect width="400" height="266.667" fill="none"/>
-            <path d="M152.474 79.688 C 163.246 83.095,169.878 92.042,170.856 104.486 C 171.294 110.065,170.940 111.199,168.757 111.197 C 166.604 111.195,166.129 110.541,163.648 104.167 C 156.496 85.797,147.184 82.221,135.483 93.349 C 129.534 99.006,127.752 102.014,122.437 115.365 C 119.908 121.717,119.559 122.783,117.190 131.380 C 111.028 153.744,106.874 162.037,99.263 167.166 C 88.036 174.732,75.146 168.441,69.961 152.865 C 67.442 145.299,67.931 141.919,71.573 141.713 C 75.030 141.518,75.721 142.208,76.961 147.090 C 80.564 161.276,88.898 166.140,96.492 158.488 C 101.674 153.266,103.813 148.454,108.719 130.977 C 113.933 112.402,116.690 105.805,123.889 94.670 C 131.856 82.350,142.783 76.622,152.474 79.688 M217.906 136.654 L 217.839 151.172 215.885 151.172 L 213.932 151.172 213.852 150.052 L 213.771 148.932 212.823 149.764 C 209.764 152.450,204.618 152.070,202.047 148.967 C 198.560 144.760,198.818 136.338,202.549 132.608 C 205.106 130.050,210.027 129.700,212.877 131.873 L 213.672 132.479 213.649 127.503 C 213.622 121.560,213.381 122.135,215.903 122.135 L 217.973 122.135 217.906 136.654 M147.885 122.911 C 151.739 123.642,154.530 126.330,155.094 129.855 L 155.263 130.913 153.276 131.093 C 151.153 131.285,150.781 131.202,150.781 130.536 C 150.781 126.596,142.781 124.995,140.580 128.495 C 138.825 131.284,140.596 133.186,146.541 134.897 C 153.595 136.928,155.656 138.969,155.417 143.687 C 155.151 148.943,151.962 151.413,145.443 151.415 C 141.577 151.416,140.278 151.038,137.845 149.205 C 135.616 147.526,133.666 142.708,135.215 142.708 C 135.570 142.708,136.564 142.635,137.423 142.545 L 138.984 142.382 139.156 143.243 C 140.212 148.522,149.904 149.733,151.028 144.727 C 151.628 142.052,150.291 140.521,146.307 139.321 C 137.462 136.657,135.803 135.281,135.812 130.618 C 135.822 124.956,141.055 121.615,147.885 122.911 M268.274 122.951 C 272.312 123.817,274.831 126.260,275.408 129.869 L 275.574 130.909 273.543 131.080 C 271.276 131.272,271.302 131.285,270.871 129.766 C 269.483 124.884,259.989 125.720,260.501 130.680 C 260.712 132.722,261.663 133.378,266.430 134.765 C 273.989 136.965,275.973 138.869,275.729 143.687 C 275.462 148.960,272.295 151.414,265.755 151.414 C 259.733 151.414,256.264 149.111,255.211 144.414 C 254.855 142.826,254.911 142.778,257.322 142.561 L 259.305 142.382 259.488 143.392 C 260.517 149.075,271.348 149.477,271.353 143.832 C 271.356 141.240,270.270 140.374,265.092 138.835 C 257.776 136.660,256.151 135.167,256.130 130.599 C 256.105 124.949,261.563 121.511,268.274 122.951 M171.433 131.370 C 178.420 134.882,178.227 147.417,171.134 150.742 C 161.634 155.196,153.009 142.936,159.382 134.037 C 161.835 130.612,167.452 129.369,171.433 131.370 M192.841 130.954 C 195.932 132.359,196.354 133.889,196.354 143.678 L 196.354 151.324 194.336 151.248 L 192.318 151.172 192.188 143.880 C 192.025 134.795,191.607 133.789,188.148 134.179 C 184.293 134.614,184.001 135.295,183.908 144.076 L 183.831 151.302 181.759 151.302 L 179.688 151.302 179.624 146.549 C 179.567 142.279,179.579 137.512,179.659 132.476 L 179.688 130.707 181.706 130.783 L 183.724 130.859 183.854 131.990 L 183.984 133.121 184.635 132.412 C 186.319 130.577,190.410 129.850,192.841 130.954 M233.956 131.001 C 237.249 132.233,239.323 135.873,239.323 140.419 L 239.323 142.188 232.280 142.188 L 225.237 142.188 225.409 143.164 C 226.272 148.071,232.184 149.902,234.892 146.100 C 235.938 144.630,239.479 145.574,238.684 147.111 C 236.606 151.131,230.996 152.743,226.352 150.654 C 218.900 147.302,219.308 133.943,226.953 130.998 C 228.789 130.290,232.060 130.292,233.956 131.001 M253.772 130.723 C 253.858 130.863,253.852 131.829,253.757 132.871 L 253.585 134.766 251.707 134.766 C 247.291 134.766,246.628 136.080,246.620 144.857 L 246.615 151.302 244.531 151.302 L 242.448 151.302 242.448 141.016 L 242.448 130.729 244.531 130.729 L 246.615 130.729 246.615 132.212 L 246.615 133.695 247.225 132.867 C 248.690 130.882,252.998 129.471,253.772 130.723 M290.443 130.845 C 294.328 132.231,294.871 133.582,295.101 142.448 C 295.200 146.243,295.317 149.759,295.361 150.260 L 295.443 151.172 293.661 151.249 C 291.683 151.336,291.283 151.142,291.052 149.989 L 290.896 149.208 289.807 149.997 C 285.200 153.334,278.549 151.194,277.958 146.186 C 277.417 141.607,281.550 138.802,288.836 138.802 L 290.625 138.802 290.625 137.622 C 290.625 133.515,284.813 132.217,283.164 135.955 L 282.712 136.979 280.801 136.979 C 278.545 136.979,278.358 136.767,279.037 134.989 C 280.434 131.329,286.066 129.283,290.443 130.845 M329.384 131.270 C 332.542 132.848,334.105 135.790,334.111 140.169 L 334.115 142.188 327.214 142.188 L 320.313 142.188 320.318 143.034 C 320.349 147.546,326.120 149.718,329.396 146.450 C 330.706 145.144,331.624 144.987,333.008 145.830 C 334.040 146.460,334.044 146.540,333.106 147.812 C 328.876 153.559,319.904 152.666,316.877 146.198 C 312.640 137.144,321.050 127.105,329.384 131.270 M301.264 131.706 C 303.459 138.748,305.983 146.141,306.087 145.833 C 306.160 145.618,307.307 142.132,308.636 138.086 L 311.052 130.729 313.208 130.729 C 314.430 130.729,315.365 130.839,315.365 130.982 C 315.365 131.266,315.078 132.041,310.839 143.229 L 307.830 151.172 305.842 151.172 L 303.854 151.172 300.530 142.188 C 298.703 137.246,297.015 132.749,296.781 132.195 C 296.158 130.723,296.151 130.729,298.657 130.729 L 300.959 130.729 301.264 131.706 M228.207 134.360 C 226.993 134.912,225.857 136.399,225.525 137.874 L 225.315 138.802 230.236 138.802 C 232.942 138.802,235.156 138.714,235.155 138.607 C 235.129 135.166,231.423 132.900,228.207 134.360 M323.307 134.264 C 321.745 135.076,320.313 136.993,320.313 138.271 C 320.313 138.786,320.455 138.802,325.130 138.802 C 330.560 138.802,330.417 138.867,329.543 136.775 C 328.502 134.282,325.554 133.095,323.307 134.264 M164.539 134.642 C 160.702 136.669,160.702 144.985,164.538 147.329 C 168.359 149.664,172.199 146.515,172.237 141.016 C 172.275 135.534,168.604 132.495,164.539 134.642 M206.833 134.664 C 202.795 136.663,202.824 145.581,206.875 147.420 C 209.320 148.531,213.460 147.010,213.556 144.967 C 213.755 140.729,213.566 136.939,213.119 136.173 C 212.023 134.297,209.027 133.578,206.833 134.664 M284.240 142.541 C 280.671 144.203,282.285 148.590,286.271 148.062 C 289.270 147.664,290.622 146.264,290.624 143.555 L 290.625 141.927 288.086 141.930 C 285.975 141.932,285.327 142.035,284.240 142.541" stroke="none" fill="#0e323c" fillRule="evenodd"/>
-          </svg>
-        </div>
-        <p className="text-lg text-[#3A4446] leading-relaxed">This is your opportunity to see where your spending supports your goals — and where small shifts could create more room for saving over time.</p>
+      {/* Section header */}
+      <div className="rounded shadow-md mb-3 page-break-avoid" style={{backgroundColor: '#C58B6A', padding: '16px', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)', border: '1px solid #c4c9cf'}}>
+        <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Your Budget</h2>
       </div>
 
       {/* Net Income Input */}
@@ -527,69 +524,24 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
         </div>
       </div>
 
-      {/* Summary Bar */}
-      <div className="rounded mb-4 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-        <label className="block text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</label>
-        {buckets.map(bucket => {
-          const actual = bucketPercent(bucket);
-          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
-          const over = actual > target;
-          return (
-            <div key={bucket.id} className="mb-4">
-              <div className="flex justify-between items-baseline mb-1">
-                <span className="text-sm font-medium" style={{color: bucket.color}}>{bucket.label}</span>
-                <span className="text-xs text-[#4B4B4B]">
-                  {formatCurrency(bucketTotal(bucket))} of {formatCurrency(netIncome * target / 100)} target
-                  {over && <span className="ml-2 text-red-500 font-medium">▲ {(actual - target).toFixed(1)}% over</span>}
-                  {!over && actual > 0 && <span className="ml-2 text-green-600 font-medium">✓</span>}
-                </span>
-              </div>
-              <div className="relative rounded-full bg-gray-100 overflow-hidden" style={{height: 24}}>
-                <div className="h-full rounded-full transition-all duration-300 flex items-center justify-end pr-2"
-                  style={{width: `${Math.min(100, actual)}%`, backgroundColor: over ? '#c0392b' : bucket.color, minWidth: actual > 0 ? 36 : 0}}>
-                  {actual > 0 && <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{actual.toFixed(1)}%</span>}
-                </div>
-                <div className="absolute top-0 bottom-0 w-0.5 bg-gray-400" style={{left: `${target}%`}} />
-              </div>
-            </div>
-          );
-        })}
-        {/* Overage growth callout */}
-        {(() => {
-          const yearsToRetirement = Math.max(1, (retirementAge || 65) - (currentAge || 30));
-          const overBuckets = buckets.filter(b => {
-            const target = b.id === 'needs' ? targetNeeds : b.id === 'wants' ? targetWants : targetSavings;
-            return bucketPercent(b) > target;
-          });
-          const totalOverage = overBuckets.reduce((sum, b) => {
-            const target = b.id === 'needs' ? targetNeeds : b.id === 'wants' ? targetWants : targetSavings;
-            return sum + (bucketTotal(b) - (netIncome * target / 100));
-          }, 0);
-          if (totalOverage < 10 || grandTotal() === 0) return null;
-          const growthFactor = Math.pow(1.07, yearsToRetirement);
-          const futureValue = totalOverage * ((growthFactor - 1) / 0.07) * 12;
-          return (
-            <div className="mt-3 pt-3 border-t border-gray-100 p-3 rounded" style={{backgroundColor: '#f4f3ef', border: '1px solid #e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
-                <strong style={{color: '#C58B6A'}}>💡 Opportunity: </strong>
-                You're <strong>{formatCurrency(totalOverage)}/month</strong> over your targets in {overBuckets.map(b => b.label).join(' and ')}. Redirected to savings, that could grow to <strong style={{color: '#6E8F7C'}}>{formatCurrency(futureValue)}</strong> by retirement at age {retirementAge || 65} — assuming 7% average annual growth over {yearsToRetirement} years.
-              </p>
-            </div>
-          );
-        })()}
-
-        <div className="border-t border-gray-200 pt-3 mt-2 flex justify-between">
-          <span className="text-sm font-semibold text-[#3A4446]">Remaining unallocated</span>
-          <span className="text-sm font-semibold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>{formatCurrency(remaining)}</span>
-        </div>
-      </div>
-
       {/* Buckets */}
-      {buckets.map(bucket => (
+      {buckets.map(bucket => {
+        const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+        const actual = bucketTotal(bucket);
+        const targetAmount = netIncome * target / 100;
+        const over = actual > targetAmount && actual > 0;
+        return (
         <div key={bucket.id} className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-          {/* Bucket Header — name only */}
-          <div className="px-5 py-3" style={{backgroundColor: bucket.color}}>
+          {/* Bucket Header — name + actual vs target */}
+          <div className="px-5 py-3 flex items-center justify-between" style={{backgroundColor: bucket.color}}>
             <h3 className="text-base font-bold text-white" style={{margin: 0}}>{bucket.label}</h3>
+            {netIncome > 0 && (
+              <span className="text-sm font-medium text-white" style={{opacity: 0.92}}>
+                {formatCurrency(actual)} <span style={{opacity: 0.75}}>of {formatCurrency(targetAmount)}</span>
+                {over && <span className="ml-2" style={{fontSize: '0.7rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 4, padding: '1px 5px'}}>▲ over</span>}
+                {!over && actual > 0 && <span className="ml-2" style={{fontSize: '0.75rem'}}>✓</span>}
+              </span>
+            )}
           </div>
 
           {/* Flat category rows */}
@@ -648,13 +600,47 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
 
       {/* Pre-tax note */}
-      <div className="rounded mb-6 p-4" style={{backgroundColor: '#f4f3ef', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
+      <div className="rounded mb-4 p-4" style={{backgroundColor: '#f4f3ef', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
         <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
           <strong>Note on pre-tax contributions:</strong> Your 401(k) contributions are deducted before your paycheck arrives and are not included here. The Savings bucket above only reflects post-tax contributions like Roth IRA or brokerage investments.
         </p>
+      </div>
+
+      {/* Budget Summary */}
+      <div className="rounded mb-6 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <h3 className="text-lg font-semibold mb-4" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</h3>
+        {buckets.map(bucket => {
+          const actual = bucketPercent(bucket);
+          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+          const over = actual > target;
+          return (
+            <div key={bucket.id} className="mb-4">
+              <div className="flex justify-between items-baseline mb-1">
+                <span className="text-sm font-medium" style={{color: bucket.color}}>{bucket.label}</span>
+                <span className="text-xs text-[#4B4B4B]">
+                  {formatCurrency(bucketTotal(bucket))} of {formatCurrency(netIncome * target / 100)} target
+                  {over && <span className="ml-2 font-medium" style={{color: '#c0392b'}}>▲ {(actual - target).toFixed(1)}% over</span>}
+                  {!over && actual > 0 && <span className="ml-2 font-medium" style={{color: '#6E8F7C'}}>✓</span>}
+                </span>
+              </div>
+              <div className="relative rounded-full bg-gray-100 overflow-hidden" style={{height: 24}}>
+                <div className="h-full rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                  style={{width: `${Math.min(100, actual)}%`, backgroundColor: over ? '#c0392b' : bucket.color, minWidth: actual > 0 ? 36 : 0}}>
+                  {actual > 0 && <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{actual.toFixed(1)}%</span>}
+                </div>
+                <div className="absolute top-0 bottom-0 w-0.5 bg-gray-400" style={{left: `${target}%`}} />
+              </div>
+            </div>
+          );
+        })}
+        <div className="border-t border-gray-200 pt-3 mt-2 flex justify-between">
+          <span className="text-sm font-semibold text-[#3A4446]">Remaining unallocated</span>
+          <span className="text-sm font-semibold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>{formatCurrency(remaining)}</span>
+        </div>
       </div>
 
     </div>
@@ -737,6 +723,7 @@ const FAQPage = () => {
 // ─── Glossary Page ────────────────────────────────────────────────────────────
 const GlossaryPage = () => {
   const terms = [
+    { term: "Sonder", def: "n. The realization that each passerby has a life as vivid and complex as your own. SonderSave takes its name from this idea — that retirement planning is deeply personal, and no two paths look the same." },
     { term: "401(k)", def: "An employer-sponsored retirement savings account that allows employees to contribute pre-tax dollars. Contributions reduce your taxable income now; taxes are paid upon withdrawal in retirement. Many employers offer matching contributions." },
     { term: "403(b)", def: "Similar to a 401(k) but offered by public schools, nonprofits, and some government employers." },
     { term: "Catch-Up Contributions", def: "Additional retirement account contributions allowed for people aged 50 and older. In 2024, you can contribute an extra $7,500 to a 401(k) and an extra $1,000 to an IRA beyond the standard limits." },
@@ -861,21 +848,78 @@ const LandingPage = ({ setCurrentPage }) => (
     <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
       <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{width: 340, maxWidth: '80vw'}} />
       <p className="text-base leading-relaxed mt-6 text-center" style={{color: '#4B4B4B', maxWidth: 420, fontFamily: '"Inter Display", sans-serif'}}>
-        Everyone's retirement path is different. SonderSave helps you bring clarity to the numbers — so you can plan a retirement lifestyle that fits your life.
+        Everyone's path to retirement is different. SonderSave brings clarity to your journey — so you can plan the retirement that fits you.
       </p>
     </div>
   </div>
 );
 
 const AboutPage = () => (
-  <div className="max-w-4xl mx-auto px-4 py-8">
-    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: '#C58B6A', borderRadius: '4px'}}>
+  <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="rounded shadow-md mb-3 p-4" style={{backgroundColor: '#C58B6A', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
       <h2 className="text-2xl font-bold text-white" style={{margin: 0}}>About SonderSave</h2>
     </div>
-    <div className="rounded shadow-md p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
-      <p className="text-base text-[#4B4B4B]">
-        Coming soon — the story behind SonderSave and the philosophy that retirement planning is deeply personal.
-      </p>
+
+    {/* Why it exists */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Why SonderSave exists</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">Planning for retirement should bring clarity — not stress.</p>
+      <p className="text-base text-[#4B4B4B] mb-3">Most people know they should be planning ahead, but the tools available often feel overwhelming, overly technical, or narrowly focused. The result is more uncertainty, not less.</p>
+      <p className="text-base text-[#4B4B4B]">SonderSave was built to offer a calmer, more complete view of the road ahead — one that helps you understand where you stand today and what small changes could mean for your future.</p>
+    </div>
+
+    {/* Philosophy */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Our philosophy</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">We believe good retirement planning is:</p>
+      <div className="space-y-2 mb-3">
+        {[
+          ['Holistic', 'your future depends on many moving parts, not one number'],
+          ['Transparent', 'you should understand what drives your projections'],
+          ['Flexible', 'planning improves when you can explore scenarios'],
+          ['Calm', 'clarity works better than pressure'],
+        ].map(([term, def]) => (
+          <div key={term} className="flex gap-2 text-base text-[#4B4B4B]">
+            <span className="font-semibold" style={{color: 'rgb(14,50,60)', minWidth: 100}}>{term}</span>
+            <span>— {def}</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-base text-[#4B4B4B]">SonderSave is designed to support long-term thinking, not short-term optimization.</p>
+    </div>
+
+    {/* What makes it different */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>What makes SonderSave different</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">Many retirement tools focus on a single account or a single "answer." SonderSave takes a broader approach — multiple income sources, inflation-adjusted results, and scenario modeling, all in one place.</p>
+      <p className="text-base text-[#4B4B4B]" style={{fontStyle: 'italic'}}>The intent isn't to predict the future perfectly. It's to help you understand it meaningfully.</p>
+    </div>
+
+    {/* How projections work */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>How the projections work</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">SonderSave uses established financial planning principles to estimate long-term outcomes based on what you provide. Projections are influenced by your savings levels, contribution patterns, growth assumptions, retirement timing, and income goals.</p>
+      <p className="text-base text-[#4B4B4B]">All results are estimates, not guarantees. The tool is designed to help you explore possibilities and understand tradeoffs — you stay in control of the assumptions throughout.</p>
+    </div>
+
+    {/* Who it's for */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Who SonderSave is for</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">SonderSave is for people who want a clearer view of their retirement path without a full financial planning engagement. It may be especially helpful if you want to know whether you're generally on track, prefer exploring scenarios yourself, or find existing calculators too narrow or confusing.</p>
+      <p className="text-base text-[#4B4B4B]">It's not a trading tool, portfolio manager, or substitute for personalized financial advice.</p>
+    </div>
+
+    {/* Privacy */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>Privacy</h3>
+      <p className="text-base text-[#4B4B4B]">Your financial information stays on your device. SonderSave doesn't collect, store, or sell your data — everything runs locally in your browser.</p>
+    </div>
+
+    {/* About the creator */}
+    <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+      <h3 className="text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>About the creator</h3>
+      <p className="text-base text-[#4B4B4B] mb-3">SonderSave was built out of a simple frustration: most retirement tools either oversimplify or overcomplicate. The goal was something more balanced — a tool that respects both the numbers and the human side of long-term planning. This is an ongoing project and will continue to improve.</p>
+      <p className="text-base" style={{color: 'rgb(14,50,60)', fontStyle: 'italic'}}>If SonderSave helps you feel even a little more clear about your path forward, it's doing its job.</p>
     </div>
   </div>
 );
@@ -1481,6 +1525,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           transform: showStickyBar ? 'translateY(0)' : 'translateY(-8px)',
           transition: 'opacity 0.3s ease, transform 0.3s ease',
           pointerEvents: showStickyBar ? 'auto' : 'none',
+          maxHeight: showStickyBar ? '300px' : '0px',
+          overflow: 'hidden',
         }}
       >
         <div className="max-w-4xl mx-auto px-4 py-3">
@@ -1534,17 +1580,17 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               {/* Section + module nav */}
               {[
                 { label: 'About You', id: 'about-you-section', modules: [] },
-                { label: 'Growth Planning', id: 'income-planning-section', modules: [
-                  { label: 'Salary Growth', id: 'module-salary-growth' },
-                  { label: 'Inflation', id: 'module-inflation' },
-                  { label: 'Income Goal', id: 'module-income-goal' },
-                ]},
                 { label: 'Your Savings', id: 'your-savings-section', modules: [
                   { label: 'Savings Balance', id: 'module-savings-balance' },
                   { label: 'Employer Contributions', id: 'module-contributions' },
                   { label: 'Employer Match', id: 'module-employer-match' },
                   { label: 'Personal Accounts', id: 'module-personal-accounts' },
                   { label: 'Return Rate', id: 'module-return-rate' },
+                ]},
+                { label: 'Growth Planning', id: 'income-planning-section', modules: [
+                  { label: 'Salary Growth', id: 'module-salary-growth' },
+                  { label: 'Inflation', id: 'module-inflation' },
+                  { label: 'Income Goal', id: 'module-income-goal' },
                 ]},
                 { label: 'Retirement Income', id: 'retirement-income-section', modules: [
                   { label: 'Pension', id: 'module-pension' },
@@ -1643,24 +1689,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Logo */}
-        <div className="flex justify-center mb-8" style={{backgroundColor: 'white', padding: '20px', borderRadius: '8px'}}>
-          <svg width="400" height="266" viewBox="0, 0, 400,266.6666666666667" xmlns="http://www.w3.org/2000/svg">
-            <g>
-              <path d="M0.000 133.333 L 0.000 266.667 200.000 266.667 L 400.000 266.667 400.000 133.333 L 400.000 0.000 200.000 0.000 L 0.000 0.000 0.000 133.333 M152.474 79.688 C 163.246 83.095,169.878 92.042,170.856 104.486 C 171.294 110.065,170.940 111.199,168.757 111.197 C 166.604 111.195,166.129 110.541,163.648 104.167 C 156.496 85.797,147.184 82.221,135.483 93.349 C 129.534 99.006,127.752 102.014,122.437 115.365 C 119.908 121.717,119.559 122.783,117.190 131.380 C 111.028 153.744,106.874 162.037,99.263 167.166 C 88.036 174.732,75.146 168.441,69.961 152.865 C 67.442 145.299,67.931 141.919,71.573 141.713 C 75.030 141.518,75.721 142.208,76.961 147.090 C 80.564 161.276,88.898 166.140,96.492 158.488 C 101.674 153.266,103.813 148.454,108.719 130.977 C 113.933 112.402,116.690 105.805,123.889 94.670 C 131.856 82.350,142.783 76.622,152.474 79.688 M217.906 136.654 L 217.839 151.172 215.885 151.172 L 213.932 151.172 213.852 150.052 L 213.771 148.932 212.823 149.764 C 209.764 152.450,204.618 152.070,202.047 148.967 C 198.560 144.760,198.818 136.338,202.549 132.608 C 205.106 130.050,210.027 129.700,212.877 131.873 L 213.672 132.479 213.649 127.503 C 213.622 121.560,213.381 122.135,215.903 122.135 L 217.973 122.135 217.906 136.654 M147.885 122.911 C 151.739 123.642,154.530 126.330,155.094 129.855 L 155.263 130.913 153.276 131.093 C 151.153 131.285,150.781 131.202,150.781 130.536 C 150.781 126.596,142.781 124.995,140.580 128.495 C 138.825 131.284,140.596 133.186,146.541 134.897 C 153.595 136.928,155.656 138.969,155.417 143.687 C 155.151 148.943,151.962 151.413,145.443 151.415 C 141.577 151.416,140.278 151.038,137.845 149.205 C 135.616 147.526,133.666 142.708,135.215 142.708 C 135.570 142.708,136.564 142.635,137.423 142.545 L 138.984 142.382 139.156 143.243 C 140.212 148.522,149.904 149.733,151.028 144.727 C 151.628 142.052,150.291 140.521,146.307 139.321 C 137.462 136.657,135.803 135.281,135.812 130.618 C 135.822 124.956,141.055 121.615,147.885 122.911 M268.274 122.951 C 272.312 123.817,274.831 126.260,275.408 129.869 L 275.574 130.909 273.543 131.080 C 271.276 131.272,271.302 131.285,270.871 129.766 C 269.483 124.884,259.989 125.720,260.501 130.680 C 260.712 132.722,261.663 133.378,266.430 134.765 C 273.989 136.965,275.973 138.869,275.729 143.687 C 275.462 148.960,272.295 151.414,265.755 151.414 C 259.733 151.414,256.264 149.111,255.211 144.414 C 254.855 142.826,254.911 142.778,257.322 142.561 L 259.305 142.382 259.488 143.392 C 260.517 149.075,271.348 149.477,271.353 143.832 C 271.356 141.240,270.270 140.374,265.092 138.835 C 257.776 136.660,256.151 135.167,256.130 130.599 C 256.105 124.949,261.563 121.511,268.274 122.951 M171.433 131.370 C 178.420 134.882,178.227 147.417,171.134 150.742 C 161.634 155.196,153.009 142.936,159.382 134.037 C 161.835 130.612,167.452 129.369,171.433 131.370 M192.841 130.954 C 195.932 132.359,196.354 133.889,196.354 143.678 L 196.354 151.324 194.336 151.248 L 192.318 151.172 192.188 143.880 C 192.025 134.795,191.607 133.789,188.148 134.179 C 184.293 134.614,184.001 135.295,183.908 144.076 L 183.831 151.302 181.759 151.302 L 179.688 151.302 179.624 146.549 C 179.567 142.279,179.579 137.512,179.659 132.476 L 179.688 130.707 181.706 130.783 L 183.724 130.859 183.854 131.990 L 183.984 133.121 184.635 132.412 C 186.319 130.577,190.410 129.850,192.841 130.954 M233.956 131.001 C 237.249 132.233,239.323 135.873,239.323 140.419 L 239.323 142.188 232.280 142.188 L 225.237 142.188 225.409 143.164 C 226.272 148.071,232.184 149.902,234.892 146.100 C 235.938 144.630,239.479 145.574,238.684 147.111 C 236.606 151.131,230.996 152.743,226.352 150.654 C 218.900 147.302,219.308 133.943,226.953 130.998 C 228.789 130.290,232.060 130.292,233.956 131.001 M253.772 130.723 C 253.858 130.863,253.852 131.829,253.757 132.871 L 253.585 134.766 251.707 134.766 C 247.291 134.766,246.628 136.080,246.620 144.857 L 246.615 151.302 244.531 151.302 L 242.448 151.302 242.448 141.016 L 242.448 130.729 244.531 130.729 L 246.615 130.729 246.615 132.212 L 246.615 133.695 247.225 132.867 C 248.690 130.882,252.998 129.471,253.772 130.723 M290.443 130.845 C 294.328 132.231,294.871 133.582,295.101 142.448 C 295.200 146.243,295.317 149.759,295.361 150.260 L 295.443 151.172 293.661 151.249 C 291.683 151.336,291.283 151.142,291.052 149.989 L 290.896 149.208 289.807 149.997 C 285.200 153.334,278.549 151.194,277.958 146.186 C 277.417 141.607,281.550 138.802,288.836 138.802 L 290.625 138.802 290.625 137.622 C 290.625 133.515,284.813 132.217,283.164 135.955 L 282.712 136.979 280.801 136.979 C 278.545 136.979,278.358 136.767,279.037 134.989 C 280.434 131.329,286.066 129.283,290.443 130.845 M329.384 131.270 C 332.542 132.848,334.105 135.790,334.111 140.169 L 334.115 142.188 327.214 142.188 L 320.313 142.188 320.318 143.034 C 320.349 147.546,326.120 149.718,329.396 146.450 C 330.706 145.144,331.624 144.987,333.008 145.830 C 334.040 146.460,334.044 146.540,333.106 147.812 C 328.876 153.559,319.904 152.666,316.877 146.198 C 312.640 137.144,321.050 127.105,329.384 131.270 M301.264 131.706 C 303.459 138.748,305.983 146.141,306.087 145.833 C 306.160 145.618,307.307 142.132,308.636 138.086 L 311.052 130.729 313.208 130.729 C 314.430 130.729,315.365 130.839,315.365 130.982 C 315.365 131.266,315.078 132.041,310.839 143.229 L 307.830 151.172 305.842 151.172 L 303.854 151.172 300.530 142.188 C 298.703 137.246,297.015 132.749,296.781 132.195 C 296.158 130.723,296.151 130.729,298.657 130.729 L 300.959 130.729 301.264 131.706 M228.207 134.360 C 226.993 134.912,225.857 136.399,225.525 137.874 L 225.315 138.802 230.236 138.802 C 232.942 138.802,235.156 138.714,235.155 138.607 C 235.129 135.166,231.423 132.900,228.207 134.360 M323.307 134.264 C 321.745 135.076,320.313 136.993,320.313 138.271 C 320.313 138.786,320.455 138.802,325.130 138.802 C 330.560 138.802,330.417 138.867,329.543 136.775 C 328.502 134.282,325.554 133.095,323.307 134.264 M164.539 134.642 C 160.702 136.669,160.702 144.985,164.538 147.329 C 168.359 149.664,172.199 146.515,172.237 141.016 C 172.275 135.534,168.604 132.495,164.539 134.642 M206.833 134.664 C 202.795 136.663,202.824 145.581,206.875 147.420 C 209.320 148.531,213.460 147.010,213.556 144.967 C 213.755 140.729,213.566 136.939,213.119 136.173 C 212.023 134.297,209.027 133.578,206.833 134.664 M284.240 142.541 C 280.671 144.203,282.285 148.590,286.271 148.062 C 289.270 147.664,290.622 146.264,290.624 143.555 L 290.625 141.927 288.086 141.930 C 285.975 141.932,285.327 142.035,284.240 142.541 " stroke="none" fill="white" fillRule="evenodd"/>
-              <path d="M142.219 79.578 C 133.191 82.006,125.182 90.669,117.441 106.380 C 114.186 112.987,112.454 118.064,108.068 133.854 C 103.382 150.726,99.180 158.356,92.859 161.468 C 86.250 164.721,79.271 158.208,76.568 146.262 C 75.753 142.662,75.231 142.105,72.546 141.970 C 68.717 141.776,68.109 142.653,68.816 147.347 C 71.193 163.133,83.448 173.497,94.777 169.303 C 104.577 165.675,109.784 157.110,116.283 133.926 C 119.602 122.087,119.612 122.056,122.586 114.583 C 127.391 102.511,129.615 98.733,134.930 93.613 C 139.904 88.821,142.875 87.380,147.786 87.374 C 155.051 87.365,158.944 91.585,164.240 105.208 C 166.218 110.294,166.724 110.938,168.748 110.938 C 170.776 110.938,170.950 110.499,170.752 105.910 C 170.221 93.587,164.984 85.289,154.869 80.739 C 151.391 79.175,145.669 78.650,142.219 79.578 M213.802 127.519 L 213.802 132.903 213.216 132.372 C 210.062 129.509,204.363 130.129,201.842 133.609 C 199.548 136.776,199.057 143.018,200.809 146.745 C 203.105 151.629,209.206 153.006,212.942 149.483 C 214.019 148.467,214.063 148.482,214.063 149.870 L 214.063 151.042 215.885 151.042 L 217.708 151.042 217.708 136.589 L 217.708 122.135 215.755 122.135 L 213.802 122.135 213.802 127.519 M142.121 123.186 C 138.236 124.155,135.884 126.945,135.870 130.598 C 135.855 134.835,137.826 136.619,144.792 138.672 C 149.978 140.201,151.302 141.234,151.302 143.750 C 151.302 149.217,140.809 149.482,139.234 144.055 C 138.839 142.695,138.299 142.490,136.010 142.834 C 134.447 143.068,134.707 145.343,136.577 147.795 C 140.577 153.038,151.876 152.495,154.609 146.927 C 157.302 141.442,154.346 137.119,146.484 135.050 C 141.733 133.798,140.016 132.568,140.019 130.414 C 140.025 125.220,149.275 124.818,150.811 129.944 L 151.124 130.990 153.071 130.990 L 155.019 130.990 154.850 129.762 C 154.174 124.829,148.104 121.693,142.121 123.186 M261.550 123.440 C 258.158 124.544,256.246 127.135,256.256 130.616 C 256.268 135.037,257.976 136.584,265.173 138.690 C 271.240 140.465,273.122 142.880,270.886 146.020 C 268.258 149.710,259.375 147.669,259.375 143.376 C 259.375 142.648,258.445 142.502,256.185 142.875 C 253.316 143.350,256.956 149.246,261.000 150.673 C 268.506 153.322,275.537 149.814,275.594 143.391 C 275.635 138.791,273.854 137.118,266.690 135.028 C 261.992 133.657,260.886 132.991,260.417 131.253 C 258.926 125.714,269.489 124.361,271.111 129.883 L 271.437 130.990 273.349 130.990 C 275.556 130.990,275.598 130.918,274.850 128.401 C 273.562 124.062,267.074 121.642,261.550 123.440 M164.626 130.868 C 156.223 132.692,154.755 146.416,162.538 150.403 C 169.618 154.030,176.572 149.002,176.242 140.495 C 175.958 133.175,171.400 129.398,164.626 130.868 M188.021 130.713 C 186.719 130.975,185.580 131.629,184.517 132.723 L 183.594 133.674 183.594 132.332 L 183.594 130.990 181.641 130.990 L 179.688 130.990 179.688 141.016 L 179.688 151.042 181.641 151.042 L 183.594 151.042 183.594 144.418 C 183.594 140.371,183.702 137.509,183.871 137.061 C 185.115 133.768,190.428 132.959,191.802 135.854 C 192.237 136.771,192.390 139.461,192.427 146.810 L 192.448 151.042 194.401 151.042 L 196.354 151.042 196.352 144.336 C 196.350 137.133,196.121 134.827,195.252 133.281 C 194.034 131.114,191.135 130.084,188.021 130.713 M228.420 130.734 C 219.812 132.545,218.382 146.987,226.457 150.559 C 230.147 152.191,234.904 151.393,237.300 148.741 C 238.205 147.739,238.936 146.625,238.758 146.519 C 238.711 146.490,238.470 146.313,238.224 146.125 C 236.974 145.170,235.887 145.272,234.758 146.451 C 231.410 149.945,225.639 147.840,225.210 142.969 L 225.130 142.057 232.096 141.988 L 239.063 141.919 239.063 139.997 C 239.063 133.550,234.385 129.478,228.420 130.734 M250.582 130.718 C 249.382 131.011,247.780 132.131,247.230 133.063 C 246.559 134.198,246.354 134.048,246.354 132.422 L 246.354 130.990 244.401 130.990 L 242.448 130.990 242.448 141.016 L 242.448 151.042 244.401 151.042 L 246.354 151.042 246.382 148.242 C 246.479 138.473,246.505 138.124,247.207 136.926 C 248.167 135.287,249.661 134.517,251.897 134.511 L 253.665 134.505 253.590 132.552 L 253.516 130.599 252.474 130.555 C 251.901 130.530,251.050 130.604,250.582 130.718 M284.896 130.713 C 281.614 131.314,278.935 133.740,278.912 136.133 C 278.902 137.155,282.586 137.017,282.977 135.980 C 284.496 131.957,291.088 133.452,290.826 137.760 L 290.755 138.932 287.760 139.094 C 280.061 139.512,276.962 142.284,278.401 147.468 C 279.482 151.360,285.949 152.730,289.705 149.863 C 291.156 148.755,291.045 148.745,291.246 150.000 L 291.412 151.042 293.392 151.042 L 295.372 151.042 295.187 150.195 C 295.085 149.730,294.925 146.185,294.831 142.318 C 294.639 134.427,294.456 133.576,292.656 132.203 C 290.908 130.870,287.556 130.226,284.896 130.713 M323.235 130.730 C 314.875 132.495,313.221 146.565,320.929 150.340 C 325.322 152.490,330.914 151.271,333.002 147.708 L 333.688 146.539 333.129 146.087 C 331.941 145.125,330.748 145.171,329.889 146.213 C 327.027 149.685,321.365 148.396,320.319 144.036 C 319.784 141.807,319.390 141.927,327.205 141.927 L 334.115 141.927 334.115 140.673 C 334.115 133.706,329.427 129.422,323.235 130.730 M296.615 131.100 C 296.615 131.173,297.416 133.375,298.396 135.994 C 299.376 138.613,301.036 143.070,302.086 145.898 L 303.993 151.042 305.857 151.042 L 307.722 151.042 310.240 144.336 C 311.625 140.648,313.337 136.131,314.044 134.300 L 315.329 130.969 313.213 131.044 L 311.096 131.120 308.681 138.411 C 307.352 142.422,306.261 145.908,306.257 146.159 C 306.239 147.300,305.770 146.356,304.835 143.294 C 304.277 141.468,303.156 137.982,302.344 135.547 L 300.868 131.120 298.741 131.044 C 297.572 131.003,296.615 131.028,296.615 131.100 M233.082 134.481 C 234.177 135.205,235.156 136.977,235.156 138.233 L 235.156 139.063 230.208 139.063 L 225.260 139.063 225.260 138.401 C 225.260 134.898,230.070 132.487,233.082 134.481 M326.905 133.971 C 328.611 134.579,329.669 135.962,330.055 138.086 L 330.232 139.063 325.142 139.063 C 319.578 139.063,319.849 139.154,320.328 137.428 C 320.816 135.672,322.414 134.197,324.219 133.836 C 325.557 133.568,325.812 133.581,326.905 133.971 M168.950 134.257 C 171.777 135.438,173.114 139.349,172.155 143.632 C 170.922 149.142,163.973 149.814,162.134 144.601 C 159.882 138.217,163.886 132.141,168.950 134.257 M211.068 134.348 C 211.641 134.613,212.461 135.204,212.891 135.661 L 213.672 136.491 213.754 140.709 L 213.836 144.928 213.068 145.988 C 210.226 149.911,204.871 148.211,203.902 143.079 C 202.757 137.006,206.626 132.291,211.068 134.348 M290.844 143.607 C 290.578 148.890,282.173 150.273,282.173 145.035 C 282.173 142.870,284.355 141.716,288.505 141.685 L 290.942 141.667 290.844 143.607 " stroke="none" fill="#3A4446" fillRule="evenodd"/>
-              <path d="M134.367 94.206 L 132.682 95.964 134.440 94.278 C 135.407 93.352,136.198 92.560,136.198 92.521 C 136.198 92.329,135.933 92.573,134.367 94.206 M170.919 107.682 C 170.920 108.685,170.967 109.063,171.023 108.523 C 171.080 107.983,171.079 107.162,171.021 106.700 C 170.964 106.238,170.918 106.680,170.919 107.682 M213.620 123.698 C 213.620 124.486,213.669 124.808,213.728 124.414 C 213.788 124.020,213.788 123.376,213.728 122.982 C 213.669 122.588,213.620 122.910,213.620 123.698 M213.594 130.175 C 213.545 132.211,213.511 132.332,213.086 131.998 C 212.671 131.672,212.663 131.682,212.997 132.107 C 213.602 132.878,213.831 132.240,213.736 130.053 L 213.646 127.995 213.594 130.175 M151.015 131.067 C 151.137 131.189,151.632 131.247,152.115 131.197 C 152.973 131.109,152.968 131.104,151.895 130.977 C 151.290 130.905,150.894 130.946,151.015 131.067 M253.712 131.641 C 253.714 132.214,253.768 132.417,253.830 132.093 C 253.892 131.769,253.890 131.301,253.825 131.052 C 253.760 130.803,253.709 131.068,253.712 131.641 M271.323 131.062 C 271.448 131.188,271.888 131.249,272.299 131.197 C 272.987 131.112,272.969 131.093,272.071 130.969 C 271.511 130.891,271.192 130.931,271.323 131.062 M183.614 132.096 C 183.603 132.777,183.687 133.333,183.802 133.333 C 183.916 133.333,183.966 132.894,183.913 132.357 C 183.763 130.845,183.637 130.735,183.614 132.096 M166.471 134.034 C 166.722 134.099,167.132 134.099,167.383 134.034 C 167.633 133.968,167.428 133.915,166.927 133.915 C 166.426 133.915,166.221 133.968,166.471 134.034 M279.890 136.910 C 280.502 136.965,281.440 136.964,281.973 136.908 C 282.506 136.852,282.005 136.807,280.859 136.808 C 279.714 136.809,279.277 136.855,279.890 136.910 M294.902 142.448 C 294.902 145.527,294.940 146.787,294.986 145.247 C 295.032 143.708,295.032 141.188,294.986 139.648 C 294.940 138.109,294.902 139.368,294.902 142.448 M179.521 139.583 C 179.521 140.944,179.565 141.501,179.618 140.820 C 179.672 140.140,179.672 139.027,179.618 138.346 C 179.565 137.666,179.521 138.223,179.521 139.583 M320.279 138.873 C 320.390 138.984,322.640 139.042,325.279 139.003 L 330.078 138.931 325.078 138.802 C 322.327 138.730,320.168 138.762,320.279 138.873 M227.669 138.996 C 229.066 139.043,231.351 139.043,232.747 138.996 C 234.144 138.949,233.001 138.911,230.208 138.911 C 227.415 138.911,226.273 138.949,227.669 138.996 M287.044 138.989 C 287.438 139.048,288.083 139.048,288.477 138.989 C 288.870 138.929,288.548 138.880,287.760 138.880 C 286.973 138.880,286.650 138.929,287.044 138.989 M213.636 141.667 C 213.636 143.027,213.679 143.584,213.733 142.904 C 213.787 142.223,213.787 141.110,213.733 140.430 C 213.679 139.749,213.636 140.306,213.636 141.667 M199.550 141.146 C 199.550 141.790,199.601 142.054,199.663 141.732 C 199.725 141.410,199.725 140.882,199.663 140.560 C 199.601 140.238,199.550 140.501,199.550 141.146 M71.023 141.855 C 71.485 141.912,72.305 141.913,72.846 141.857 C 73.386 141.800,73.008 141.753,72.005 141.752 C 71.003 141.751,70.561 141.797,71.023 141.855 M288.593 141.857 L 290.597 141.948 290.700 143.111 L 290.803 144.274 290.779 143.036 L 290.755 141.797 288.672 141.781 L 286.589 141.765 288.593 141.857 M137.305 142.627 C 137.555 142.693,137.965 142.693,138.216 142.627 C 138.467 142.562,138.262 142.508,137.760 142.508 C 137.259 142.508,137.054 142.562,137.305 142.627 M166.471 148.096 C 166.722 148.162,167.132 148.162,167.383 148.096 C 167.633 148.031,167.428 147.977,166.927 147.977 C 166.426 147.977,166.221 148.031,166.471 148.096 M213.868 150.781 C 213.949 151.081,214.421 151.177,215.906 151.192 L 217.839 151.213 216.023 151.114 C 215.018 151.059,214.108 150.876,213.985 150.703 C 213.828 150.483,213.794 150.506,213.868 150.781 M303.816 151.107 C 303.883 151.214,304.802 151.302,305.859 151.302 C 306.917 151.302,307.836 151.214,307.902 151.107 C 307.969 150.999,307.049 150.911,305.859 150.911 C 304.669 150.911,303.750 150.999,303.816 151.107 M180.664 151.232 C 181.273 151.287,182.269 151.287,182.878 151.232 C 183.486 151.178,182.988 151.133,181.771 151.133 C 180.553 151.133,180.055 151.178,180.664 151.232 M193.431 151.233 C 194.044 151.288,194.981 151.287,195.515 151.231 C 196.048 151.175,195.547 151.130,194.401 151.131 C 193.255 151.132,192.819 151.178,193.431 151.233 M243.424 151.232 C 244.033 151.287,245.029 151.287,245.638 151.232 C 246.247 151.178,245.749 151.133,244.531 151.133 C 243.314 151.133,242.816 151.178,243.424 151.232 M292.513 151.231 C 293.050 151.288,293.929 151.288,294.466 151.231 C 295.003 151.175,294.564 151.129,293.490 151.129 C 292.415 151.129,291.976 151.175,292.513 151.231 " stroke="none" fill="#9c9c9c" fillRule="evenodd"/>
-              <path d="M203.712 141.016 C 203.714 141.589,203.768 141.792,203.830 141.468 C 203.892 141.144,203.890 140.676,203.825 140.427 C 203.760 140.178,203.709 140.443,203.712 141.016 M229.898 142.122 C 231.661 142.167,234.473 142.167,236.148 142.121 C 237.822 142.076,236.380 142.039,232.943 142.039 C 229.505 142.040,228.135 142.077,229.898 142.122 M323.372 142.115 C 323.838 142.173,324.600 142.173,325.065 142.115 C 325.531 142.058,325.150 142.010,324.219 142.010 C 323.288 142.010,322.907 142.058,323.372 142.115 M327.669 142.120 C 328.493 142.171,329.840 142.171,330.664 142.120 C 331.488 142.068,330.814 142.026,329.167 142.026 C 327.520 142.026,326.846 142.068,327.669 142.120 M332.617 142.107 C 332.868 142.172,333.278 142.172,333.529 142.107 C 333.779 142.041,333.574 141.988,333.073 141.988 C 332.572 141.988,332.367 142.041,332.617 142.107 " stroke="none" fill="#848484" fillRule="evenodd"/>
-              <path d="M145.762 79.094 C 146.225 79.152,147.045 79.153,147.585 79.096 C 148.126 79.040,147.747 78.993,146.745 78.992 C 145.742 78.991,145.300 79.037,145.762 79.094 M217.830 136.719 C 217.830 144.668,217.863 147.920,217.903 143.945 C 217.944 139.971,217.944 133.467,217.903 129.492 C 217.863 125.518,217.830 128.770,217.830 136.719 M256.055 130.599 C 256.058 131.172,256.111 131.376,256.174 131.052 C 256.236 130.728,256.234 130.259,256.169 130.010 C 256.103 129.761,256.052 130.026,256.055 130.599 M180.671 130.920 C 181.283 130.975,182.221 130.974,182.754 130.918 C 183.288 130.863,182.786 130.817,181.641 130.818 C 180.495 130.819,180.058 130.865,180.671 130.920 M243.431 130.920 C 244.044 130.975,244.981 130.974,245.515 130.918 C 246.048 130.863,245.547 130.817,244.401 130.818 C 243.255 130.819,242.819 130.865,243.431 130.920 M296.525 130.924 C 296.458 131.032,297.436 131.120,298.698 131.120 C 299.960 131.120,300.938 131.032,300.871 130.924 C 300.805 130.817,299.827 130.729,298.698 130.729 C 297.569 130.729,296.591 130.817,296.525 130.924 M311.107 130.924 C 311.040 131.032,311.707 131.087,312.589 131.047 C 315.285 130.924,315.604 130.809,313.362 130.768 C 312.189 130.747,311.174 130.817,311.107 130.924 M229.886 133.778 C 230.210 133.840,230.679 133.838,230.928 133.773 C 231.176 133.707,230.911 133.657,230.339 133.659 C 229.766 133.662,229.562 133.716,229.886 133.778 M286.396 133.778 C 286.720 133.840,287.189 133.838,287.438 133.773 C 287.687 133.707,287.422 133.657,286.849 133.659 C 286.276 133.662,286.072 133.716,286.396 133.778 M183.707 144.271 C 183.707 148.066,183.744 149.619,183.788 147.721 C 183.833 145.824,183.833 142.718,183.788 140.820 C 183.744 138.923,183.707 140.475,183.707 144.271 M239.143 140.495 C 239.145 141.354,239.193 141.674,239.251 141.206 C 239.309 140.738,239.308 140.035,239.249 139.644 C 239.189 139.252,239.142 139.635,239.143 140.495 M192.258 140.365 C 192.258 141.009,192.309 141.273,192.371 140.951 C 192.433 140.628,192.433 140.101,192.371 139.779 C 192.309 139.456,192.258 139.720,192.258 140.365 M161.536 140.885 C 161.536 141.673,161.585 141.995,161.645 141.602 C 161.705 141.208,161.705 140.563,161.645 140.169 C 161.585 139.775,161.536 140.098,161.536 140.885 M246.429 142.839 C 246.431 143.555,246.481 143.817,246.541 143.421 C 246.601 143.025,246.599 142.439,246.537 142.119 C 246.476 141.799,246.427 142.122,246.429 142.839 M225.164 142.133 C 225.094 142.246,225.438 142.292,225.930 142.235 C 226.421 142.177,226.823 142.085,226.823 142.029 C 226.823 141.833,225.290 141.929,225.164 142.133 M320.902 142.114 C 321.298 142.174,321.884 142.172,322.204 142.110 C 322.524 142.049,322.201 142.000,321.484 142.002 C 320.768 142.004,320.506 142.054,320.902 142.114 M192.294 146.745 C 192.294 149.180,192.333 150.211,192.381 149.036 C 192.429 147.862,192.429 145.869,192.382 144.609 C 192.334 143.349,192.294 144.310,192.294 146.745 M246.453 148.177 C 246.453 149.824,246.495 150.498,246.547 149.674 C 246.598 148.851,246.598 147.503,246.547 146.680 C 246.495 145.856,246.453 146.530,246.453 148.177 M208.398 148.096 C 208.649 148.162,209.059 148.162,209.310 148.096 C 209.561 148.031,209.355 147.977,208.854 147.977 C 208.353 147.977,208.148 148.031,208.398 148.096 M88.350 170.499 C 88.746 170.559,89.332 170.558,89.652 170.496 C 89.972 170.434,89.648 170.385,88.932 170.387 C 88.216 170.389,87.954 170.440,88.350 170.499 " stroke="none" fill="#7d847c" fillRule="evenodd"/>
-            </g>
-          </svg>
-        </div>
-        
-        <div className="mb-8">
-          <p className="text-lg text-[#3A4446] leading-relaxed" style={{fontFamily: '"Inter Display", sans-serif'}}>Everyone's retirement path is different. SonderSave helps you bring clarity to the numbers — so you can plan a retirement lifestyle that fits your life.</p>
-        </div>
-
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Print-only Summary */}
         <div className="hidden print:block page-break-avoid bg-[#F5F1EB] rounded-lg shadow-md border border-[#3A4446] p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4" style={{fontWeight: 700, color: 'rgb(14, 50, 60)'}}>Your Retirement Plan Summary</h2>
@@ -1707,8 +1736,6 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
         </div>
 
         {/* About You Section - Modular Design */}
-
-        <p className="text-base text-[#4B4B4B] mt-20 mb-3">Enter a few details below to see how your choices today may shape your future.</p>
 
         {/* Section Title Card */}
         <div id="about-you-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
@@ -1847,139 +1874,6 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               />
             </div>
           )}
-        </div>
-
-        {/* Section Title Card */}
-        <div id="income-planning-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
-          backgroundColor: '#C58B6A',
-          padding: '16px',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Growth Planning</h2>
-        </div>
-
-        {/* Module: Expected Inflation Rate */}
-        <div id="module-inflation" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Expected Inflation Rate: {inflationRate}%
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="6"
-            step="0.5"
-            value={inflationRate}
-            onChange={(e) => setInflationRate(Number(e.target.value))}
-            className="w-full"
-          />
-          {!quickMode && <p className="text-base text-[#4B4B4B] mt-3">
-            Historical inflation has averaged about 2.5–3%. We use 3% as the default.
-          </p>}
-        </div>
-
-        {/* Module: Potential Career Salary Growth */}
-        <div id="module-salary-growth" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Potential Career Salary Growth
-          </label>
-
-          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
-            A 3% raise typically keeps pace with inflation. Sustained career growth is often higher. Adjust this to reflect your expected trajectory.
-          </p>}
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">Expected Annual Raise</p>
-              <p className="text-2xl font-bold text-[#3A4446]">{annualRaise}%</p>
-            </div>
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">Career-End Salary</p>
-              <p className="text-2xl font-bold text-[#3A4446]">
-                {formatCurrency((annualIncome * Math.pow(1 + annualRaise / 100, retirementAge - currentAge)) / Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
-              </p>
-              <p className="text-xs text-[#4B4B4B]">(in today's dollars)</p>
-            </div>
-          </div>
-
-          <input
-            type="range"
-            min="0"
-            max="10"
-            step="0.1"
-            value={annualRaise}
-            onChange={(e) => setAnnualRaise(Number(e.target.value))}
-            className="w-full"
-          />
-
-          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
-              <strong>Note:</strong> Career growth often isn't linear — raises may be higher early on and slower later. This tool uses a consistent rate for simplicity. Adjust your percentage to reflect your overall expectations.
-            </p>
-          </div>}
-        </div>
-
-        {/* Module: Retirement Income Goal */}
-        <div id="module-income-goal" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Retirement Income Goal
-          </label>
-          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
-            Think of retirement as the income you'll need each year — not just a savings total. These scenarios show what percentage of your current income you might aim for.
-          </p>}
-
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
-              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
-                {formatCurrency(annualIncome * (retirementIncomeGoal / 100))}
-              </p>
-            </div>
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
-              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
-                {formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
-              </p>
-            </div>
-          </div>
-
-          <div className="text-center mb-2">
-            <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
-              {retirementIncomeGoal}% of current income
-            </span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="200"
-            step="5"
-            value={retirementIncomeGoal}
-            onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
-            style={{accentColor: 'rgb(14, 50, 60)'}}
-            className="w-full"
-          />
-
-          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>50–70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>70–80%</strong><br/>Most major debts cleared, reduced work-related costs</p>
-            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>90–100%+</strong><br/>Ongoing housing costs and monthly obligations</p>
-          </div>}
         </div>
 
         {/* Your Savings Section - Modular Design */}
@@ -2402,6 +2296,141 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
         {/* Retirement Income Sources Section */}
 
+        {/* Section Title Card */}
+        <div id="income-planning-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
+          backgroundColor: '#C58B6A',
+          padding: '16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Growth Planning</h2>
+        </div>
+
+        {/* Module: Expected Inflation Rate */}
+        <div id="module-inflation" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Expected Inflation Rate: {inflationRate}%
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="6"
+            step="0.5"
+            value={inflationRate}
+            onChange={(e) => setInflationRate(Number(e.target.value))}
+            className="w-full"
+          />
+          {!quickMode && <p className="text-base text-[#4B4B4B] mt-3">
+            Historical inflation has averaged about 2.5–3%. We use 3% as the default.
+          </p>}
+        </div>
+
+        {/* Module: Potential Career Salary Growth */}
+        <div id="module-salary-growth" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Potential Career Salary Growth
+          </label>
+
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            A 3% raise typically keeps pace with inflation. Sustained career growth is often higher. Adjust this to reflect your expected trajectory.
+          </p>}
+
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Expected Annual Raise</p>
+              <p className="text-2xl font-bold text-[#3A4446]">{annualRaise}%</p>
+            </div>
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">Career-End Salary</p>
+              <p className="text-2xl font-bold text-[#3A4446]">
+                {formatCurrency((annualIncome * Math.pow(1 + annualRaise / 100, retirementAge - currentAge)) / Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
+              </p>
+              <p className="text-xs text-[#4B4B4B]">(in today's dollars)</p>
+            </div>
+          </div>
+
+          <input
+            type="range"
+            min="0"
+            max="10"
+            step="0.1"
+            value={annualRaise}
+            onChange={(e) => setAnnualRaise(Number(e.target.value))}
+            className="w-full"
+          />
+
+          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+              <strong>Note:</strong> Career growth often isn't linear — raises may be higher early on and slower later. This tool uses a consistent rate for simplicity. Adjust your percentage to reflect your overall expectations.
+            </p>
+          </div>}
+        </div>
+
+        {/* Module: Retirement Income Goal */}
+        <div id="module-income-goal" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Retirement Income Goal
+          </label>
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Think of retirement as the income you'll need each year — not just a savings total. These scenarios show what percentage of your current income you might aim for.
+          </p>}
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
+              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+                {formatCurrency(annualIncome * (retirementIncomeGoal / 100))}
+              </p>
+            </div>
+            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
+              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+                {formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mb-2">
+            <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+              {retirementIncomeGoal}% of current income
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="200"
+            step="5"
+            value={retirementIncomeGoal}
+            onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
+            style={{accentColor: 'rgb(14, 50, 60)'}}
+            className="w-full"
+          />
+
+          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>50–70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>70–80%</strong><br/>Most major debts cleared, reduced work-related costs</p>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>90–100%+</strong><br/>Ongoing housing costs and monthly obligations</p>
+          </div>}
+        </div>
+
+
+        {/* Retirement Outlook Section */}
         {/* Section Title Card */}
         <div id="retirement-income-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
           backgroundColor: '#C58B6A',
@@ -2950,7 +2979,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           )}
         </div>
 
-        {/* Retirement Outlook Section */}
+
         {/* Section Title Card */}
         <div id="results-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
           backgroundColor: '#C58B6A',
