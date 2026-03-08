@@ -230,7 +230,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
             style={{marginLeft: 'auto', padding: '4px'}}
             title="Home"
           >
-            <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{height: 44, width: 'auto'}} />
+            <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{height: 88, width: 'auto'}} />
           </button>
         )}
       </div>
@@ -848,7 +848,7 @@ const LandingPage = ({ setCurrentPage }) => (
     <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
       <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{width: 340, maxWidth: '80vw'}} />
       <p className="text-base leading-relaxed mt-6 text-center" style={{color: '#4B4B4B', maxWidth: 420, fontFamily: '"Inter Display", sans-serif'}}>
-        Everyone's path to retirement is different. SonderSave brings clarity to your journey — so you can plan the retirement that fits you.
+        Everyone's path to retirement is different.<br />SonderSave brings clarity to your journey — so you can plan the retirement that fits you.
       </p>
     </div>
   </div>
