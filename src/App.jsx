@@ -230,7 +230,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
             style={{marginLeft: 'auto', padding: '4px'}}
             title="Home"
           >
-            <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{height: 28, width: 'auto'}} />
+            <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{height: 44, width: 'auto'}} />
           </button>
         )}
       </div>
