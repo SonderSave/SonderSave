@@ -3,26 +3,26 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 // ─── Retirement Spending Page ─────────────────────────────────────────────────
 const RetirementSpendingPage = () => {
-  const ages = ['45-54', '55-64', '65-74', '75+'];
+  const ages = ['45–54', '55–64', '65–74', '75+'];
 
   const totalSpending = [
-    { age: '45-54', value: 97319 },
-    { age: '55-64', value: 83379 },
-    { age: '65-74', value: 65149 },
+    { age: '45–54', value: 97319 },
+    { age: '55–64', value: 83379 },
+    { age: '65–74', value: 65149 },
     { age: '75+',   value: 53031 },
   ];
 
   const housingSpending = [
-    { age: '45-54', value: 29095 },
-    { age: '55-64', value: 25595 },
-    { age: '65-74', value: 22216 },
+    { age: '45–54', value: 29095 },
+    { age: '55–64', value: 25595 },
+    { age: '65–74', value: 22216 },
     { age: '75+',   value: 20370 },
   ];
 
   const healthcareSpending = [
-    { age: '45-54', value: 6338 },
-    { age: '55-64', value: 7164 },
-    { age: '65-74', value: 7942 },
+    { age: '45–54', value: 6338 },
+    { age: '55–64', value: 7164 },
+    { age: '65–74', value: 7942 },
     { age: '75+',   value: 8145 },
   ];
 
@@ -145,10 +145,10 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
 
   const brackets = [
     { label: 'Under 35', minAge: 0,  maxAge: 34, income: 60531,  netWorth: 39000,  retirement: 18880 },
-    { label: '35-44',    minAge: 35, maxAge: 44, income: 86473,  netWorth: 135300, retirement: 45000 },
-    { label: '45-54',    minAge: 45, maxAge: 54, income: 91878,  netWorth: 246700, retirement: 115000 },
-    { label: '55-64',    minAge: 55, maxAge: 64, income: 82149,  netWorth: 364270, retirement: 185000 },
-    { label: '65-74',    minAge: 65, maxAge: 74, income: 60531,  netWorth: 410000, retirement: 200000 },
+    { label: '35–44',    minAge: 35, maxAge: 44, income: 86473,  netWorth: 135300, retirement: 45000 },
+    { label: '45–54',    minAge: 45, maxAge: 54, income: 91878,  netWorth: 246700, retirement: 115000 },
+    { label: '55–64',    minAge: 55, maxAge: 64, income: 82149,  netWorth: 364270, retirement: 185000 },
+    { label: '65–74',    minAge: 65, maxAge: 74, income: 60531,  netWorth: 410000, retirement: 200000 },
     { label: '75+',      minAge: 75, maxAge: 120, income: 49073, netWorth: 334700, retirement: 130000 },
   ];
 
@@ -173,13 +173,16 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
         const diff = currentSavings - userBracket.retirement;
         const pct = Math.round(Math.abs(diff) / userBracket.retirement * 100);
         const ahead = diff >= 0;
-        if (!ahead) return null;
         return (
-          <div className="rounded mb-6 p-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C', borderRadius: 4}}>
-            <p className="text-sm font-semibold mb-1" style={{color: '#6E8F7C'}}>✓ You're ahead of the median</p>
+          <div className="rounded mb-6 p-4" style={{backgroundColor: ahead ? '#f0f7f4' : '#fdf6f2', border: `1px solid ${ahead ? '#6E8F7C' : '#C58B6A'}`, borderRadius: 4}}>
+            <p className="text-sm font-semibold mb-1" style={{color: ahead ? '#6E8F7C' : '#C58B6A'}}>
+              {ahead ? '✓ You\'re ahead of the median' : '↗ Room to grow'}
+            </p>
             <p className="text-sm text-[#4B4B4B]">
               The median retirement savings for your age group (<strong>{userBracket.label}</strong>) is <strong>{fmt(userBracket.retirement)}</strong>.
-              {' '}Your current savings of <strong>{fmt(currentSavings)}</strong> puts you {pct}% above the median — you're in better shape than most Americans your age.
+              {' '}Your current savings of <strong>{fmt(currentSavings)}</strong> {ahead
+                ? `puts you ${pct}% above the median — you're in better shape than most Americans your age.`
+                : `is ${pct}% below the median. That's okay — this is context, not a verdict.`}
             </p>
           </div>
         );
@@ -195,14 +198,14 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
           return (
             <div key={i} className="mb-4">
               <div className="flex justify-between items-baseline mb-1">
-                <span className="text-sm font-medium" style={{color: 'rgb(14,50,60)'}}>
-                  {b.label}
+                <span className="text-sm font-medium" style={{color: isUser ? '#C58B6A' : 'rgb(14,50,60)'}}>
+                  {b.label}{isUser ? ' ← you' : ''}
                 </span>
-                <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>{fmt(b.retirement)}</span>
+                <span className="text-sm font-semibold" style={{color: isUser ? '#C58B6A' : 'rgb(14,50,60)'}}>{fmt(b.retirement)}</span>
               </div>
               <div className="rounded-full bg-gray-100 overflow-hidden" style={{height: 20}}>
                 <div className="h-full rounded-full transition-all duration-500"
-                  style={{width: `${barPct}%`, backgroundColor: '#6E8F7C', opacity: 0.7}} />
+                  style={{width: `${barPct}%`, backgroundColor: isUser ? '#C58B6A' : '#6E8F7C', opacity: isUser ? 1 : 0.7}} />
               </div>
               {isUser && currentSavings > 0 && (() => {
                 const userBarPct = Math.min(100, (currentSavings / maxRetirement) * 100);
@@ -240,23 +243,15 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
                 return (
                   <tr key={i} style={{
                     borderTop: '1px solid #e5e7eb',
-                    backgroundColor: i % 2 === 0 ? 'white' : '#fafafa',
+                    backgroundColor: isUser ? '#fdf6f2' : i % 2 === 0 ? 'white' : '#fafafa',
                   }}>
-                    <td className="px-3 py-2.5 font-medium" style={{color: 'rgb(14,50,60)'}}>
-                      {b.label}
+                    <td className="px-3 py-2.5 font-medium" style={{color: isUser ? '#C58B6A' : 'rgb(14,50,60)'}}>
+                      {b.label}{isUser ? ' ←' : ''}
                     </td>
                     <td className="px-3 py-2.5 text-right text-[#4B4B4B]">{fmt(b.income)}</td>
                     <td className="px-3 py-2.5 text-right text-[#4B4B4B]">{fmt(b.netWorth)}</td>
-                    <td className="px-3 py-2.5 text-right font-semibold" style={{color: '#6E8F7C'}}>{fmt(b.retirement)}</td>
+                    <td className="px-3 py-2.5 text-right font-semibold" style={{color: isUser ? '#C58B6A' : '#6E8F7C'}}>{fmt(b.retirement)}</td>
                   </tr>
-                  {isUser && currentSavings > 0 && (
-                    <tr style={{borderTop: '1px solid #e5e7eb', backgroundColor: '#f4f3ef'}}>
-                      <td className="px-3 py-2 text-xs italic" style={{color: '#4B4B4B'}}>Your savings</td>
-                      <td className="px-3 py-2 text-right text-xs" style={{color: '#4B4B4B'}}>—</td>
-                      <td className="px-3 py-2 text-right text-xs" style={{color: '#4B4B4B'}}>—</td>
-                      <td className="px-3 py-2 text-right text-xs font-semibold" style={{color: 'rgb(14,50,60)'}}>{fmt(currentSavings)}</td>
-                    </tr>
-                  )}
                 );
               })}
             </tbody>
