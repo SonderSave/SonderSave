@@ -3,26 +3,26 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 // ─── Retirement Spending Page ─────────────────────────────────────────────────
 const RetirementSpendingPage = () => {
-  const ages = ['45–54', '55–64', '65–74', '75+'];
+  const ages = ['45-54', '55-64', '65-74', '75+'];
 
   const totalSpending = [
-    { age: '45–54', value: 97319 },
-    { age: '55–64', value: 83379 },
-    { age: '65–74', value: 65149 },
+    { age: '45-54', value: 97319 },
+    { age: '55-64', value: 83379 },
+    { age: '65-74', value: 65149 },
     { age: '75+',   value: 53031 },
   ];
 
   const housingSpending = [
-    { age: '45–54', value: 29095 },
-    { age: '55–64', value: 25595 },
-    { age: '65–74', value: 22216 },
+    { age: '45-54', value: 29095 },
+    { age: '55-64', value: 25595 },
+    { age: '65-74', value: 22216 },
     { age: '75+',   value: 20370 },
   ];
 
   const healthcareSpending = [
-    { age: '45–54', value: 6338 },
-    { age: '55–64', value: 7164 },
-    { age: '65–74', value: 7942 },
+    { age: '45-54', value: 6338 },
+    { age: '55-64', value: 7164 },
+    { age: '65-74', value: 7942 },
     { age: '75+',   value: 8145 },
   ];
 
@@ -145,10 +145,10 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
 
   const brackets = [
     { label: 'Under 35', minAge: 0,  maxAge: 34, income: 60531,  netWorth: 39000,  retirement: 18880 },
-    { label: '35–44',    minAge: 35, maxAge: 44, income: 86473,  netWorth: 135300, retirement: 45000 },
-    { label: '45–54',    minAge: 45, maxAge: 54, income: 91878,  netWorth: 246700, retirement: 115000 },
-    { label: '55–64',    minAge: 55, maxAge: 64, income: 82149,  netWorth: 364270, retirement: 185000 },
-    { label: '65–74',    minAge: 65, maxAge: 74, income: 60531,  netWorth: 410000, retirement: 200000 },
+    { label: '35-44',    minAge: 35, maxAge: 44, income: 86473,  netWorth: 135300, retirement: 45000 },
+    { label: '45-54',    minAge: 45, maxAge: 54, income: 91878,  netWorth: 246700, retirement: 115000 },
+    { label: '55-64',    minAge: 55, maxAge: 64, income: 82149,  netWorth: 364270, retirement: 185000 },
+    { label: '65-74',    minAge: 65, maxAge: 74, income: 60531,  netWorth: 410000, retirement: 200000 },
     { label: '75+',      minAge: 75, maxAge: 120, income: 49073, netWorth: 334700, retirement: 130000 },
   ];
 
