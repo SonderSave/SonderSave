@@ -139,10 +139,147 @@ const RetirementSpendingPage = () => {
   );
 };
 
-// ─── Nav Bar ────────────────────────────────────────────────────────────────
+// ─── Where America Stands Page ───────────────────────────────────────────────
+const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
+  const fmt = (v) => '$' + Math.round(v).toLocaleString();
+
+  const brackets = [
+    { label: 'Under 35', minAge: 0,  maxAge: 34, income: 60531,  netWorth: 39000,  retirement: 18880 },
+    { label: '35–44',    minAge: 35, maxAge: 44, income: 86473,  netWorth: 135300, retirement: 45000 },
+    { label: '45–54',    minAge: 45, maxAge: 54, income: 91878,  netWorth: 246700, retirement: 115000 },
+    { label: '55–64',    minAge: 55, maxAge: 64, income: 82149,  netWorth: 364270, retirement: 185000 },
+    { label: '65–74',    minAge: 65, maxAge: 74, income: 60531,  netWorth: 410000, retirement: 200000 },
+    { label: '75+',      minAge: 75, maxAge: 120, income: 49073, netWorth: 334700, retirement: 130000 },
+  ];
+
+  const userBracket = brackets.find(b => currentAge >= b.minAge && currentAge <= b.maxAge);
+  const maxRetirement = Math.max(...brackets.map(b => b.retirement));
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="rounded mb-3 p-5" style={{backgroundColor: '#C58B6A', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <h1 className="text-2xl font-bold text-white" style={{margin: 0}}>Where America Stands</h1>
+      </div>
+      <p className="text-base text-[#4B4B4B] mb-6 leading-relaxed">
+        How does your retirement savings compare to the typical American household? The data below comes from the Federal Reserve's <strong>Survey of Consumer Finances (2022)</strong> — the most comprehensive look at American household wealth available.
+        {currentAge && currentSavings > 0 && userBracket && (
+          <span> Your age group is <strong style={{color: 'rgb(14,50,60)'}}>{userBracket.label}</strong>.</span>
+        )}
+      </p>
+
+      {/* User comparison callout */}
+      {currentAge && currentSavings > 0 && userBracket && (() => {
+        const diff = currentSavings - userBracket.retirement;
+        const pct = Math.round(Math.abs(diff) / userBracket.retirement * 100);
+        const ahead = diff >= 0;
+        if (!ahead) return null;
+        return (
+          <div className="rounded mb-6 p-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C', borderRadius: 4}}>
+            <p className="text-sm font-semibold mb-1" style={{color: '#6E8F7C'}}>✓ You're ahead of the median</p>
+            <p className="text-sm text-[#4B4B4B]">
+              The median retirement savings for your age group (<strong>{userBracket.label}</strong>) is <strong>{fmt(userBracket.retirement)}</strong>.
+              {' '}Your current savings of <strong>{fmt(currentSavings)}</strong> puts you {pct}% above the median — you're in better shape than most Americans your age.
+            </p>
+          </div>
+        );
+      })()}
+
+      {/* Bar chart card */}
+      <div className="rounded mb-6 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.2)'}}>
+        <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Median Retirement Account Balance by Age</h3>
+        <p className="text-sm text-[#4B4B4B] mb-5">Among families who have retirement accounts. Source: Federal Reserve SCF, 2022.</p>
+        {brackets.map((b, i) => {
+          const isUser = userBracket && b.label === userBracket.label;
+          const barPct = (b.retirement / maxRetirement) * 100;
+          return (
+            <div key={i} className="mb-4">
+              <div className="flex justify-between items-baseline mb-1">
+                <span className="text-sm font-medium" style={{color: 'rgb(14,50,60)'}}>
+                  {b.label}
+                </span>
+                <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>{fmt(b.retirement)}</span>
+              </div>
+              <div className="rounded-full bg-gray-100 overflow-hidden" style={{height: 20}}>
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{width: `${barPct}%`, backgroundColor: '#6E8F7C', opacity: 0.7}} />
+              </div>
+              {isUser && currentSavings > 0 && (() => {
+                const userBarPct = Math.min(100, (currentSavings / maxRetirement) * 100);
+                return (
+                  <div className="mt-1">
+                    <div className="rounded-full overflow-hidden" style={{height: 8, backgroundColor: '#f4f3ef'}}>
+                      <div className="h-full rounded-full" style={{width: `${userBarPct}%`, backgroundColor: '#C58B6A', opacity: 0.4}} />
+                    </div>
+                    <p className="text-xs text-[#4B4B4B] mt-0.5">Your savings: {fmt(currentSavings)}</p>
+                  </div>
+                );
+              })()}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Full table */}
+      <div className="rounded mb-6 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.2)'}}>
+        <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Full Picture by Age Group</h3>
+        <p className="text-sm text-[#4B4B4B] mb-4">Median values across income, net worth, and retirement savings.</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{backgroundColor: '#f4f3ef'}}>
+                <th className="text-left px-3 py-2 font-semibold" style={{color: 'rgb(14,50,60)'}}>Age</th>
+                <th className="text-right px-3 py-2 font-semibold" style={{color: 'rgb(14,50,60)'}}>Income</th>
+                <th className="text-right px-3 py-2 font-semibold" style={{color: 'rgb(14,50,60)'}}>Net Worth</th>
+                <th className="text-right px-3 py-2 font-semibold" style={{color: 'rgb(14,50,60)'}}>Retirement</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brackets.map((b, i) => {
+                const isUser = userBracket && b.label === userBracket.label;
+                return (
+                  <tr key={i} style={{
+                    borderTop: '1px solid #e5e7eb',
+                    backgroundColor: i % 2 === 0 ? 'white' : '#fafafa',
+                  }}>
+                    <td className="px-3 py-2.5 font-medium" style={{color: 'rgb(14,50,60)'}}>
+                      {b.label}
+                    </td>
+                    <td className="px-3 py-2.5 text-right text-[#4B4B4B]">{fmt(b.income)}</td>
+                    <td className="px-3 py-2.5 text-right text-[#4B4B4B]">{fmt(b.netWorth)}</td>
+                    <td className="px-3 py-2.5 text-right font-semibold" style={{color: '#6E8F7C'}}>{fmt(b.retirement)}</td>
+                  </tr>
+                  {isUser && currentSavings > 0 && (
+                    <tr style={{borderTop: '1px solid #e5e7eb', backgroundColor: '#f4f3ef'}}>
+                      <td className="px-3 py-2 text-xs italic" style={{color: '#4B4B4B'}}>Your savings</td>
+                      <td className="px-3 py-2 text-right text-xs" style={{color: '#4B4B4B'}}>—</td>
+                      <td className="px-3 py-2 text-right text-xs" style={{color: '#4B4B4B'}}>—</td>
+                      <td className="px-3 py-2 text-right text-xs font-semibold" style={{color: 'rgb(14,50,60)'}}>{fmt(currentSavings)}</td>
+                    </tr>
+                  )}
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Context note */}
+      <div className="rounded p-4 mb-4" style={{backgroundColor: '#f4f3ef', border: '1px solid #c4c9cf', borderRadius: 4}}>
+        <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+          <strong>A note on medians:</strong> These figures represent the <em>median</em> — meaning half of Americans have more, half have less. They include only families who have retirement accounts, so the true population median (including those with nothing saved) is lower. Use this as context, not a benchmark to chase.
+        </p>
+      </div>
+
+      <p className="text-xs text-[#4B4B4B]">Source: Federal Reserve Board, Survey of Consumer Finances, 2022. All values in 2022 dollars.</p>
+    </div>
+  );
+};
+
+
 const NavBar = ({ currentPage, setCurrentPage }) => {
   const [learnOpen, setLearnOpen] = useState(false);
-  const learnPages = ['faq', 'glossary', 'resources', 'spending'];
+  const learnPages = ['faq', 'glossary', 'resources', 'spending', 'standings'];
   const isLearnPage = learnPages.includes(currentPage);
 
   return (
@@ -193,6 +330,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
                 { id: 'glossary', label: 'Glossary' },
                 { id: 'resources', label: 'Resources' },
                 { id: 'spending', label: 'Retirement Spending' },
+                { id: 'standings', label: 'Where America Stands' },
               ].map(item => (
                 <button
                   key={item.id}
@@ -1164,7 +1302,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
       const monthlyPostTax = hasIndividualContributions
         ? (annualIncome / 12) * (individualContributionPercent / 100)
         : 0;
-      onDataChange({ annualIncome, monthlyPostTaxSavings: Math.round(monthlyPostTax), currentAge, retirementAge });
+      onDataChange({ annualIncome, monthlyPostTaxSavings: Math.round(monthlyPostTax), currentAge, retirementAge, currentSavings });
     }
     
     // Calculate suggestions if under goal
@@ -1338,16 +1476,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
     homeAppreciationRate, downsizeAmount, quickMode,
   ]);
   useEffect(() => {
-    const handleScroll = () => {
-      const target = document.getElementById('income-planning-section');
-      const threshold = target ? target.offsetTop : 600;
-      setShowStickyBar(window.scrollY > threshold);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    setShowStickyBar(nestEggProgress > 0);
+  }, [nestEggProgress]);
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
@@ -1525,7 +1655,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           transform: showStickyBar ? 'translateY(0)' : 'translateY(-8px)',
           transition: 'opacity 0.3s ease, transform 0.3s ease',
           pointerEvents: showStickyBar ? 'auto' : 'none',
-          maxHeight: showStickyBar ? '300px' : '0px',
+          maxHeight: showStickyBar ? (resultsBarCollapsed ? '60px' : '500px') : '0px',
           overflow: 'hidden',
         }}
       >
@@ -1974,32 +2104,52 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           {(() => {
             const desiredAnnual = monthlyContribution * 12;
             const baseLimit = 24500;
+            const catchupLimit = 32500;
             const isOverBaseLimit = desiredAnnual > baseLimit;
-            
-            // Only show warning if they're over base limit without catch-up checked
-            if (isOverBaseLimit && !useCatchupContributions) {
+            const isOverCatchupLimit = desiredAnnual > catchupLimit;
+
+            if (isOverCatchupLimit) {
               return (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <div className="flex items-start gap-2">
-                    <span className="text-blue-600 text-lg">💡</span>
+                    <span className="text-amber-600 text-lg">⚠️</span>
                     <div className="flex-1">
-                      <p className="text-base font-medium text-blue-900 mb-1">
-                        401(k) Base Limit Reached
-                      </p>
-                      <p className="text-sm text-blue-800 mb-2">
+                      <p className="text-base font-medium text-amber-900 mb-1">Catch-Up Limit Reached</p>
+                      <p className="text-sm text-amber-800 mb-1">
                         <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
-                        <strong>Current limit:</strong> {formatCurrency(baseLimit)}/year
+                        <strong>Catch-up limit (age 50+):</strong> {formatCurrency(catchupLimit)}/year
                       </p>
-                      <p className="text-xs text-blue-700">
-                        Your contributions are capped at $24,500/year. If you plan to contribute more at age 50+, 
-                        check the "Plan to max out contributions at age 50+" box below.
+                      <p className="text-xs text-amber-700">
+                        Contributions are capped at $32,500/year even with catch-up contributions. Additional savings can go into an IRA or taxable brokerage account.
                       </p>
                     </div>
                   </div>
                 </div>
               );
             }
-            
+
+            if (isOverBaseLimit) {
+              return (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <span className="text-blue-600 text-lg">💡</span>
+                    <div className="flex-1">
+                      <p className="text-base font-medium text-blue-900 mb-1">401(k) Base Limit Reached</p>
+                      <p className="text-sm text-blue-800 mb-2">
+                        <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
+                        <strong>Current limit:</strong> {formatCurrency(baseLimit)}/year
+                      </p>
+                      <p className="text-xs text-blue-700">
+                        {useCatchupContributions
+                          ? 'Your current contributions exceed the base limit. The catch-up limit of $32,500/year applies from age 50 onward.'
+                          : 'Your contributions are capped at $24,500/year. If you plan to contribute more at age 50+, check the "Plan to max out contributions at age 50+" box below.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
             return null;
           })()}
 
@@ -2394,15 +2544,17 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
               <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
-              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+              <p className="text-2xl font-bold mb-0 text-[#3A4446]">
                 {formatCurrency(annualIncome * (retirementIncomeGoal / 100))}
               </p>
+              <p className="text-sm text-[#4B4B4B]">{formatCurrency(annualIncome * (retirementIncomeGoal / 100) / 12)}/mo</p>
             </div>
             <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
               <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
-              <p className="text-2xl font-bold mb-1 text-[#3A4446]">
+              <p className="text-2xl font-bold mb-0 text-[#3A4446]">
                 {formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
               </p>
+              <p className="text-sm text-[#4B4B4B]">{formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge) / 12)}/mo</p>
             </div>
           </div>
 
@@ -2421,6 +2573,21 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             style={{accentColor: 'rgb(14, 50, 60)'}}
             className="w-full"
           />
+
+          {(() => {
+            const lifestyleMatch = 100 - Math.round(contributionPercent);
+            const diff = retirementIncomeGoal - lifestyleMatch;
+            const absDiff = Math.abs(diff);
+            if (!contributionPercent || contributionPercent <= 0) return null;
+            return (
+              <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+                  Since you currently save <strong>{Math.round(contributionPercent)}%</strong> of your income, a goal of{' '}
+                  <strong style={{color: 'rgb(14,50,60)'}}>{lifestyleMatch}%</strong> would match your current take-home pay.
+                </p>
+              </div>
+            );
+          })()}
 
           {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
             <p className="text-sm text-[#4B4B4B] mb-1"><strong>50–70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
@@ -3518,6 +3685,7 @@ const SonderSave = () => {
       {currentPage === 'faq' && <FAQPage />}
       {currentPage === 'glossary' && <GlossaryPage />}
       {currentPage === 'spending' && <RetirementSpendingPage />}
+      {currentPage === 'standings' && <WhereAmericaStandsPage currentAge={sharedData.currentAge} currentSavings={sharedData.currentSavings} />}
       {currentPage === 'about' && <AboutPage />}
     </div>
   );
