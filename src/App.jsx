@@ -3028,7 +3028,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                 const additionalYearlyIncome = cashFromDownsize > 0 ? cashFromDownsize * (withdrawalRate / 100) : 0;
                 
                 return (
-                  <div className="rounded-lg" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}} p-4 mt-4">
+                  <div className="rounded-lg p-4 mt-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
                     <h3 className="font-semibold mb-3" style={{color: 'rgb(14, 50, 60)'}}>
                       Home Equity Projection at Retirement
                     </h3>
