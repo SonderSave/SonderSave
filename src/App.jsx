@@ -1965,7 +1965,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
           border: '1px solid #c4c9cf'
         }}>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <label className="block text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
               Monthly Take-Home Pay <span className="text-sm font-normal text-[#4B4B4B]">(optional)</span>
             </label>
@@ -1979,9 +1979,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               }}
             >{hasNetMonthly ? 'Remove' : 'Add'}</button>
           </div>
-          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-4 leading-relaxed">What actually hits your bank account each month — after taxes and deductions. This helps us show your retirement income in a way that feels familiar, so you can compare future monthly income to what you live on today.</p>}
           {hasNetMonthly && (
-            <div className="mt-3">
+            <div>
               <div className="relative mb-2">
                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
                 <input
@@ -1991,7 +1990,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                   onChange={(e) => setNetMonthlyTakeHome(parseFormattedNumber(e.target.value) || 0)}
                   className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
                   style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
-                  placeholder="e.g. 4200"
+                  placeholder="e.g. 4,200"
                 />
               </div>
               <input
@@ -2002,11 +2001,66 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                 value={netMonthlyTakeHome}
                 onChange={(e) => setNetMonthlyTakeHome(Number(e.target.value))}
                 style={{accentColor: 'rgb(14, 50, 60)'}}
-                className="w-full"
+                className="w-full mb-2"
               />
+              <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>Helps frame your retirement income in familiar, everyday terms.</p>
             </div>
           )}
         </div>
+
+        {/* Module: Retirement Income Goal */}
+        <div id="module-income-goal" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Retirement Income Goal
+          </label>
+          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
+            Think of retirement as the income you'll need each year — not just a savings total.
+          </p>}
+
+          <div className="p-4 rounded border mb-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-2">Your retirement income goal <span className="text-xs" style={{color: '#9ca3af'}}>· in today's dollars</span></p>
+            <div className="flex items-baseline gap-6">
+              <div>
+                <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(annualIncome * (retirementIncomeGoal / 100))}</span>
+                <span className="text-sm text-[#4B4B4B] ml-1">/yr</span>
+              </div>
+              <div>
+                <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(annualIncome * (retirementIncomeGoal / 100) / 12)}</span>
+                <span className="text-sm text-[#4B4B4B] ml-1">/mo</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mb-2">
+            <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+              {retirementIncomeGoal}% of current income
+            </span>
+          </div>
+          <input
+            type="range"
+            min="0"
+            max="200"
+            step="5"
+            value={retirementIncomeGoal}
+            onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
+            style={{accentColor: 'rgb(14, 50, 60)'}}
+            className="w-full mb-4"
+          />
+
+          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-3">These scenarios show what percentage of your current income you might aim for:</p>}
+
+          {!quickMode && <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>50-70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>70-80%</strong><br/>Most major debts cleared, reduced work-related costs</p>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>90-100%+</strong><br/>Ongoing housing costs and monthly obligations</p>
+          </div>}
+        </div>
+
 
         {/* Your Savings Section - Modular Design */}
         
@@ -2112,42 +2166,32 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
             if (isOverCatchupLimit) {
               return (
-                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <span className="text-amber-600 text-lg">⚠️</span>
-                    <div className="flex-1">
-                      <p className="text-base font-medium text-amber-900 mb-1">Catch-Up Limit Reached</p>
-                      <p className="text-sm text-amber-800 mb-1">
-                        <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
-                        <strong>Catch-up limit (age 50+):</strong> {formatCurrency(catchupLimit)}/year
-                      </p>
-                      <p className="text-xs text-amber-700">
-                        Contributions are capped at $32,500/year even with catch-up contributions. Additional savings can go into an IRA or taxable brokerage account.
-                      </p>
-                    </div>
-                  </div>
+                <div className="mt-3 p-3 rounded-lg" style={{backgroundColor: '#fdf6f2', border: '1px solid #C58B6A'}}>
+                  <p className="text-sm font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Catch-Up Limit Reached</p>
+                  <p className="text-sm mb-1" style={{color: '#4B4B4B'}}>
+                    <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
+                    <strong>Catch-up limit (age 50+):</strong> {formatCurrency(catchupLimit)}/year
+                  </p>
+                  <p className="text-xs" style={{color: '#4B4B4B'}}>
+                    Contributions are capped at $32,500/year even with catch-up contributions. Additional savings can go into an IRA or taxable brokerage account.
+                  </p>
                 </div>
               );
             }
 
             if (isOverBaseLimit) {
               return (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <span className="text-blue-600 text-lg">💡</span>
-                    <div className="flex-1">
-                      <p className="text-base font-medium text-blue-900 mb-1">401(k) Base Limit Reached</p>
-                      <p className="text-sm text-blue-800 mb-2">
-                        <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
-                        <strong>Current limit:</strong> {formatCurrency(baseLimit)}/year
-                      </p>
-                      <p className="text-xs text-blue-700">
-                        {useCatchupContributions
-                          ? 'Your current contributions exceed the base limit. The catch-up limit of $32,500/year applies from age 50 onward.'
-                          : 'Your contributions are capped at $24,500/year. If you plan to contribute more at age 50+, check the "Plan to max out contributions at age 50+" box below.'}
-                      </p>
-                    </div>
-                  </div>
+                <div className="mt-3 p-3 rounded-lg" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
+                  <p className="text-sm font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>401(k) Base Limit Reached</p>
+                  <p className="text-sm mb-1" style={{color: '#4B4B4B'}}>
+                    <strong>Desired annual:</strong> {formatCurrency(desiredAnnual)}<br/>
+                    <strong>Current limit:</strong> {formatCurrency(baseLimit)}/year
+                  </p>
+                  <p className="text-xs" style={{color: '#4B4B4B'}}>
+                    {useCatchupContributions
+                      ? 'Your current contributions exceed the base limit. The catch-up limit of $32,500/year applies from age 50 onward.'
+                      : 'Your contributions are capped at $24,500/year. If you plan to contribute more at age 50+, check the "Plan to max out contributions at age 50+" box below.'}
+                  </p>
                 </div>
               );
             }
@@ -2206,6 +2250,56 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </div>
         </div>
         
+        {/* Revisit Your Goal Card — only shown once savings rate is entered */}
+        {contributionPercent > 0 && (() => {
+          const lifestyleMatch = 100 - Math.round(contributionPercent);
+          const currentGoalAnnual = annualIncome * (retirementIncomeGoal / 100);
+          const effectiveIncome = annualIncome * (lifestyleMatch / 100);
+          return (
+            <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+              backgroundColor: 'white',
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+              border: '1px solid #c4c9cf'
+            }}>
+              <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                Revisit Your Goal
+              </label>
+              <p className="text-sm text-[#4B4B4B] mb-3">
+                A common guideline is to plan for <strong>80% of your pre-retirement income</strong>. Since you're saving <strong>{Math.round(contributionPercent)}%</strong>, a target of <strong style={{color: 'rgb(14,50,60)'}}>{Math.max(0, 80 - Math.round(contributionPercent))}%</strong> would give you the same monthly budget — your contributions simply stop at retirement.
+              </p>
+              <p className="text-sm text-[#4B4B4B] mb-4">
+                Or put another way: a goal of <strong style={{color: 'rgb(14,50,60)'}}>{lifestyleMatch}%</strong> replaces your full current take-home pay exactly.
+              </p>
+              <div className="flex items-baseline gap-6 p-3 rounded border mb-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                <div>
+                  <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(annualIncome * (retirementIncomeGoal / 100))}</span>
+                  <span className="text-sm text-[#4B4B4B] ml-1">/yr</span>
+                </div>
+                <div>
+                  <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(annualIncome * (retirementIncomeGoal / 100) / 12)}</span>
+                  <span className="text-sm text-[#4B4B4B] ml-1">/mo</span>
+                </div>
+              </div>
+              <div className="text-center mb-2">
+                <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
+                  {retirementIncomeGoal}% of current income
+                </span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="200"
+                step="5"
+                value={retirementIncomeGoal}
+                onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
+                style={{accentColor: 'rgb(14, 50, 60)'}}
+                className="w-full"
+              />
+            </div>
+          );
+        })()}
+
         {/* Employer Match Module */}
         <div id="module-employer-match" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
           backgroundColor: 'white',
@@ -2411,7 +2505,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               className="w-full"
             />
             {individualContribution > 583 && !quickMode && (
-              <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#fef9f0', borderColor: '#f4c06f'}}>
+              <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#fdf6f2', borderColor: '#C58B6A'}}>
                 <p className="text-sm text-[#4B4B4B]"><strong>IRA contribution limit:</strong> Standard IRAs (Traditional and Roth) are capped at $7,000/year ($583/month) in 2025, or $8,000 if you're 50+. If you're contributing more than this, you may be using a SEP-IRA, Solo 401(k), or brokerage account — which have different limits. See the <strong>Glossary</strong> or consult a tax professional for guidance.</p>
               </div>
             )}
@@ -2437,7 +2531,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               <p className="text-sm text-[#4B4B4B]"><strong>Self-employed?</strong> Solo 401(k)s and SEP-IRAs have significantly higher contribution limits than standard IRAs — up to $70,000/year in 2025. The right plan depends on your net earnings and business structure. See the <strong>Glossary</strong> for an overview, or speak with a tax professional to find the best fit.</p>
             </div>}
             {individualReturnRate > 10 && (
-              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+              <div className="mt-2 p-2 rounded" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
                 <p className="text-xs text-blue-800">
                   💡 <strong>High expected returns (10%+)</strong> are possible with aggressive, diversified portfolios (growth stocks, small-cap funds), especially for younger investors. However, if these returns are based on Bitcoin, single stocks, or other speculative investments, consider using more conservative estimates (4-7%) for reliable long-term planning.
                 </p>
@@ -2529,76 +2623,6 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </div>}
         </div>
 
-        {/* Module: Retirement Income Goal */}
-        <div id="module-income-goal" className="rounded shadow-md mb-6 p-6 page-break-avoid" style={{
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #c4c9cf'
-        }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Retirement Income Goal
-          </label>
-          {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
-            Think of retirement as the income you'll need each year — not just a savings total. These scenarios show what percentage of your current income you might aim for.
-          </p>}
-
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
-              <p className="text-2xl font-bold mb-0 text-[#3A4446]">
-                {formatCurrency(annualIncome * (retirementIncomeGoal / 100))}
-              </p>
-              <p className="text-sm text-[#4B4B4B]">{formatCurrency(annualIncome * (retirementIncomeGoal / 100) / 12)}/mo</p>
-            </div>
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
-              <p className="text-2xl font-bold mb-0 text-[#3A4446]">
-                {formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
-              </p>
-              <p className="text-sm text-[#4B4B4B]">{formatCurrency((annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, retirementAge - currentAge) / 12)}/mo</p>
-            </div>
-          </div>
-
-          <div className="text-center mb-2">
-            <span className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
-              {retirementIncomeGoal}% of current income
-            </span>
-          </div>
-          <input
-            type="range"
-            min="0"
-            max="200"
-            step="5"
-            value={retirementIncomeGoal}
-            onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
-            style={{accentColor: 'rgb(14, 50, 60)'}}
-            className="w-full"
-          />
-
-          {(() => {
-            const lifestyleMatch = 100 - Math.round(contributionPercent);
-            const diff = retirementIncomeGoal - lifestyleMatch;
-            const absDiff = Math.abs(diff);
-            if (!contributionPercent || contributionPercent <= 0) return null;
-            return (
-              <div className="mt-3 p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-                <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
-                  Since you currently save <strong>{Math.round(contributionPercent)}%</strong> of your income, a goal of{' '}
-                  <strong style={{color: 'rgb(14,50,60)'}}>{lifestyleMatch}%</strong> would match your current take-home pay.
-                </p>
-              </div>
-            );
-          })()}
-
-          {!quickMode && <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>50–70%</strong><br/>Mortgage likely paid off, fewer ongoing expenses</p>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>70–80%</strong><br/>Most major debts cleared, reduced work-related costs</p>
-            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>90–100%+</strong><br/>Ongoing housing costs and monthly obligations</p>
-          </div>}
-        </div>
-
-
         {/* Retirement Outlook Section */}
         {/* Section Title Card */}
         <div id="retirement-income-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
@@ -2638,7 +2662,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </label>
 
           {hasPension && (
-            <div className="p-4 rounded-lg" style={{backgroundColor: '#f4f3ef', border: '1px solid #e5e7eb'}}>
+            <div>
 
               {/* Amount slider */}
               <div className="flex justify-between items-baseline mb-2">
@@ -2675,12 +2699,12 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
               {/* Gap warning if pension starts after retirement */}
               {pensionStartAge > retirementAge && (
-                <div className="rounded border p-3" style={{backgroundColor: '#fef9f0', borderColor: '#f4c06f'}}>
+                <div className="rounded border p-3" style={{backgroundColor: '#fdf6f2', borderColor: '#C58B6A'}}>
                   <p className="text-sm font-semibold mb-1" style={{color: '#b45309'}}>
-                    ⚠️ Income gap: {pensionStartAge - retirementAge} year{pensionStartAge - retirementAge !== 1 ? 's' : ''}
+                    Income gap: {pensionStartAge - retirementAge} year{pensionStartAge - retirementAge !== 1 ? 's' : ''}
                   </p>
                   <p className="text-sm" style={{color: '#92400e'}}>
-                    You'll retire at {retirementAge} but your pension won't start until {pensionStartAge}. Your savings will need to cover {formatCurrency(pensionAmount * 12)}/year in pension income for {pensionStartAge - retirementAge} years before it kicks in.
+                    You'll retire at {retirementAge} but your pension won't start until {pensionStartAge}. Your savings will need to cover {formatCurrency(pensionAmount * 12)}/year for {pensionStartAge - retirementAge} years before it kicks in.
                   </p>
                 </div>
               )}
@@ -2712,7 +2736,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </p>}
 
           {retirementAge < 62 && (
-            <div className="bg-amber-50 border border-amber-200 rounded p-3 mb-3">
+            <div className="rounded p-3 mb-3" style={{backgroundColor: '#fdf6f2', border: '1px solid #C58B6A'}}>
               <p className="text-xs text-amber-800">
                 <strong>Important:</strong> Social Security benefits aren't available until age 62 (reduced) or 67 (full benefits).
                 Your retirement plan from age {retirementAge} to 62 ({62 - retirementAge} years) will rely entirely on your savings and other income sources.
@@ -3004,7 +3028,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                 const additionalYearlyIncome = cashFromDownsize > 0 ? cashFromDownsize * (withdrawalRate / 100) : 0;
                 
                 return (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                  <div className="rounded-lg" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}} p-4 mt-4">
                     <h3 className="font-semibold mb-3" style={{color: 'rgb(14, 50, 60)'}}>
                       Home Equity Projection at Retirement
                     </h3>
