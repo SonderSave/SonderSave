@@ -2532,8 +2532,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             </div>}
             {individualReturnRate > 10 && (
               <div className="mt-2 p-2 rounded" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
-                <p className="text-xs text-blue-800">
-                  💡 <strong>High expected returns (10%+)</strong> are possible with aggressive, diversified portfolios (growth stocks, small-cap funds), especially for younger investors. However, if these returns are based on Bitcoin, single stocks, or other speculative investments, consider using more conservative estimates (4-7%) for reliable long-term planning.
+                <p className="text-xs" style={{color: '#4B4B4B'}}>
+                  <strong>High expected returns (10%+)</strong> are possible with aggressive, diversified portfolios (growth stocks, small-cap funds), especially for younger investors. However, if these returns are based on Bitcoin, single stocks, or other speculative investments, consider using more conservative estimates (4-7%) for reliable long-term planning.
                 </p>
               </div>
             )}
@@ -2737,7 +2737,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
           {retirementAge < 62 && (
             <div className="rounded p-3 mb-3" style={{backgroundColor: '#fdf6f2', border: '1px solid #C58B6A'}}>
-              <p className="text-xs text-amber-800">
+              <p className="text-xs" style={{color: '#4B4B4B'}}>
                 <strong>Important:</strong> Social Security benefits aren't available until age 62 (reduced) or 67 (full benefits).
                 Your retirement plan from age {retirementAge} to 62 ({62 - retirementAge} years) will rely entirely on your savings and other income sources.
               </p>
