@@ -279,9 +279,112 @@ const WhereAmericaStandsPage = ({ currentAge, currentSavings }) => {
 };
 
 
+// ─── Quick NestEgg Calculator ─────────────────────────────────────────────────
+const QuickNestEggCalculator = () => {
+  const [nestEgg, setNestEgg] = useState(500000);
+  const [withdrawalRate, setWithdrawalRate] = useState(4);
+  const [inflationRate, setInflationRate] = useState(3);
+  const [yearsAway, setYearsAway] = useState(20);
+
+  const fmt = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
+
+  const annualIncome = nestEgg * (withdrawalRate / 100);
+  const monthlyIncome = annualIncome / 12;
+  const inflationFactor = Math.pow(1 + inflationRate / 100, yearsAway);
+  const annualToday = annualIncome / inflationFactor;
+  const monthlyToday = annualToday / 12;
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      <style>{`
+        .nestegg-slider { -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; width: 100%; }
+        .nestegg-slider::-webkit-slider-runnable-track { background: #e5e7eb; height: 6px; border-radius: 3px; }
+        .nestegg-slider::-moz-range-track { background: #e5e7eb; height: 6px; border-radius: 3px; }
+        .nestegg-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #6E8F7C; cursor: grab; margin-top: -9px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .nestegg-slider::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: #6E8F7C; cursor: grab; border: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .nestegg-slider:active::-webkit-slider-thumb { cursor: grabbing; }
+        .nestegg-slider:active::-moz-range-thumb { cursor: grabbing; }
+      `}</style>
+
+      {/* Section header */}
+      <div className="rounded shadow-md mb-3 page-break-avoid" style={{backgroundColor: '#C58B6A', padding: '16px', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Quick NestEgg Calculator</h2>
+      </div>
+
+      {/* Intro */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <p className="text-base text-[#4B4B4B]" style={{margin: 0}}>Enter a savings target and withdrawal rate to see what your nest egg could generate in retirement — in both future and today's dollars.</p>
+      </div>
+
+      {/* Nest Egg */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Target Nest Egg: {fmt(nestEgg)}
+        </label>
+        <input type="range" min="0" max="5000000" step="25000"
+          value={nestEgg} onChange={(e) => setNestEgg(Number(e.target.value))}
+          className="nestegg-slider" />
+      </div>
+
+      {/* Withdrawal Rate */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Withdrawal Rate: {withdrawalRate}%
+        </label>
+        <input type="range" min="2" max="7" step="0.5"
+          value={withdrawalRate} onChange={(e) => setWithdrawalRate(Number(e.target.value))}
+          className="nestegg-slider mb-3" />
+        <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+          <p className="text-sm text-[#4B4B4B] mb-1"><strong>2-3%:</strong> Very conservative — savings very likely to outlast you</p>
+          <p className="text-sm text-[#4B4B4B] mb-1"><strong>4%:</strong> The Safe Withdrawal Rule — historically sustainable over 30 years</p>
+          <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>5-7%:</strong> More aggressive — higher income but savings may deplete sooner</p>
+        </div>
+      </div>
+
+      {/* Years Away + Inflation */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Years Until Retirement: {yearsAway}
+        </label>
+        <input type="range" min="1" max="50" step="1"
+          value={yearsAway} onChange={(e) => setYearsAway(Number(e.target.value))}
+          className="nestegg-slider mb-5" />
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Inflation Rate: {inflationRate}%
+        </label>
+        <input type="range" min="1" max="6" step="0.5"
+          value={inflationRate} onChange={(e) => setInflationRate(Number(e.target.value))}
+          className="nestegg-slider" />
+      </div>
+
+      {/* Results */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <label className="block text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>What your nest egg could generate</label>
+        <div className="grid grid-cols-2 gap-4 mb-3">
+          <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
+            <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{fmt(annualIncome)}</p>
+            <p className="text-sm text-[#4B4B4B]">{fmt(monthlyIncome)}/mo</p>
+          </div>
+          <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
+            <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{fmt(annualToday)}</p>
+            <p className="text-sm text-[#4B4B4B]">{fmt(monthlyToday)}/mo</p>
+          </div>
+        </div>
+        <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
+          {fmt(nestEgg)} at {withdrawalRate}% = {fmt(annualIncome)}/yr. Adjusted for {inflationRate}% inflation over {yearsAway} years, that's {fmt(annualToday)}/yr in today's spending power.
+        </p>
+      </div>
+
+    </div>
+  );
+};
+
+
 const NavBar = ({ currentPage, setCurrentPage }) => {
   const [learnOpen, setLearnOpen] = useState(false);
-  const learnPages = ['faq', 'glossary', 'resources', 'spending', 'standings'];
+  const learnPages = ['faq', 'glossary', 'resources', 'spending', 'standings', 'nestegg'];
   const isLearnPage = learnPages.includes(currentPage);
 
   return (
@@ -333,6 +436,7 @@ const NavBar = ({ currentPage, setCurrentPage }) => {
                 { id: 'resources', label: 'Resources' },
                 { id: 'spending', label: 'Retirement Spending' },
                 { id: 'standings', label: 'Where America Stands' },
+                { id: 'nestegg', label: 'Quick NestEgg Calculator' },
               ].map(item => (
                 <button
                   key={item.id}
@@ -883,7 +987,8 @@ const GlossaryPage = () => {
     { term: "Sequence of Returns Risk", def: "The risk that poor investment returns early in retirement can permanently damage your portfolio even if long-term average returns are acceptable. This is why many retirees shift to more conservative investments near retirement." },
     { term: "SIMPLE IRA", def: "A retirement plan for small businesses and self-employed individuals with lower administrative costs than a 401(k). Employee contribution limits are around $16,000–$17,000/year (2025), with catch-up contributions available for those 50+. Employers are required to make matching or non-elective contributions." },
     { term: "Solo 401(k)", def: "A 401(k) plan designed for self-employed individuals with no employees (other than a spouse). Allows contributions both as employee (up to $23,500 in 2025) and employer (up to 25% of net earnings), with a combined limit of $70,000. Those 50+ can add a $7,500 catch-up contribution. Offers Roth and traditional options." },
-    { term: "Social Security", def: "A US government program providing monthly retirement income based on your lifetime earnings history. You can claim as early as 62 (reduced benefit) or as late as 70 (maximum benefit)." },
+    { term: "AIME (Average Indexed Monthly Earnings)", def: "The foundation of your Social Security benefit calculation. SSA takes your 35 highest-earning years, adjusts them for inflation, and averages them into a monthly figure. Years with no earnings count as $0, so fewer than 35 working years lowers your AIME — and your benefit." },
+    { term: "COLA (Cost-of-Living Adjustment)", def: "An annual increase to Social Security benefits tied to inflation, specifically the Consumer Price Index (CPI-W). If inflation runs at 3%, your benefit increases by roughly 3% the following year. This is why Social Security is considered inflation-protected income — its purchasing power is designed to remain roughly stable over time." },
     { term: "Target-Date Fund", def: "A mutual fund that automatically adjusts its asset allocation to become more conservative as a target retirement year approaches. A simple, hands-off investment option available in most 401(k) plans." },
     { term: "Traditional IRA", def: "An individual retirement account where contributions may be tax-deductible, reducing your taxable income today. You pay ordinary income taxes on withdrawals in retirement. Best suited for those who expect to be in a lower tax bracket in retirement. Required minimum distributions begin at age 73." },
     { term: "Withdrawal Rate", def: "The percentage of your retirement savings you withdraw each year. The 4% rule is a common guideline suggesting this rate is sustainable over a 30-year retirement. SonderSave lets you adjust this based on your situation." },
@@ -1084,7 +1189,11 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
   const [pensionStartAge, setPensionStartAge] = useState(65);
   const [hasSocialSecurity, setHasSocialSecurity] = useState(true); // Default true - most people collect SS
   const [socialSecurityAmount, setSocialSecurityAmount] = useState(0);
-  const [socialSecurityPercent, setSocialSecurityPercent] = useState(30); // Default 30% (conservative estimate)
+  const [socialSecurityPercent, setSocialSecurityPercent] = useState(30);
+  const [ssStartingSalary, setSsStartingSalary] = useState(40000);
+  const [ssYearsWorked, setSsYearsWorked] = useState(15);
+  const [ssClaimingAge, setSsClaimingAge] = useState(67);
+  const [ssManualOverride, setSsManualOverride] = useState(false);
   const [currentSavings, setCurrentSavings] = useState(25000);
   const [breakdownByAccount, setBreakdownByAccount] = useState(false);
   const [account401k, setAccount401k] = useState(0);
@@ -1150,7 +1259,10 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
   const [anticipatedAmount, setAnticipatedAmount] = useState(0);
   const [homePurchasePrice, setHomePurchasePrice] = useState(300000);
   const [homePurchaseYear, setHomePurchaseYear] = useState(2020);
+  const [currentHomeValue, setCurrentHomeValue] = useState(400000);
   const [homeAppreciationRate, setHomeAppreciationRate] = useState(3);
+  // Derived current home value from purchase price + appreciation
+  const derivedCurrentHomeValue = homePurchasePrice * Math.pow(1 + homeAppreciationRate / 100, new Date().getFullYear() - homePurchaseYear);
   const [downsizeAmount, setDownsizeAmount] = useState(200000);
 
   // Calculate results whenever inputs change
@@ -1657,7 +1769,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           transform: showStickyBar ? 'translateY(0)' : 'translateY(-8px)',
           transition: 'opacity 0.3s ease, transform 0.3s ease',
           pointerEvents: showStickyBar ? 'auto' : 'none',
-          maxHeight: showStickyBar ? (resultsBarCollapsed ? '60px' : '500px') : '0px',
+          maxHeight: showStickyBar ? (resultsBarCollapsed ? '60px' : '85vh') : '0px',
+          overflowY: resultsBarCollapsed ? 'hidden' : 'auto',
           overflow: 'hidden',
         }}
       >
@@ -1711,29 +1824,33 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
               {/* Section + module nav */}
               {[
-                { label: 'About You', id: 'about-you-section', modules: [] },
+                { label: 'About You', id: 'about-you-section', modules: [
+                  { label: 'Age & Retirement Age', id: 'module-ages' },
+                  { label: 'Current Annual Income', id: 'module-income' },
+                  { label: 'Retirement Income Goal', id: 'module-income-goal' },
+                ]},
                 { label: 'Your Savings', id: 'your-savings-section', modules: [
-                  { label: 'Savings Balance', id: 'module-savings-balance' },
+                  { label: 'Current Balances', id: 'module-savings-balance' },
                   { label: 'Employer Contributions', id: 'module-contributions' },
+                  { label: 'Revisit Your Goal', id: 'module-revisit-goal' },
                   { label: 'Employer Match', id: 'module-employer-match' },
                   { label: 'Personal Accounts', id: 'module-personal-accounts' },
-                  { label: 'Return Rate', id: 'module-return-rate' },
+                  { label: 'Expected Return Rate', id: 'module-return-rate' },
                 ]},
                 { label: 'Growth Planning', id: 'income-planning-section', modules: [
                   { label: 'Salary Growth', id: 'module-salary-growth' },
-                  { label: 'Inflation', id: 'module-inflation' },
-                  { label: 'Income Goal', id: 'module-income-goal' },
+                  { label: 'Inflation Rate', id: 'module-inflation' },
                 ]},
-                { label: 'Retirement Income', id: 'retirement-income-section', modules: [
+                { label: 'Retirement Income Sources', id: 'retirement-income-section', modules: [
                   { label: 'Pension', id: 'module-pension' },
                   { label: 'Social Security', id: 'module-social-security' },
-                  { label: 'Withdrawal', id: 'module-withdrawal' },
+                  { label: 'Withdrawal Rate', id: 'module-withdrawal' },
                 ]},
                 { label: 'Home Equity', id: 'home-equity-section', modules: [] },
                 { label: 'Anticipated Assets', id: 'anticipated-assets-section', modules: [] },
                 { label: 'Results', id: 'results-section', modules: [] },
               ].map(({ label, id, modules }) => (
-                <div key={id} className="mb-2">
+                <div key={id} className="mb-3">
                   <button
                     onClick={() => {
                       setResultsBarCollapsed(true);
@@ -1745,7 +1862,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                     {label}
                   </button>
                   {modules.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-1 ml-6">
+                    <div className="flex flex-col mt-1 ml-4">
                       {modules.map(({ label: mlabel, id: mid }) => (
                         <button
                           key={mid}
@@ -1753,8 +1870,8 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                             setResultsBarCollapsed(true);
                             setTimeout(() => document.getElementById(mid)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                           }}
-                          className="px-2 py-0.5 rounded font-medium transition-colors"
-                          style={{backgroundColor: '#f4f3ef', color: '#3A4446', border: '1px solid #c4c9cf', fontSize: '0.75rem'}}
+                          className="text-left py-0.5 transition-colors hover:opacity-70 font-semibold"
+                          style={{color: 'rgb(14,50,60)', fontSize: '0.8rem', background: 'none', border: 'none'}}
                         >
                           {mlabel}
                         </button>
@@ -2045,7 +2162,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             type="range"
             min="0"
             max="200"
-            step="5"
+            step="1"
             value={retirementIncomeGoal}
             onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
             style={{accentColor: 'rgb(14, 50, 60)'}}
@@ -2256,7 +2373,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           const currentGoalAnnual = annualIncome * (retirementIncomeGoal / 100);
           const effectiveIncome = annualIncome * (lifestyleMatch / 100);
           return (
-            <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+            <div id="module-revisit-goal" className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
               backgroundColor: 'white',
               borderRadius: '4px',
               boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
@@ -2290,7 +2407,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                 type="range"
                 min="0"
                 max="200"
-                step="5"
+                step="1"
                 value={retirementIncomeGoal}
                 onChange={(e) => setRetirementIncomeGoal(Number(e.target.value))}
                 style={{accentColor: 'rgb(14, 50, 60)'}}
@@ -2728,65 +2845,194 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
           border: '1px solid #c4c9cf'
         }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-            Monthly Social Security Benefit
+          <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+            Social Security Benefit
           </label>
           {!quickMode && <p className="text-base text-[#4B4B4B] mb-3">
-            Most people receive Social Security benefits in retirement. The current average monthly benefit is about $1,900. Use the slider to enter if you think you'll receive about average, more, or less. Maximum benefit is $5,100/month.
+            We'll estimate your benefit using the SSA's bend point formula based on your career earnings. You can override the result manually if you know your actual estimate from ssa.gov.
           </p>}
 
+          <label className="flex items-center gap-2 text-base text-[#4B4B4B] cursor-pointer mb-4">
+            <input
+              type="checkbox"
+              checked={hasSocialSecurity}
+              onChange={(e) => setHasSocialSecurity(e.target.checked)}
+              className="rounded"
+              style={{accentColor: 'rgb(14, 50, 60)'}}
+            />
+            I expect to receive Social Security benefits
+          </label>
+
+          {hasSocialSecurity && (<div>
+
           {retirementAge < 62 && (
-            <div className="rounded p-3 mb-3" style={{backgroundColor: '#fdf6f2', border: '1px solid #C58B6A'}}>
+            <div className="rounded p-3 mb-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
               <p className="text-xs" style={{color: '#4B4B4B'}}>
-                <strong>Important:</strong> Social Security benefits aren't available until age 62 (reduced) or 67 (full benefits).
-                Your retirement plan from age {retirementAge} to 62 ({62 - retirementAge} years) will rely entirely on your savings and other income sources.
+                <strong>Note:</strong> Social Security isn't available until age 62 (reduced) or 67 (full). Your plan from age {retirementAge} to 62 will rely entirely on savings and other income.
               </p>
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">Monthly Benefit (Today's Dollars)</p>
-              <p className="text-2xl font-bold text-[#3A4446]">{formatCurrency(socialSecurityAmount)}</p>
-            </div>
-            <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-              <p className="text-sm text-[#4B4B4B] mb-1">Monthly Benefit (Future Dollars)</p>
-              <p className="text-2xl font-bold text-[#3A4446]">
-                {formatCurrency(socialSecurityAmount * Math.pow(1 + inflationRate / 100, retirementAge - currentAge))}
-              </p>
-              <p className="text-xs text-[#4B4B4B]">At retirement</p>
-            </div>
+          {/* Inputs */}
+          {!ssManualOverride && (() => {
+            // Build career earnings estimate
+            const wageBase = 176100;
+            const yearsTotal = 35;
+            const yearsWorked = Math.min(ssYearsWorked, yearsTotal);
+            const startSalary = Math.min(ssStartingSalary, wageBase);
+            const currentCapped = Math.min(annualIncome, wageBase);
+
+            // Build earnings array — ramp from starting salary to current over years worked
+            let totalEarnings = 0;
+            for (let i = 0; i < yearsWorked; i++) {
+              const t = yearsWorked > 1 ? i / (yearsWorked - 1) : 1;
+              const salary = startSalary + (currentCapped - startSalary) * t;
+              totalEarnings += Math.min(salary, wageBase);
+            }
+            // Remaining years to 35 are zeros
+            const aime = totalEarnings / (yearsTotal * 12);
+
+            // 2025 bend point formula
+            const bp1 = 1226, bp2 = 7391;
+            let pia = 0;
+            if (aime <= bp1) {
+              pia = aime * 0.90;
+            } else if (aime <= bp2) {
+              pia = bp1 * 0.90 + (aime - bp1) * 0.32;
+            } else {
+              pia = bp1 * 0.90 + (bp2 - bp1) * 0.32 + (aime - bp2) * 0.15;
+            }
+
+            // Claiming age adjustment (FRA = 67)
+            let claimingFactor = 1;
+            if (ssClaimingAge < 67) {
+              claimingFactor = 1 - (0.00556 * (67 - ssClaimingAge) * 12);
+            } else if (ssClaimingAge > 67) {
+              claimingFactor = 1 + (0.08 * (ssClaimingAge - 67));
+            }
+            const estimatedBenefit = Math.round(pia * claimingFactor);
+
+            // Update socialSecurityAmount via effect-like inline call
+            if (hasSocialSecurity && Math.abs(estimatedBenefit - socialSecurityAmount) > 5) {
+              setSocialSecurityAmount(estimatedBenefit);
+              setSocialSecurityPercent((estimatedBenefit * 12 / annualIncome) * 100);
+            }
+
+            return (
+              <div>
+                <div className="mb-4">
+                  <label className="block text-base font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>
+                    Starting Yearly Income: {formatCurrency(ssStartingSalary)}
+                  </label>
+                  <p className="text-xs text-[#4B4B4B] mb-2">Your approximate yearly income when you started working</p>
+                  <input type="range" min="10000" max="150000" step="1000"
+                    value={ssStartingSalary}
+                    onChange={(e) => setSsStartingSalary(Number(e.target.value))}
+                    style={{accentColor: 'rgb(14,50,60)'}} className="w-full" />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-base font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>
+                    Years Worked: {ssYearsWorked}
+                  </label>
+                  <p className="text-xs text-[#4B4B4B] mb-2">Total years you've been earning a meaningful income</p>
+                  <input type="range" min="1" max="45" step="1"
+                    value={ssYearsWorked}
+                    onChange={(e) => setSsYearsWorked(Number(e.target.value))}
+                    style={{accentColor: 'rgb(14,50,60)'}} className="w-full" />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+                    Claiming Age
+                  </label>
+                  <div className="flex gap-2">
+                    {[62, 65, 67, 70].map(age => (
+                      <button key={age}
+                        onClick={() => setSsClaimingAge(age)}
+                        className="flex-1 py-2 rounded border text-sm font-medium transition-colors"
+                        style={{
+                          backgroundColor: ssClaimingAge === age ? 'rgb(14,50,60)' : 'white',
+                          color: ssClaimingAge === age ? 'white' : 'rgb(14,50,60)',
+                          borderColor: 'rgb(14,50,60)'
+                        }}>
+                        {age === 62 ? '62 (early)' : age === 67 ? '67 (full)' : age === 70 ? '70 (max)' : age}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[#4B4B4B] mt-2">
+                    {ssClaimingAge < 67 ? `Claiming at ${ssClaimingAge} reduces your benefit by ~${Math.round((1 - (1 - 0.00556 * (67 - ssClaimingAge) * 12)) * 100)}%` :
+                     ssClaimingAge > 67 ? `Delaying to ${ssClaimingAge} increases your benefit by ${(ssClaimingAge - 67) * 8}%` :
+                     'Full retirement age — 100% of your estimated benefit'}
+                  </p>
+                </div>
+
+                {/* Result */}
+                {(() => {
+                  const yearsToRetirement = Math.max(0, retirementAge - currentAge);
+                  const futureBenefit = Math.round(estimatedBenefit * Math.pow(1 + inflationRate / 100, yearsToRetirement));
+                  return (
+                    <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                      <p className="text-sm text-[#4B4B4B] mb-2">Estimated monthly benefit at retirement</p>
+                      <div className="flex items-baseline gap-6 mb-2">
+                        <div>
+                          <p className="text-xs text-[#4B4B4B] mb-0.5">In future dollars</p>
+                          <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(futureBenefit)}</span>
+                          <span className="text-sm text-[#4B4B4B] ml-1">/mo</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-[#4B4B4B] mb-0.5">In today's dollars</p>
+                          <span className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(estimatedBenefit)}</span>
+                          <span className="text-sm text-[#4B4B4B] ml-1">/mo</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-[#4B4B4B] mt-2">
+                        Based on ~{ssYearsWorked} earning years, average indexed monthly earnings (AIME) of {formatCurrency(aime)}/mo, claiming at {ssClaimingAge}. Future figure assumes {inflationRate}% annual cost-of-living adjustment (COLA) over {yearsToRetirement} years.
+                        {yearsWorked < 35 ? ` The remaining ${35 - yearsWorked} years count as $0, reducing your average.` : ''}
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* Manual override */}
+          <div className="mt-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer text-[#4B4B4B]">
+              <input type="checkbox" checked={ssManualOverride}
+                onChange={(e) => setSsManualOverride(e.target.checked)}
+                style={{accentColor: 'rgb(14,50,60)'}} className="rounded" />
+              I know my benefit — enter it manually
+            </label>
+            {ssManualOverride && (
+              <div className="mt-3">
+                <label className="block text-base font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+                  Monthly Benefit (today's dollars): {formatCurrency(socialSecurityAmount)}
+                </label>
+                <input type="range" min="0" max="5100" step="50"
+                  value={socialSecurityAmount}
+                  onChange={(e) => {
+                    setSocialSecurityAmount(Number(e.target.value));
+                    setSocialSecurityPercent((Number(e.target.value) * 12 / annualIncome) * 100);
+                  }}
+                  style={{accentColor: 'rgb(14,50,60)'}} className="w-full mb-2" />
+                <p className="text-sm text-[#4B4B4B]">
+                  In future dollars at retirement: <strong style={{color: 'rgb(14,50,60)'}}>{formatCurrency(socialSecurityAmount * Math.pow(1 + inflationRate / 100, Math.max(0, retirementAge - currentAge)))}/mo</strong>
+                </p>
+                <p className="text-xs text-[#4B4B4B] mt-1">Max benefit is $5,100/mo. Check <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener noreferrer" className="underline" style={{color: 'rgb(14,50,60)'}}>ssa.gov/myaccount</a> for your personal estimate.</p>
+              </div>
+            )}
           </div>
 
-          <input
-            type="range"
-            min="0"
-            max="5100"
-            step="100"
-            value={socialSecurityAmount}
-            onChange={(e) => {
-              const amount = Number(e.target.value);
-              setSocialSecurityAmount(amount);
-              setSocialSecurityPercent(((amount * 12 / annualIncome) * 100));
-            }}
-            className="w-full mb-3"
-          />
-
-          {!quickMode && <p className="text-sm text-[#4B4B4B] mb-2">
-            <strong>Based on today's dollars.</strong> Average benefit is ~$1,900/month. Maximum is $5,100/month.
-          </p>}
-          <p className="text-base text-[#4B4B4B] mt-3">
-            Annual benefit: {formatCurrency(socialSecurityAmount * 12)} per year
-          </p>
-
-          <p className="text-sm text-[#4B4B4B] mt-4">
-            Get your personalized estimate at <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener noreferrer" className="underline" style={{color: 'rgb(14, 50, 60)'}}>ssa.gov/myaccount</a>
-          </p>
-          {!quickMode && <div className="p-3 rounded border mt-3" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
-              <strong>Note:</strong> Your actual benefit depends on your earnings history and when you claim (ages 62-70). You may also want to review claiming strategies with a financial advisor.
-            </p>
-          </div>}
+          {!quickMode && (
+            <div className="p-3 rounded border mt-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+              <p className="text-xs text-[#4B4B4B]" style={{margin: 0}}>
+                <strong>This is an estimate.</strong> Your actual benefit depends on your full earnings history, which only SSA has. For a precise figure, visit <a href="https://www.ssa.gov/myaccount/" target="_blank" rel="noopener noreferrer" className="underline" style={{color: 'rgb(14,50,60)'}}>ssa.gov/myaccount</a>. SonderSave uses the 2025 bend point formula (90% / 32% / 15%) as a reasonable approximation.
+              </p>
+            </div>
+          )}
+          </div>)}
         </div>
 
         {/* Module: Withdrawal Rate */}
@@ -2839,11 +3085,11 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           </div>
 
 
-          {/* Withdrawal rate guidance */}
-          {!quickMode && <div className="p-3 rounded border mt-6" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>2-3%:</strong> Very conservative — your savings will likely outlast you, but you'll have less annual income.</p>
-            <p className="text-sm text-[#4B4B4B] mb-1"><strong>4%:</strong> The Safe Withdrawal Rule default — historically sustainable for a 30-year retirement.</p>
-            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>5-6%:</strong> More aggressive — higher annual income but savings may be depleted earlier.</p>
+          {/* Retirement return rate guidance */}
+          {!quickMode && <div className="p-3 rounded border mt-3" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>2-3%:</strong> Very conservative — bonds, money market, or capital preservation focus. Prioritizes stability over growth.</p>
+            <p className="text-sm text-[#4B4B4B] mb-1"><strong>4-5%:</strong> Balanced — a mix of bonds and dividend stocks. Common for early retirees managing sequence-of-returns risk.</p>
+            <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}><strong>6-7%:</strong> Moderate growth — still equity-heavy. Suitable if you have a long retirement horizon and can tolerate some volatility.</p>
           </div>}
 
           {!quickMode && <div className="p-3 rounded border mt-3" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
@@ -2943,164 +3189,121 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           {considerHomeEquity && (
             <div className="p-6 space-y-6">
               {!quickMode && <p className="text-base text-[#4B4B4B]">
-                If you plan to downsize in retirement, you could unlock home equity to supplement your income.
-                This calculator estimates your home's value at retirement and potential equity if you sell and move to a smaller home.
+                If you plan to downsize in retirement, you could unlock home equity to supplement your savings. Enter what your home is worth today and what you'd downsize to — we'll project both forward to retirement.
               </p>}
 
+              {/* Purchase price */}
               <div className="py-2">
-                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+                <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
                   Home Purchase Price: {formatCurrency(homePurchasePrice)}
                 </label>
-                <input
-                  type="number"
+                <div className="relative mb-2">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={formatNumberWithCommas(homePurchasePrice)}
+                    onChange={(e) => setHomePurchasePrice(parseFormattedNumber(e.target.value) || 0)}
+                    className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+                    style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+                  />
+                </div>
+                <input type="range" min="50000" max="2000000" step="10000"
                   value={homePurchasePrice}
                   onChange={(e) => setHomePurchasePrice(Number(e.target.value))}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  style={{borderColor: '#e5e7eb'}}
-                />
+                  style={{accentColor: 'rgb(14, 50, 60)'}} className="w-full" />
               </div>
 
+              {/* Year purchased */}
               <div className="py-2">
-                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-                  Year Purchased
+                <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                  Year Purchased: {homePurchaseYear}
                 </label>
-                <input
-                  type="number"
+                <input type="range" min="1970" max={new Date().getFullYear()} step="1"
                   value={homePurchaseYear}
                   onChange={(e) => setHomePurchaseYear(Number(e.target.value))}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  style={{borderColor: '#e5e7eb'}}
-                  min="1950"
-                  max={new Date().getFullYear()}
-                />
-                <p className="text-base text-[#4B4B4B] mt-1">
-                  We'll assume a standard 30-year mortgage
+                  style={{accentColor: 'rgb(14, 50, 60)'}} className="w-full mb-2" />
+                <p className="text-sm text-[#4B4B4B]">
+                  Purchased {new Date().getFullYear() - homePurchaseYear} year{new Date().getFullYear() - homePurchaseYear !== 1 ? 's' : ''} ago
                 </p>
               </div>
 
+              {/* Downsize value */}
               <div className="py-2">
-                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-                  Expected Home Appreciation Rate: {homeAppreciationRate}%
+                <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                  If you downsized today, what would you buy? {formatCurrency(downsizeAmount)}
                 </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="8"
-                  step="0.5"
-                  value={homeAppreciationRate}
-                  onChange={(e) => setHomeAppreciationRate(Number(e.target.value))}
-                  className="w-full"
-              />
-              <p className="text-base text-[#4B4B4B] mt-3">
-                  Historical average is around 3-4% annually
-                </p>
-              </div>
-              
-              <div className="py-2">
-                <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
-                  Downsized Home Purchase Price: {formatCurrency(downsizeAmount)}
-                </label>
-                <input
-                  type="number"
+                <div className="relative mb-2">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4B4B4B]">$</span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={formatNumberWithCommas(downsizeAmount)}
+                    onChange={(e) => setDownsizeAmount(parseFormattedNumber(e.target.value) || 0)}
+                    className="w-full pl-8 pr-4 py-2 text-lg border rounded-lg focus:ring-2 focus:border-transparent"
+                    style={{borderColor: '#e5e7eb', color: 'rgb(14, 50, 60)'}}
+                  />
+                </div>
+                <input type="range" min="50000" max="2000000" step="10000"
                   value={downsizeAmount}
                   onChange={(e) => setDownsizeAmount(Number(e.target.value))}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  style={{borderColor: '#e5e7eb'}}
-                />
-                <p className="text-base text-[#4B4B4B] mt-1">
-                  Enter in today's dollars. At retirement ({retirementAge - currentAge} years), this would be approximately <strong>{formatCurrency(downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge))}</strong> adjusted for {homeAppreciationRate}% home appreciation.
+                  style={{accentColor: 'rgb(14, 50, 60)'}} className="w-full mb-2" />
+                <p className="text-xs text-[#4B4B4B]">Both homes will appreciate at the same rate — so the equity gap stays the same in real terms.</p>
+              </div>
+
+              {/* Appreciation rate */}
+              <div className="py-2">
+                <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14, 50, 60)'}}>
+                  Expected Appreciation Rate: {homeAppreciationRate}%
+                </label>
+                <input type="range" min="0" max="8" step="0.5"
+                  value={homeAppreciationRate}
+                  onChange={(e) => setHomeAppreciationRate(Number(e.target.value))}
+                  style={{accentColor: 'rgb(14, 50, 60)'}} className="w-full mb-2" />
+                <p className="text-sm text-[#4B4B4B]">Historical average is around 3-4% annually</p>
+              </div>
+
+              {/* Estimated current value callout */}
+              <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                <p className="text-sm text-[#4B4B4B] mb-1">Estimated current home value</p>
+                <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>
+                  {formatCurrency(derivedCurrentHomeValue)}
+                </p>
+                <p className="text-xs text-[#4B4B4B] mt-1">
+                  Based on {formatCurrency(homePurchasePrice)} purchased in {homePurchaseYear}, growing at {homeAppreciationRate}% for {new Date().getFullYear() - homePurchaseYear} years
                 </p>
               </div>
-              
               {(() => {
-                const currentYear = new Date().getFullYear();
-                const yearsOwned = retirementAge - currentAge + (currentYear - homePurchaseYear);
-                const mortgagePayoffYear = homePurchaseYear + 30;
-                const yearsUntilPayoff = Math.max(0, mortgagePayoffYear - (currentYear + (retirementAge - currentAge)));
-                const homeValueAtRetirement = homePurchasePrice * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge);
-                
-                // Simplified mortgage calculation - assume 20% down, rest financed
-                const loanAmount = homePurchasePrice * 0.8;
-                const remainingMortgage = yearsUntilPayoff > 0 ? loanAmount * (yearsUntilPayoff / 30) : 0;
-                const netHomeEquity = homeValueAtRetirement - remainingMortgage;
-                const downsizeAmountFuture = downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, retirementAge - currentAge);
-                const cashFromDownsize = netHomeEquity - downsizeAmountFuture;
-                const additionalYearlyIncome = cashFromDownsize > 0 ? cashFromDownsize * (withdrawalRate / 100) : 0;
+                const yearsToRet = retirementAge - currentAge;
+                const homeValueAtRetirement = derivedCurrentHomeValue * Math.pow(1 + homeAppreciationRate / 100, yearsToRet);
+                const downsizeAmountFuture = downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, yearsToRet);
+                const cashFromDownsize = homeValueAtRetirement - downsizeAmountFuture;
                 
                 return (
                   <div className="rounded-lg p-4 mt-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
                     <h3 className="font-semibold mb-3" style={{color: 'rgb(14, 50, 60)'}}>
                       Home Equity Projection at Retirement
                     </h3>
-                    
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-[#3A4446]">Estimated home value:</span>
-                        <span className="font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
-                          {formatCurrency(homeValueAtRetirement)}
-                        </span>
+                        <span className="text-[#3A4446]">Your home at retirement:</span>
+                        <span className="font-semibold" style={{color: 'rgb(14, 50, 60)'}}>{formatCurrency(homeValueAtRetirement)}</span>
                       </div>
-                      
-                      {yearsUntilPayoff > 0 ? (
-                        <>
-                          <div className="flex justify-between">
-                            <span className="text-[#3A4446]">Remaining mortgage:</span>
-                            <span className="font-semibold text-red-600">
-                              -{formatCurrency(remainingMortgage)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-sm text-[#4B4B4B]">
-                            <span>Mortgage paid off in {mortgagePayoffYear}</span>
-                            <span>({yearsUntilPayoff} years after retirement)</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-xs text-green-600">
-                          ✓ Mortgage will be paid off before retirement ({mortgagePayoffYear})
-                        </div>
-                      )}
-                      
-                      <div className="border-t border-blue-300 my-2"></div>
-                      
                       <div className="flex justify-between">
-                        <span className="text-[#3A4446]">Net home equity:</span>
-                        <span className="font-semibold" style={{color: 'rgb(14, 50, 60)'}}>
-                          {formatCurrency(netHomeEquity)}
-                        </span>
+                        <span className="text-[#3A4446]">Downsized home at retirement:</span>
+                        <span className="font-semibold text-[#3A4446]">-{formatCurrency(downsizeAmountFuture)}</span>
                       </div>
-                      
-                      <div className="flex justify-between">
-                        <span className="text-[#3A4446]">Downsized home cost:</span>
-                        <span className="font-semibold text-[#3A4446]">
-                          -{formatCurrency(downsizeAmountFuture)}
-                        </span>
-                      </div>
-                      <div className="text-sm text-[#4B4B4B] text-right">
-                        {formatCurrency(downsizeAmount)} in today's dollars, adjusted for home appreciation
-                      </div>
-                      
-                      <div className="border-t border-blue-300 my-2"></div>
-                      
+                      <div className="border-t my-2" style={{borderColor: '#a7c9b8'}}></div>
                       <div className="flex justify-between text-base">
-                        <span className="font-semibold text-[#3A4446]">Cash available to invest:</span>
+                        <span className="font-semibold text-[#3A4446]">Available to add to retirement:</span>
                         <span className="font-bold" style={{color: cashFromDownsize > 0 ? 'rgb(14, 50, 60)' : '#dc2626'}}>
                           {formatCurrency(cashFromDownsize)}
                         </span>
                       </div>
-                      
-                      {cashFromDownsize > 0 && (
-                        <div className="mt-3 pt-3 border-t border-blue-300">
-                          <div className="flex justify-between text-base">
-                            <span className="font-semibold text-[#3A4446]">Additional yearly income ({withdrawalRate}%):</span>
-                            <span className="font-bold text-green-600">
-                              +{formatCurrency(additionalYearlyIncome)}/year
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      <p className="text-xs text-[#4B4B4B] pt-1">Both homes projected at {homeAppreciationRate}% appreciation over {retirementAge - currentAge} years. Today's gap of {formatCurrency(derivedCurrentHomeValue - downsizeAmount)} becomes {formatCurrency(cashFromDownsize)} at retirement.</p>
                     </div>
                     
-                    <div className="mt-4 pt-3 border-t border-blue-300">
+                    <div className="mt-4 pt-3 border-t" style={{borderColor: '#a7c9b8'}}>
                       <p className="text-sm text-[#4B4B4B]">
                         <strong>Note:</strong> This is a simplified estimate. Actual costs include selling fees, moving expenses, closing costs, 
                         and capital gains taxes. Downsizing involves significant life changes. Consider consulting a financial advisor and real estate 
@@ -3238,6 +3441,19 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                   <div className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)', opacity: 0.45}}>{formatCompact(totalAtRetirement + anticipatedAmount)}</div>
                 </div>
               )}
+              {considerHomeEquity && (() => {
+                const yearsToRet = retirementAge - currentAge;
+                const homeValueAtRetirement = derivedCurrentHomeValue * Math.pow(1 + homeAppreciationRate / 100, yearsToRet);
+                const downsizeAmountFuture = downsizeAmount * Math.pow(1 + homeAppreciationRate / 100, yearsToRet);
+                const cashFromDownsize = homeValueAtRetirement - downsizeAmountFuture;
+                if (cashFromDownsize <= 0) return null;
+                return (
+                  <div className="mt-2 pt-2 border-t border-dashed" style={{borderColor: '#c4c9cf'}}>
+                    <div className="text-xs text-[#4B4B4B] mb-0.5" style={{opacity: 0.7}}>With home equity (downsize)</div>
+                    <div className="text-lg font-semibold" style={{color: 'rgb(14, 50, 60)', opacity: 0.45}}>{formatCompact(totalAtRetirement + cashFromDownsize)}</div>
+                  </div>
+                );
+              })()}
             </div>
             <div className="p-4 rounded border text-center" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
               <div className="flex items-center justify-center gap-2 mb-1">
@@ -3712,6 +3928,7 @@ const SonderSave = () => {
       {currentPage === 'glossary' && <GlossaryPage />}
       {currentPage === 'spending' && <RetirementSpendingPage />}
       {currentPage === 'standings' && <WhereAmericaStandsPage currentAge={sharedData.currentAge} currentSavings={sharedData.currentSavings} />}
+      {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
     </div>
   );
