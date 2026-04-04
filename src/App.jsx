@@ -288,10 +288,12 @@ const QuickNestEggCalculator = () => {
 
   const fmt = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
 
-  const annualIncome = nestEgg * (withdrawalRate / 100);
-  const monthlyIncome = annualIncome / 12;
+  // What the nest egg generates at retirement (future dollars)
+  const annualFuture = nestEgg * (withdrawalRate / 100);
+  const monthlyFuture = annualFuture / 12;
+  // What that feels like in today's purchasing power
   const inflationFactor = Math.pow(1 + inflationRate / 100, yearsAway);
-  const annualToday = annualIncome / inflationFactor;
+  const annualToday = annualFuture / inflationFactor;
   const monthlyToday = annualToday / 12;
 
   return (
@@ -307,27 +309,41 @@ const QuickNestEggCalculator = () => {
       `}</style>
 
       {/* Section header */}
-      <div className="rounded shadow-md mb-3 page-break-avoid" style={{backgroundColor: '#C58B6A', padding: '16px', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+      <div className="rounded shadow-md mb-3" style={{backgroundColor: '#C58B6A', padding: '16px', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
         <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Quick NestEgg Calculator</h2>
       </div>
 
       {/* Intro */}
       <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
-        <p className="text-base text-[#4B4B4B]" style={{margin: 0}}>Enter a savings target and withdrawal rate to see what your nest egg could generate in retirement — in both future and today's dollars.</p>
+        <p className="text-base text-[#4B4B4B]" style={{margin: 0}}>Set your time horizon and inflation assumption first, then dial in your nest egg target and withdrawal rate to see what retirement could look like.</p>
       </div>
 
-      {/* Nest Egg */}
+      {/* Step 1: Time + Inflation */}
+      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Years Until Retirement: {yearsAway}
+        </label>
+        <input type="range" min="1" max="50" step="1"
+          value={yearsAway} onChange={(e) => setYearsAway(Number(e.target.value))}
+          className="nestegg-slider mb-5" />
+
+        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
+          Expected Inflation Rate: {inflationRate}%
+        </label>
+        <input type="range" min="1" max="6" step="0.5"
+          value={inflationRate} onChange={(e) => setInflationRate(Number(e.target.value))}
+          className="nestegg-slider" />
+      </div>
+
+      {/* Step 2: Nest Egg + Withdrawal */}
       <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
         <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
           Target Nest Egg: {fmt(nestEgg)}
         </label>
         <input type="range" min="0" max="5000000" step="25000"
           value={nestEgg} onChange={(e) => setNestEgg(Number(e.target.value))}
-          className="nestegg-slider" />
-      </div>
+          className="nestegg-slider mb-5" />
 
-      {/* Withdrawal Rate */}
-      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
         <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
           Withdrawal Rate: {withdrawalRate}%
         </label>
@@ -341,30 +357,14 @@ const QuickNestEggCalculator = () => {
         </div>
       </div>
 
-      {/* Years Away + Inflation */}
-      <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
-        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
-          Years Until Retirement: {yearsAway}
-        </label>
-        <input type="range" min="1" max="50" step="1"
-          value={yearsAway} onChange={(e) => setYearsAway(Number(e.target.value))}
-          className="nestegg-slider mb-5" />
-        <label className="block text-lg font-semibold mb-2" style={{color: 'rgb(14,50,60)'}}>
-          Inflation Rate: {inflationRate}%
-        </label>
-        <input type="range" min="1" max="6" step="0.5"
-          value={inflationRate} onChange={(e) => setInflationRate(Number(e.target.value))}
-          className="nestegg-slider" />
-      </div>
-
-      {/* Results */}
+      {/* Step 3: Results */}
       <div className="rounded shadow-md mb-3 p-6" style={{backgroundColor: 'white', borderRadius: 4, boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)', border: '1px solid #c4c9cf'}}>
         <label className="block text-lg font-semibold mb-3" style={{color: 'rgb(14,50,60)'}}>What your nest egg could generate</label>
         <div className="grid grid-cols-2 gap-4 mb-3">
           <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-            <p className="text-sm text-[#4B4B4B] mb-1">In future dollars</p>
-            <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{fmt(annualIncome)}</p>
-            <p className="text-sm text-[#4B4B4B]">{fmt(monthlyIncome)}/mo</p>
+            <p className="text-sm text-[#4B4B4B] mb-1">At retirement</p>
+            <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{fmt(annualFuture)}</p>
+            <p className="text-sm text-[#4B4B4B]">{fmt(monthlyFuture)}/mo</p>
           </div>
           <div className="p-3 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
             <p className="text-sm text-[#4B4B4B] mb-1">In today's dollars</p>
@@ -373,13 +373,14 @@ const QuickNestEggCalculator = () => {
           </div>
         </div>
         <p className="text-sm text-[#4B4B4B]" style={{margin: 0}}>
-          {fmt(nestEgg)} at {withdrawalRate}% = {fmt(annualIncome)}/yr. Adjusted for {inflationRate}% inflation over {yearsAway} years, that's {fmt(annualToday)}/yr in today's spending power.
+          {fmt(nestEgg)} at {withdrawalRate}% = {fmt(annualFuture)}/yr at retirement. After {inflationRate}% inflation over {yearsAway} years, that has the spending power of {fmt(annualToday)}/yr today.
         </p>
       </div>
 
     </div>
   );
 };
+
 
 
 const NavBar = ({ currentPage, setCurrentPage }) => {
@@ -768,84 +769,131 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
         </div>
       </div>
 
-      {/* Buckets */}
-      {buckets.map(bucket => {
-        const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
-        const actual = bucketTotal(bucket);
-        const targetAmount = netIncome * target / 100;
-        const over = actual > targetAmount && actual > 0;
-        return (
-        <div key={bucket.id} className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-          {/* Bucket Header — name + actual vs target */}
-          <div className="px-5 py-3 flex items-center justify-between" style={{backgroundColor: bucket.color}}>
-            <h3 className="text-base font-bold text-white" style={{margin: 0}}>{bucket.label}</h3>
-            {netIncome > 0 && (
-              <span className="text-sm font-medium text-white" style={{opacity: 0.92}}>
-                {formatCurrency(actual)} <span style={{opacity: 0.75}}>of {formatCurrency(targetAmount)}</span>
-                {over && <span className="ml-2" style={{fontSize: '0.7rem', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 4, padding: '1px 5px'}}>▲ over</span>}
-                {!over && actual > 0 && <span className="ml-2" style={{fontSize: '0.75rem'}}>✓</span>}
-              </span>
-            )}
-          </div>
+      {/* Compact Table Budget */}
+      <div className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        {buckets.map((bucket, bi) => {
+          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+          const actual = bucketTotal(bucket);
+          const targetAmount = netIncome * target / 100;
+          const over = actual > targetAmount && actual > 0;
+          const maxInBucket = Math.max(...bucket.categories.map(c => catTotal(c.id)), ...(customLines[bucket.id] || []).map(l => l.amount || 0), 1);
 
-          {/* Flat category rows */}
-          <div className="bg-white">
-            {bucket.categories.map((cat, idx) => (
-              <div key={cat.id} className={`flex items-center gap-3 px-5 py-3 ${idx > 0 ? 'border-t border-gray-100' : ''}`}>
-                <label className="flex-1 text-sm text-[#3A4446]">
-                  {cat.label}
-                  {cat.autoAmount > 0 && <span className="ml-2 text-xs px-1.5 py-0.5 rounded" style={{backgroundColor: '#f4f3ef', color: '#6E8F7C', border: '1px solid #c4c9cf'}}>auto-filled</span>}
-                </label>
-                <div className="relative flex-shrink-0">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#4B4B4B]">$</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={amounts[cat.id] === 0 ? '' : amounts[cat.id].toLocaleString()}
-                    onChange={e => setAmount(cat.id, e.target.value)}
-                    placeholder="0"
-                    className="w-28 pl-7 pr-3 py-1.5 text-sm border rounded text-right"
-                    style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
-                  />
-                </div>
+          return (
+            <div key={bucket.id}>
+              {/* Bucket header row */}
+              <div className="flex items-center justify-between px-4 py-2" style={{backgroundColor: bucket.color}}>
+                <span className="text-sm font-bold text-white">{bucket.label}</span>
+                <span className="text-xs text-white" style={{opacity: 0.9}}>
+                  {formatCurrency(actual)}
+                  {netIncome > 0 && <span style={{opacity: 0.7}}> of {formatCurrency(targetAmount)} target</span>}
+                  {over && <span className="ml-2 px-1.5 py-0.5 rounded text-white" style={{fontSize: '0.65rem', backgroundColor: 'rgba(0,0,0,0.25)'}}>▲ over</span>}
+                  {!over && actual > 0 && <span className="ml-1">✓</span>}
+                </span>
               </div>
-            ))}
 
-            {/* Custom lines */}
-            {(customLines[bucket.id] || []).map(line => (
-              <div key={line.id} className="flex items-center gap-3 px-5 py-3 border-t border-gray-100">
-                <input
-                  type="text"
-                  value={line.label}
-                  onChange={e => updateCustomLine(bucket.id, line.id, 'label', e.target.value)}
-                  placeholder="Custom category"
-                  className="flex-1 min-w-0 text-sm px-3 py-1.5 border rounded"
-                  style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
-                />
-                <div className="relative flex-shrink-0">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#4B4B4B]">$</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={line.amount === 0 ? '' : line.amount.toLocaleString()}
-                    onChange={e => updateCustomLine(bucket.id, line.id, 'amount', e.target.value)}
-                    placeholder="0"
-                    className="w-28 pl-7 pr-3 py-1.5 text-sm border rounded text-right"
-                    style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
-                  />
-                </div>
-                <button onClick={() => removeCustomLine(bucket.id, line.id)} className="text-gray-300 hover:text-red-400 text-lg leading-none flex-shrink-0">×</button>
+              {/* Category rows */}
+              {bucket.categories.map((cat, idx) => {
+                const amt = catTotal(cat.id);
+                const barPct = targetAmount > 0 ? Math.min(100, (amt / targetAmount) * 100) : 0;
+                return (
+                  <div key={cat.id} className="flex items-center px-4 py-2 gap-3"
+                    style={{borderTop: '1px solid #f0f0f0', backgroundColor: idx % 2 === 0 ? 'white' : '#fafaf9'}}>
+                    {/* Category name */}
+                    <span className="text-xs text-[#4B4B4B] flex-shrink-0" style={{width: 120, minWidth: 100}}>
+                      {cat.label}
+                      {cat.autoAmount > 0 && <span className="ml-1 text-xs" style={{color: '#6E8F7C'}}>•</span>}
+                    </span>
+                    {/* Inline bar */}
+                    <div className="flex-1 relative" style={{height: 6, backgroundColor: '#e5e7eb', borderRadius: 3}}>
+                      <div style={{
+                        position: 'absolute', left: 0, top: 0, height: '100%',
+                        width: `${barPct}%`,
+                        backgroundColor: amt > 0 ? bucket.color : 'transparent',
+                        borderRadius: 3,
+                        opacity: 0.75,
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                    {/* Dollar input */}
+                    <div className="relative flex-shrink-0">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#9ca3af]">$</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={amounts[cat.id] === 0 ? '' : amounts[cat.id].toLocaleString()}
+                        onChange={e => setAmount(cat.id, e.target.value)}
+                        placeholder="0"
+                        className="text-right text-sm border rounded"
+                        style={{width: 88, paddingLeft: 16, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Custom lines */}
+              {(customLines[bucket.id] || []).map((line, idx) => {
+                const amt = line.amount || 0;
+                const barPct = targetAmount > 0 ? Math.min(100, (amt / targetAmount) * 100) : 0;
+                return (
+                  <div key={line.id} className="flex items-center px-4 py-2 gap-3"
+                    style={{borderTop: '1px solid #f0f0f0', backgroundColor: '#fafaf9'}}>
+                    <input
+                      type="text"
+                      value={line.label}
+                      onChange={e => updateCustomLine(bucket.id, line.id, 'label', e.target.value)}
+                      placeholder="Category name"
+                      className="text-xs border rounded px-2 py-1 flex-shrink-0"
+                      style={{width: 120, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                    />
+                    <div className="flex-1 relative" style={{height: 6, backgroundColor: '#e5e7eb', borderRadius: 3}}>
+                      <div style={{
+                        position: 'absolute', left: 0, top: 0, height: '100%',
+                        width: `${barPct}%`,
+                        backgroundColor: amt > 0 ? bucket.color : 'transparent',
+                        borderRadius: 3, opacity: 0.75, transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                    <div className="relative flex-shrink-0">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#9ca3af]">$</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={line.amount === 0 ? '' : line.amount.toLocaleString()}
+                        onChange={e => updateCustomLine(bucket.id, line.id, 'amount', e.target.value)}
+                        placeholder="0"
+                        className="text-right text-sm border rounded"
+                        style={{width: 88, paddingLeft: 16, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                      />
+                    </div>
+                    <button onClick={() => removeCustomLine(bucket.id, line.id)}
+                      className="text-gray-300 hover:text-red-400 text-base leading-none flex-shrink-0">×</button>
+                  </div>
+                );
+              })}
+
+              {/* Add line + bucket subtotal */}
+              <div className="flex items-center justify-between px-4 py-2"
+                style={{borderTop: '1px solid #e5e7eb', backgroundColor: '#f8f7f5'}}>
+                <button onClick={() => addCustomLine(bucket.id)} className="text-xs font-medium"
+                  style={{color: bucket.color}}>+ Add line</button>
+                <span className="text-xs font-semibold" style={{color: over ? '#c0392b' : 'rgb(14,50,60)'}}>
+                  {formatCurrency(actual)}
+                </span>
               </div>
-            ))}
-
-            {/* Add line */}
-            <div className="px-5 py-3 border-t border-gray-100">
-              <button onClick={() => addCustomLine(bucket.id)} className="text-sm" style={{color: bucket.color}}>+ Add line</button>
             </div>
-          </div>
+          );
+        })}
+
+        {/* Grand total row */}
+        <div className="flex items-center justify-between px-4 py-3"
+          style={{borderTop: '2px solid #e5e7eb', backgroundColor: '#f4f3ef'}}>
+          <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>Remaining unallocated</span>
+          <span className="text-sm font-bold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>
+            {formatCurrency(remaining)}
+          </span>
         </div>
-        );
-      })}
+      </div>
 
       {/* Pre-tax note */}
       <div className="rounded mb-4 p-4" style={{backgroundColor: '#f4f3ef', border: '1px solid #c4c9cf', borderRadius: '4px'}}>
@@ -854,37 +902,80 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
         </p>
       </div>
 
-      {/* Budget Summary */}
+      {/* Spending vs Target Chart */}
       <div className="rounded mb-6 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-        <h3 className="text-lg font-semibold mb-4" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</h3>
-        {buckets.map(bucket => {
-          const actual = bucketPercent(bucket);
-          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
-          const over = actual > target;
+        <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</h3>
+        <p className="text-sm text-[#4B4B4B] mb-4">Dashed line marks your target for each bucket.</p>
+        {(() => {
+          const chartHeight = 280;
+          const maxVal = Math.max(...buckets.map(b => bucketTotal(b)), netIncome * 0.55, 1);
+          const barWidth = 80;
+          const gap = 44;
+          const leftPad = 52;
+          const totalWidth = leftPad + buckets.length * (barWidth + gap);
+
           return (
-            <div key={bucket.id} className="mb-4">
-              <div className="flex justify-between items-baseline mb-1">
-                <span className="text-sm font-medium" style={{color: bucket.color}}>{bucket.label}</span>
-                <span className="text-xs text-[#4B4B4B]">
-                  {formatCurrency(bucketTotal(bucket))} of {formatCurrency(netIncome * target / 100)} target
-                  {over && <span className="ml-2 font-medium" style={{color: '#c0392b'}}>▲ {(actual - target).toFixed(1)}% over</span>}
-                  {!over && actual > 0 && <span className="ml-2 font-medium" style={{color: '#6E8F7C'}}>✓</span>}
-                </span>
-              </div>
-              <div className="relative rounded-full bg-gray-100 overflow-hidden" style={{height: 24}}>
-                <div className="h-full rounded-full transition-all duration-300 flex items-center justify-end pr-2"
-                  style={{width: `${Math.min(100, actual)}%`, backgroundColor: over ? '#c0392b' : bucket.color, minWidth: actual > 0 ? 36 : 0}}>
-                  {actual > 0 && <span className="text-white font-bold pointer-events-none" style={{fontSize: '0.7rem'}}>{actual.toFixed(1)}%</span>}
-                </div>
-                <div className="absolute top-0 bottom-0 w-0.5 bg-gray-400" style={{left: `${target}%`}} />
-              </div>
+            <div style={{overflowX: 'auto'}}>
+              <svg width={totalWidth} height={chartHeight + 60} style={{display: 'block', minWidth: 260}}>
+                {[0, 25, 50, 75, 100].map(pct => {
+                  const y = chartHeight - (pct / 100) * chartHeight;
+                  const val = (pct / 100) * maxVal;
+                  return (
+                    <g key={pct}>
+                      <line x1={leftPad} y1={y} x2={totalWidth - 8} y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3,3" />
+                      <text x={leftPad - 6} y={y + 4} textAnchor="end" style={{fontSize: 10, fill: '#9ca3af'}}>
+                        ${val >= 1000 ? (val/1000).toFixed(0)+'k' : Math.round(val)}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {buckets.map((bucket, bi) => {
+                  const x = leftPad + bi * (barWidth + gap);
+                  const total = bucketTotal(bucket);
+                  const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+                  const targetAmount = netIncome * target / 100;
+                  const targetY = chartHeight - (targetAmount / maxVal) * chartHeight;
+                  const barH = (total / maxVal) * chartHeight;
+                  const over = total > targetAmount && netIncome > 0;
+
+                  return (
+                    <g key={bucket.id}>
+                      {/* Solid bar in bucket color */}
+                      <rect x={x} y={chartHeight - barH} width={barWidth} height={Math.max(barH, 2)}
+                        fill={bucket.color} rx={3} opacity={0.85} />
+
+                      {/* Target dashed line */}
+                      {netIncome > 0 && (
+                        <g>
+                          <line x1={x - 5} y1={targetY} x2={x + barWidth + 5} y2={targetY}
+                            stroke={over ? '#c0392b' : '#9ca3af'} strokeWidth="2" strokeDasharray="5,3" />
+                          <text x={x + barWidth + 8} y={targetY + 4}
+                            style={{fontSize: 10, fill: over ? '#c0392b' : '#9ca3af', fontWeight: 600}}>
+                            {target}%
+                          </text>
+                        </g>
+                      )}
+
+                      <text x={x + barWidth / 2} y={chartHeight + 16} textAnchor="middle"
+                        style={{fontSize: 12, fill: bucket.color, fontWeight: 700}}>{bucket.label}</text>
+                      <text x={x + barWidth / 2} y={chartHeight + 30} textAnchor="middle"
+                        style={{fontSize: 11, fill: over ? '#c0392b' : 'rgb(14,50,60)', fontWeight: 600}}>
+                        {formatCurrency(total)}
+                      </text>
+                      {netIncome > 0 && (
+                        <text x={x + barWidth / 2} y={chartHeight + 44} textAnchor="middle"
+                          style={{fontSize: 10, fill: over ? '#c0392b' : '#9ca3af'}}>
+                          {over ? `▲ ${(bucketPercent(bucket) - target).toFixed(1)}% over` : `${bucketPercent(bucket).toFixed(1)}%`}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
           );
-        })}
-        <div className="border-t border-gray-200 pt-3 mt-2 flex justify-between">
-          <span className="text-sm font-semibold text-[#3A4446]">Remaining unallocated</span>
-          <span className="text-sm font-semibold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>{formatCurrency(remaining)}</span>
-        </div>
+        })()}
       </div>
 
     </div>
@@ -2136,7 +2227,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
             Retirement Income Goal
           </label>
           {!quickMode && <p className="text-base text-[#4B4B4B] mb-4">
-            Think of retirement as the income you'll need each year — not just a savings total.
+            Think of retirement in relation to how much you make now. Adjust your goal below based on a percentage of your current income.
           </p>}
 
           <div className="p-4 rounded border mb-4" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
@@ -3917,6 +4008,17 @@ const SonderSave = () => {
     retirementAge: 65,
   });
 
+  // Google Analytics page tracking
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_title: currentPage,
+        page_location: window.location.href,
+        page_path: '/' + currentPage,
+      });
+    }
+  }, [currentPage]);
+
   return (
     <div style={{minHeight: '100vh', backgroundColor: '#ffffff'}}>
       <NavBar currentPage={currentPage} setCurrentPage={setCurrentPage} />
@@ -3930,6 +4032,9 @@ const SonderSave = () => {
       {currentPage === 'standings' && <WhereAmericaStandsPage currentAge={sharedData.currentAge} currentSavings={sharedData.currentSavings} />}
       {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
+      <div style={{position: 'fixed', bottom: 8, right: 10, fontSize: '0.65rem', color: '#c4c9cf', pointerEvents: 'none', zIndex: 9999}}>
+        v428
+      </div>
     </div>
   );
 };
