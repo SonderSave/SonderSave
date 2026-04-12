@@ -2063,28 +2063,30 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
           border: '1px solid #c4c9cf'
         }}>
-          <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14, 50, 60)'}}>
-            Desired Retirement Age: {retirementAge}
-          </label>
-          {(() => {
-            const notes = {
-              62: 'Earliest Social Security age — benefit is permanently reduced',
-              63: 'Social Security available at a reduced rate from age 62',
-              64: 'Social Security available at a reduced rate from age 62',
-              65: 'Medicare eligibility begins at 65',
-              66: 'Near full Social Security age — benefit close to 100%',
-              67: 'Full Social Security age for most people born after 1960',
-              68: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
-              69: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
-              70: 'Maximum Social Security benefit — no advantage to delaying further',
-            };
-            const note = notes[retirementAge];
-            return note ? (
-              <p className="text-xs mb-3" style={{color: '#6E8F7C', fontStyle: 'italic', margin: '0 0 12px 0'}}>
-                {note}
-              </p>
-            ) : <div className="mb-4" />;
-          })()}
+          <div className="flex items-baseline justify-between mb-4">
+            <label className="text-lg font-semibold flex-shrink-0" style={{color: 'rgb(14, 50, 60)'}}>
+              Desired Retirement Age: {retirementAge}
+            </label>
+            {(() => {
+              const notes = {
+                62: 'Earliest SS — reduced benefit',
+                63: 'SS available from age 62',
+                64: 'SS available from age 62',
+                65: 'Medicare eligibility begins',
+                66: 'Near full Social Security age',
+                67: 'Full Social Security age',
+                68: 'Delaying SS past 67 adds 8%/yr',
+                69: 'Delaying SS past 67 adds 8%/yr',
+                70: 'Maximum SS benefit',
+              };
+              const note = notes[retirementAge];
+              return note ? (
+                <span className="text-xs ml-4 flex-shrink-0" style={{color: '#6E8F7C', fontStyle: 'italic'}}>
+                  {note}
+                </span>
+              ) : null;
+            })()}
+          </div>
           <input
             type="range"
             min="50"
@@ -3999,7 +4001,7 @@ const SonderSave = () => {
       {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
       <div style={{position: 'fixed', bottom: 8, right: 10, fontSize: '0.65rem', color: '#c4c9cf', pointerEvents: 'none', zIndex: 9999}}>
-        v435
+        v437
       </div>
     </div>
   );
