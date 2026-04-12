@@ -769,93 +769,85 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
         </div>
       </div>
 
-      {/* Compact Table Budget */}
-      <div className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-        {buckets.map((bucket, bi) => {
-          const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
-          const actual = bucketTotal(bucket);
-          const targetAmount = netIncome * target / 100;
-          const over = actual > targetAmount && actual > 0;
-          const maxInBucket = Math.max(...bucket.categories.map(c => catTotal(c.id)), ...(customLines[bucket.id] || []).map(l => l.amount || 0), 1);
+      {/* Budget Cards — one per bucket, Pew-style horizontal bars */}
+      {buckets.map((bucket) => {
+        const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
+        const actual = bucketTotal(bucket);
+        const targetAmount = netIncome * target / 100;
+        const over = actual > targetAmount && actual > 0;
 
-          return (
-            <div key={bucket.id}>
-              {/* Bucket header row */}
-              <div className="flex items-center justify-between px-4 py-2" style={{backgroundColor: bucket.color}}>
-                <span className="text-sm font-bold text-white">{bucket.label}</span>
-                <span className="text-xs text-white" style={{opacity: 0.9}}>
-                  {formatCurrency(actual)}
-                  {netIncome > 0 && <span style={{opacity: 0.7}}> of {formatCurrency(targetAmount)} target</span>}
-                  {over && <span className="ml-2 px-1.5 py-0.5 rounded text-white" style={{fontSize: '0.65rem', backgroundColor: 'rgba(0,0,0,0.25)'}}>▲ over</span>}
-                  {!over && actual > 0 && <span className="ml-1">✓</span>}
-                </span>
+        // All line items for this bucket
+        const allLines = [
+          ...bucket.categories.map(c => ({ id: c.id, label: c.label, amount: catTotal(c.id), isCustom: false, autoAmount: c.autoAmount })),
+          ...(customLines[bucket.id] || []).map(l => ({ id: l.id, label: l.label, amount: l.amount || 0, isCustom: true }))
+        ];
+
+        // Scale bars relative to target amount so we can show how each line relates to total budget
+        const maxBarAmount = Math.max(...allLines.map(l => l.amount), targetAmount * 0.6, 1);
+
+        return (
+          <div key={bucket.id} className="rounded mb-4 overflow-hidden" style={{border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+
+            {/* Card header */}
+            <div className="px-5 py-3 flex items-center justify-between" style={{backgroundColor: 'white', borderBottom: `3px solid ${bucket.color}`}}>
+              <div>
+                <h3 className="text-base font-bold" style={{color: bucket.color, margin: 0}}>{bucket.label}</h3>
+                {netIncome > 0 && (
+                  <p className="text-xs text-[#4B4B4B] mt-0.5" style={{margin: 0}}>
+                    Target: {formatCurrency(targetAmount)} ({target}% of income)
+                  </p>
+                )}
               </div>
+              <div className="text-right">
+                <div className="text-lg font-bold" style={{color: over ? '#c0392b' : 'rgb(14,50,60)'}}>{formatCurrency(actual)}</div>
+                {netIncome > 0 && actual > 0 && (
+                  <div className="text-xs" style={{color: over ? '#c0392b' : '#6E8F7C'}}>
+                    {over ? `▲ ${(bucketPercent(bucket) - target).toFixed(1)}% over` : '✓ on track'}
+                  </div>
+                )}
+              </div>
+            </div>
 
-              {/* Category rows */}
-              {bucket.categories.map((cat, idx) => {
-                const amt = catTotal(cat.id);
-                const barPct = targetAmount > 0 ? Math.min(100, (amt / targetAmount) * 100) : 0;
-                return (
-                  <div key={cat.id} className="flex items-center px-4 py-2 gap-3"
-                    style={{borderTop: '1px solid #f0f0f0', backgroundColor: idx % 2 === 0 ? 'white' : '#fafaf9'}}>
-                    {/* Category name */}
-                    <span className="text-xs text-[#4B4B4B] flex-shrink-0" style={{width: 120, minWidth: 100}}>
-                      {cat.label}
-                      {cat.autoAmount > 0 && <span className="ml-1 text-xs" style={{color: '#6E8F7C'}}>•</span>}
-                    </span>
-                    {/* Inline bar */}
-                    <div className="flex-1 relative" style={{height: 6, backgroundColor: '#e5e7eb', borderRadius: 3}}>
-                      <div style={{
-                        position: 'absolute', left: 0, top: 0, height: '100%',
-                        width: `${barPct}%`,
-                        backgroundColor: amt > 0 ? bucket.color : 'transparent',
-                        borderRadius: 3,
-                        opacity: 0.75,
-                        transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                    {/* Dollar input */}
-                    <div className="relative flex-shrink-0">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#9ca3af]">$</span>
+            {/* Category rows — Pew style */}
+            <div className="bg-white px-5 py-3 space-y-3">
+              {allLines.map((line, idx) => (
+                <div key={line.id} className="flex items-center gap-3">
+                  {/* Label */}
+                  {line.isCustom ? (
+                    <div className="flex items-center gap-2 flex-shrink-0" style={{width: 140}}>
                       <input
                         type="text"
-                        inputMode="decimal"
-                        value={amounts[cat.id] === 0 ? '' : amounts[cat.id].toLocaleString()}
-                        onChange={e => setAmount(cat.id, e.target.value)}
-                        placeholder="0"
-                        className="text-right text-sm border rounded"
-                        style={{width: 88, paddingLeft: 16, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                        value={line.label}
+                        onChange={e => updateCustomLine(bucket.id, line.id, 'label', e.target.value)}
+                        placeholder="Category name"
+                        className="text-xs border rounded px-2 py-1 w-full"
+                        style={{borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
                       />
                     </div>
-                  </div>
-                );
-              })}
+                  ) : (
+                    <span className="text-sm text-[#3A4446] flex-shrink-0" style={{width: 140}}>
+                      {line.label}
+                      {line.autoAmount > 0 && <span className="ml-1" style={{color: '#6E8F7C', fontSize: '0.65rem'}}>●</span>}
+                    </span>
+                  )}
 
-              {/* Custom lines */}
-              {(customLines[bucket.id] || []).map((line, idx) => {
-                const amt = line.amount || 0;
-                const barPct = targetAmount > 0 ? Math.min(100, (amt / targetAmount) * 100) : 0;
-                return (
-                  <div key={line.id} className="flex items-center px-4 py-2 gap-3"
-                    style={{borderTop: '1px solid #f0f0f0', backgroundColor: '#fafaf9'}}>
-                    <input
-                      type="text"
-                      value={line.label}
-                      onChange={e => updateCustomLine(bucket.id, line.id, 'label', e.target.value)}
-                      placeholder="Category name"
-                      className="text-xs border rounded px-2 py-1 flex-shrink-0"
-                      style={{width: 120, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
-                    />
-                    <div className="flex-1 relative" style={{height: 6, backgroundColor: '#e5e7eb', borderRadius: 3}}>
-                      <div style={{
-                        position: 'absolute', left: 0, top: 0, height: '100%',
-                        width: `${barPct}%`,
-                        backgroundColor: amt > 0 ? bucket.color : 'transparent',
-                        borderRadius: 3, opacity: 0.75, transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                    <div className="relative flex-shrink-0">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#9ca3af]">$</span>
+                  {/* Bold horizontal bar */}
+                  <div className="flex-1 relative" style={{height: 18, backgroundColor: '#f0f0f0', borderRadius: 99}}>
+                    <div style={{
+                      position: 'absolute', left: 0, top: 0, height: '100%',
+                      width: line.amount > 0 ? `${Math.min(100, (line.amount / maxBarAmount) * 100)}%` : '0%',
+                      backgroundColor: bucket.color,
+                      borderRadius: 99,
+                      opacity: 0.85,
+                      transition: 'width 0.3s ease',
+                      minWidth: line.amount > 0 ? 6 : 0
+                    }} />
+                  </div>
+
+                  {/* Dollar input */}
+                  <div className="relative flex-shrink-0">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-[#9ca3af]">$</span>
+                    {line.isCustom ? (
                       <input
                         type="text"
                         inputMode="decimal"
@@ -863,36 +855,48 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
                         onChange={e => updateCustomLine(bucket.id, line.id, 'amount', e.target.value)}
                         placeholder="0"
                         className="text-right text-sm border rounded"
-                        style={{width: 88, paddingLeft: 16, paddingRight: 8, paddingTop: 4, paddingBottom: 4, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                        style={{width: 90, paddingLeft: 18, paddingRight: 8, paddingTop: 3, paddingBottom: 3, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
                       />
-                    </div>
+                    ) : (
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={amounts[line.id] === 0 ? '' : amounts[line.id].toLocaleString()}
+                        onChange={e => setAmount(line.id, e.target.value)}
+                        placeholder="0"
+                        className="text-right text-sm border rounded"
+                        style={{width: 90, paddingLeft: 18, paddingRight: 8, paddingTop: 3, paddingBottom: 3, borderColor: '#e5e7eb', color: 'rgb(14,50,60)'}}
+                      />
+                    )}
+                  </div>
+
+                  {/* Remove button for custom lines */}
+                  {line.isCustom && (
                     <button onClick={() => removeCustomLine(bucket.id, line.id)}
                       className="text-gray-300 hover:text-red-400 text-base leading-none flex-shrink-0">×</button>
-                  </div>
-                );
-              })}
-
-              {/* Add line + bucket subtotal */}
-              <div className="flex items-center justify-between px-4 py-2"
-                style={{borderTop: '1px solid #e5e7eb', backgroundColor: '#f8f7f5'}}>
-                <button onClick={() => addCustomLine(bucket.id)} className="text-xs font-medium"
-                  style={{color: bucket.color}}>+ Add line</button>
-                <span className="text-xs font-semibold" style={{color: over ? '#c0392b' : 'rgb(14,50,60)'}}>
-                  {formatCurrency(actual)}
-                </span>
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
-          );
-        })}
 
-        {/* Grand total row */}
-        <div className="flex items-center justify-between px-4 py-3"
-          style={{borderTop: '2px solid #e5e7eb', backgroundColor: '#f4f3ef'}}>
-          <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>Remaining unallocated</span>
-          <span className="text-sm font-bold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>
-            {formatCurrency(remaining)}
-          </span>
-        </div>
+            {/* Add line footer */}
+            <div className="flex items-center justify-between px-5 py-2.5"
+              style={{borderTop: '1px solid #f0f0f0', backgroundColor: '#fafaf9'}}>
+              <button onClick={() => addCustomLine(bucket.id)} className="text-xs font-medium"
+                style={{color: bucket.color}}>+ Add line</button>
+              <span className="text-xs font-semibold" style={{color: over ? '#c0392b' : 'rgb(14,50,60)'}}>
+                {formatCurrency(actual)}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Remaining unallocated */}
+      <div className="rounded mb-4 flex items-center justify-between px-5 py-3"
+        style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
+        <span className="text-sm font-semibold" style={{color: 'rgb(14,50,60)'}}>Remaining unallocated</span>
+        <span className="text-sm font-bold" style={{color: remaining >= 0 ? '#6E8F7C' : '#c0392b'}}>{formatCurrency(remaining)}</span>
       </div>
 
       {/* Pre-tax note */}
@@ -901,83 +905,6 @@ const BudgetPage = ({ annualIncome, monthlyPostTaxSavings, currentAge, retiremen
           <strong>Note on pre-tax contributions:</strong> Your 401(k) contributions are deducted before your paycheck arrives and are not included here. The Savings bucket above only reflects post-tax contributions like Roth IRA or brokerage investments.
         </p>
       </div>
-
-      {/* Spending vs Target Chart */}
-      <div className="rounded mb-6 p-5" style={{backgroundColor: 'white', border: '1px solid #c4c9cf', borderRadius: '4px', boxShadow: '0 2px 4px -1px rgba(0,0,0,0.35)'}}>
-        <h3 className="text-lg font-semibold mb-1" style={{color: 'rgb(14,50,60)'}}>Your Spending vs Target</h3>
-        <p className="text-sm text-[#4B4B4B] mb-4">Dashed line marks your target for each bucket.</p>
-        {(() => {
-          const chartHeight = 280;
-          const maxVal = Math.max(...buckets.map(b => bucketTotal(b)), netIncome * 0.55, 1);
-          const barWidth = 80;
-          const gap = 44;
-          const leftPad = 52;
-          const totalWidth = leftPad + buckets.length * (barWidth + gap);
-
-          return (
-            <div style={{overflowX: 'auto'}}>
-              <svg width={totalWidth} height={chartHeight + 60} style={{display: 'block', minWidth: 260}}>
-                {[0, 25, 50, 75, 100].map(pct => {
-                  const y = chartHeight - (pct / 100) * chartHeight;
-                  const val = (pct / 100) * maxVal;
-                  return (
-                    <g key={pct}>
-                      <line x1={leftPad} y1={y} x2={totalWidth - 8} y2={y} stroke="#e5e7eb" strokeWidth="1" strokeDasharray="3,3" />
-                      <text x={leftPad - 6} y={y + 4} textAnchor="end" style={{fontSize: 10, fill: '#9ca3af'}}>
-                        ${val >= 1000 ? (val/1000).toFixed(0)+'k' : Math.round(val)}
-                      </text>
-                    </g>
-                  );
-                })}
-
-                {buckets.map((bucket, bi) => {
-                  const x = leftPad + bi * (barWidth + gap);
-                  const total = bucketTotal(bucket);
-                  const target = bucket.id === 'needs' ? targetNeeds : bucket.id === 'wants' ? targetWants : targetSavings;
-                  const targetAmount = netIncome * target / 100;
-                  const targetY = chartHeight - (targetAmount / maxVal) * chartHeight;
-                  const barH = (total / maxVal) * chartHeight;
-                  const over = total > targetAmount && netIncome > 0;
-
-                  return (
-                    <g key={bucket.id}>
-                      {/* Solid bar in bucket color */}
-                      <rect x={x} y={chartHeight - barH} width={barWidth} height={Math.max(barH, 2)}
-                        fill={bucket.color} rx={3} opacity={0.85} />
-
-                      {/* Target dashed line */}
-                      {netIncome > 0 && (
-                        <g>
-                          <line x1={x - 5} y1={targetY} x2={x + barWidth + 5} y2={targetY}
-                            stroke={over ? '#c0392b' : '#9ca3af'} strokeWidth="2" strokeDasharray="5,3" />
-                          <text x={x + barWidth + 8} y={targetY + 4}
-                            style={{fontSize: 10, fill: over ? '#c0392b' : '#9ca3af', fontWeight: 600}}>
-                            {target}%
-                          </text>
-                        </g>
-                      )}
-
-                      <text x={x + barWidth / 2} y={chartHeight + 16} textAnchor="middle"
-                        style={{fontSize: 12, fill: bucket.color, fontWeight: 700}}>{bucket.label}</text>
-                      <text x={x + barWidth / 2} y={chartHeight + 30} textAnchor="middle"
-                        style={{fontSize: 11, fill: over ? '#c0392b' : 'rgb(14,50,60)', fontWeight: 600}}>
-                        {formatCurrency(total)}
-                      </text>
-                      {netIncome > 0 && (
-                        <text x={x + barWidth / 2} y={chartHeight + 44} textAnchor="middle"
-                          style={{fontSize: 10, fill: over ? '#c0392b' : '#9ca3af'}}>
-                          {over ? `▲ ${(bucketPercent(bucket) - target).toFixed(1)}% over` : `${bucketPercent(bucket).toFixed(1)}%`}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
-          );
-        })()}
-      </div>
-
     </div>
   );
 };
@@ -1183,9 +1110,17 @@ const LandingPage = ({ setCurrentPage }) => (
     {/* Centered logo + tagline */}
     <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px'}}>
       <img src="/SonderSave SVG logo.svg" alt="SonderSave" style={{width: 340, maxWidth: '80vw'}} />
-      <p className="text-base leading-relaxed mt-6 text-center" style={{color: '#4B4B4B', maxWidth: 420, fontFamily: '"Inter Display", sans-serif'}}>
-        Everyone's path to retirement is different.<br />SonderSave brings clarity to your journey — so you can plan the retirement that fits you.
-      </p>
+      <div className="mt-8 text-center" style={{maxWidth: 440, fontFamily: '"Inter Display", sans-serif'}}>
+        <p className="text-sm leading-relaxed mb-3" style={{color: '#9ca3af', fontStyle: 'italic'}}>
+          <span style={{fontWeight: 600, fontStyle: 'normal', color: '#6E8F7C'}}>Sonder</span> (n.) — the realization that each person is living a life as vivid and complex as your own.
+        </p>
+        <p className="text-sm leading-relaxed mb-5" style={{color: '#9ca3af', fontStyle: 'italic'}}>
+          <span style={{fontWeight: 600, fontStyle: 'normal', color: '#C58B6A'}}>SonderSave</span> (v.) — the act of saving for the retirement that fits a life as vivid and complex as your own.
+        </p>
+        <p className="text-base leading-relaxed" style={{color: 'rgb(14,50,60)', fontWeight: 500}}>
+          There's no wrong place to start. SonderSave shows you where you are — and what's possible from here.
+        </p>
+      </div>
     </div>
   </div>
 );
@@ -2077,6 +2012,18 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
         {/* About You Section - Modular Design */}
 
+        {/* Calculator intro card */}
+        <div className="rounded shadow-md mb-3 p-5" style={{
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+          border: '1px solid #c4c9cf'
+        }}>
+          <p className="text-lg font-bold" style={{color: 'rgb(14,50,60)', margin: 0}}>
+            SonderSave is here to guide you — however your journey looks.
+          </p>
+        </div>
+
         {/* Section Title Card */}
         <div id="about-you-section" className="rounded shadow-md mb-3 page-break-avoid" style={{
           backgroundColor: '#C58B6A',
@@ -2116,9 +2063,28 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
           border: '1px solid #c4c9cf'
         }}>
-          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+          <label className="block text-lg font-semibold mb-1" style={{color: 'rgb(14, 50, 60)'}}>
             Desired Retirement Age: {retirementAge}
           </label>
+          {(() => {
+            const notes = {
+              62: 'Earliest Social Security age — benefit is permanently reduced',
+              63: 'Social Security available at a reduced rate from age 62',
+              64: 'Social Security available at a reduced rate from age 62',
+              65: 'Medicare eligibility begins at 65',
+              66: 'Near full Social Security age — benefit close to 100%',
+              67: 'Full Social Security age for most people born after 1960',
+              68: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
+              69: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
+              70: 'Maximum Social Security benefit — no advantage to delaying further',
+            };
+            const note = notes[retirementAge];
+            return note ? (
+              <p className="text-xs mb-3" style={{color: '#6E8F7C', fontStyle: 'italic', margin: '0 0 12px 0'}}>
+                {note}
+              </p>
+            ) : <div className="mb-4" />;
+          })()}
           <input
             type="range"
             min="50"
@@ -4033,7 +3999,7 @@ const SonderSave = () => {
       {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
       <div style={{position: 'fixed', bottom: 8, right: 10, fontSize: '0.65rem', color: '#c4c9cf', pointerEvents: 'none', zIndex: 9999}}>
-        v428
+        v435
       </div>
     </div>
   );
