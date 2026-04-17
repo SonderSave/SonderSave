@@ -1272,9 +1272,12 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
   const [growthData, setGrowthData] = useState([]);
   const [tooltip, setTooltip] = useState(null);
   const [showTodaysDollars, setShowTodaysDollars] = useState(true);
+  const [showSummaryFuture, setShowSummaryFuture] = useState(false);
   const [textSize, setTextSize] = useState('normal'); // 'small', 'normal', 'large'
   const [chartViewMode, setChartViewMode] = useState('age'); // 'age', 'dollar', 'percent'
-  const [nestEggProgress, setNestEggProgress] = useState(0); // Progress based on nest egg vs goal
+  const [nestEggProgress, setNestEggProgress] = useState(0);
+  const [savingsProgress, setSavingsProgress] = useState(0); // savings-only portion
+  const [ssProgress, setSsProgress] = useState(0); // SS/pension portion
   const [showStickyBar, setShowStickyBar] = useState(false); // Show sticky bar after scrolling past logo
   
   // Home equity states
@@ -1427,15 +1430,16 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
     setYearlyIncome(totalYearlyIncome);
     setYearlyIncomeToday(totalRealIncome);
     
-    // Calculate nest egg progress (for sticky bar and chart alignment)
-    const retirementIncomeTargetFuture = (annualIncome * (retirementIncomeGoal / 100)) * Math.pow(1 + inflationRate / 100, yearsToRetirement);
-    const grossGoalNestEgg = retirementIncomeTargetFuture / (withdrawalRate / 100);
-    // Pension and SS reduce how much nest egg you need — convert their income to equivalent capital
-    const pensionCapitalEquivalent = pensionActive ? (pensionAmount * 12) / (withdrawalRate / 100) : 0;
-    const ssCapitalEquivalent = hasSocialSecurity ? (socialSecurityFuture * 12) / (withdrawalRate / 100) : 0;
-    const goalNestEgg = Math.max(0, grossGoalNestEgg - pensionCapitalEquivalent - ssCapitalEquivalent);
-    const nestEggProgressPercent = goalNestEgg > 0 ? (finalBalance / goalNestEgg) * 100 : 100;
-    setNestEggProgress(nestEggProgressPercent);
+    // Calculate income-based progress — two segments: savings alone, then SS/pension on top
+    const progressGoalIncome = annualIncome * (retirementIncomeGoal / 100);
+    const savingsIncomeToday = progressGoalIncome > 0 ? (realIncome / progressGoalIncome) * 100 : 0;
+    const ssAndPensionToday = hasSocialSecurity || (pensionActive) 
+      ? ((hasSocialSecurity ? socialSecurityAmount * 12 : 0) + (pensionActive ? pensionAmount * 12 : 0)) / Math.max(progressGoalIncome, 1) * 100
+      : 0;
+    const totalProgressPct = Math.min(100, savingsIncomeToday + ssAndPensionToday);
+    setSavingsProgress(Math.min(100, savingsIncomeToday));
+    setSsProgress(Math.min(100 - Math.min(100, savingsIncomeToday), ssAndPensionToday));
+    setNestEggProgress(totalProgressPct);
 
     // Push shared data up to App for Budget page
     if (onDataChange) {
@@ -1451,74 +1455,62 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
     
     if (progressPercent < 100) {
       const suggestionsList = [];
-      
-      // Suggestion 1: Increase contribution percentage
       const incomeGap = goalIncome - totalRealIncome;
-      const neededExtraContribution = incomeGap / withdrawalRate * 100;
-      const monthlyGap = neededExtraContribution / yearsToRetirement / 12;
-      const extraPercent = (monthlyGap / (annualIncome / 12)) * 100;
-      // Cap at IRS limit: $24,500/year unless catch-up enabled ($32,500)
-      const irsLimit = useCatchupContributions && currentAge >= 50 ? 32500 : 24500;
-      const irsLimitPercent = (irsLimit / annualIncome) * 100;
-      const suggestedPercent = Math.min(30, irsLimitPercent, contributionPercent + extraPercent);
-      
-      if (suggestedPercent <= 30) {
-        const atIrsLimit = suggestedPercent >= irsLimitPercent - 0.1;
+
+      // Suggestion 1: Small contribution increase
+      const currentContrib = contributionPercent;
+      if (currentContrib < 15) {
         suggestionsList.push({
           type: 'contribution',
-          description: `Increase your 401(k) contribution from ${contributionPercent.toFixed(1)}% to ${suggestedPercent.toFixed(1)}%${atIrsLimit ? ` (IRS maximum of ${formatCurrency(irsLimit)}/year)` : ''}`,
-          impact: `Would reach ~${Math.min(100, progressPercent + ((100 - progressPercent) * 0.8)).toFixed(0)}% of your goal`
+          description: `Increasing your savings contributions, even modestly, is one of the most direct ways to close the gap.`,
+          impact: `Small consistent increases compound significantly over time — even 1-2% more can make a meaningful difference`
         });
       }
-      
-      // Suggestion 2: Work longer
-      const yearsNeeded = Math.ceil((100 - progressPercent) / 10); // Rough estimate
-      if (retirementAge + yearsNeeded <= 75) {
+
+      // Suggestion 2: Work a little longer
+      if (retirementAge <= 70) {
         suggestionsList.push({
           type: 'retirement_age',
-          description: `Work until age ${retirementAge + yearsNeeded} (${yearsNeeded} more ${yearsNeeded === 1 ? 'year' : 'years'})`,
-          impact: `Would reach ~${Math.min(100, progressPercent + (yearsNeeded * 8)).toFixed(0)}% of your goal`
+          description: `Working a little longer than planned — even a year or two — can meaningfully change your retirement picture.`,
+          impact: `More time to save, more growth, and a shorter withdrawal period all work in your favor`
         });
       }
-      
-      // Suggestion 3: Catch-up contributions (if applicable)
+
+      // Suggestion 3: Catch-up contributions (age 50+)
       if (currentAge >= 50 && !useCatchupContributions) {
         suggestionsList.push({
           type: 'catchup',
-          description: 'Enable catch-up contributions (age 50+) for an extra $8,000/year contribution limit',
-          impact: 'Could significantly boost your retirement savings over time'
+          description: `You're eligible for catch-up contributions — a chance to save beyond the standard limit in the years closest to retirement.`,
+          impact: `Even a few years of catch-up contributions can add meaningfully to your nest egg`
         });
       } else if (currentAge < 50 && retirementAge > 50 && !useCatchupContributions) {
-        const yearsWithCatchup = retirementAge - 50;
         suggestionsList.push({
           type: 'catchup',
-          description: `Enable catch-up contributions after age 50 (+$8,000/year for ${yearsWithCatchup} years)`,
-          impact: 'Could increase savings by 5-10% depending on years until retirement'
+          description: `When you turn 50, you'll be eligible for catch-up contributions — a chance to save more in the years closest to retirement.`,
+          impact: `Planning for this now can help close the gap as you approach retirement`
         });
       }
-      
-      // Suggestion 4: Budget check
-      const recommendedSavings = (annualIncome / 12) * 0.20;
-      const currentSaving = (annualIncome / 12) * (contributionPercent / 100);
-      if (currentSaving < recommendedSavings) {
+
+      // Suggestion 4: Budget nudge — only if saving well below 10%
+      if (contributionPercent < 10) {
         suggestionsList.push({
           type: 'budget',
-          description: `Budget check: The 50/30/20 guideline suggests saving about 20% toward savings and debt. You're saving ${contributionPercent.toFixed(1)}% for retirement — could you increase toward 20%?`,
-          impact: `Saving ${formatCurrency(recommendedSavings)}/month would reach ~${Math.min(100, progressPercent + ((recommendedSavings - currentSaving) / currentSaving * progressPercent * 0.5)).toFixed(0)}% of your goal`
+          description: `Taking a fresh look at your monthly budget may reveal room to save a little more — even small amounts add up over time.`,
+          impact: `Small consistent increases tend to be more sustainable than large one-time changes`
         });
       }
-      
-      // Suggestion 5: Adjust retirement income goal (last resort option)
-      const achievablePercent = Math.floor((totalRealIncome / annualIncome) * 100 / 5) * 5; // Round down to nearest 5%
-      if (achievablePercent >= 50 && achievablePercent < retirementIncomeGoal) {
+
+      // Suggestion 5: Adjust goal — only if significantly behind, as a gentle reframe
+      const achievablePercent = Math.floor((totalRealIncome / annualIncome) * 100 / 5) * 5;
+      if (achievablePercent >= 40 && achievablePercent < retirementIncomeGoal - 10) {
         suggestionsList.push({
           type: 'goal_adjustment',
-          description: `Adjust your retirement income goal from ${retirementIncomeGoal}% to ${achievablePercent}% of current income`,
-          impact: `Note: This means planning for ${formatCurrency(annualIncome * (achievablePercent / 100))}/year (in today's dollars), which may require lifestyle adjustments like downsizing, relocating to a lower cost area, or reducing discretionary spending in retirement.`
+          description: `It may be worth revisiting your retirement income goal — many retirees find their expenses drop naturally as mortgages end and work-related costs disappear.`,
+          impact: `Adjusting your goal to reflect your likely retirement lifestyle can make the path feel more achievable`
         });
       }
-      
-      setSuggestions(suggestionsList.slice(0, 4)); // Show top 4
+
+      setSuggestions(suggestionsList.slice(0, 4));
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
@@ -1805,11 +1797,13 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           <div className="flex items-center gap-3">
             <div className="text-base text-[#4B4B4B] flex-shrink-0">Progress:</div>
             <div className="text-base font-semibold text-[#3A4446] flex-shrink-0">{Math.round(nestEggProgress)}%</div>
-            <div className="flex-1 bg-gray-200 rounded-full h-3">
-              <div
-                className="h-3 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, nestEggProgress)}%`, backgroundColor: '#6E8F7C' }}
-              />
+            <div className="flex-1 bg-gray-200 rounded-full h-3 overflow-hidden relative">
+              {/* Savings segment — dark teal */}
+              <div className="absolute top-0 left-0 h-full transition-all duration-300"
+                style={{ width: `${Math.min(100, savingsProgress)}%`, backgroundColor: 'rgb(14,50,60)', borderRadius: '99px 0 0 99px' }} />
+              {/* SS/pension segment — sage */}
+              <div className="absolute top-0 h-full transition-all duration-300"
+                style={{ left: `${Math.min(100, savingsProgress)}%`, width: `${ssProgress}%`, backgroundColor: '#6E8F7C', borderRadius: ssProgress > 0 && savingsProgress + ssProgress >= 99 ? '0 99px 99px 0' : '0' }} />
             </div>
             <button
               onClick={() => setResultsBarCollapsed(!resultsBarCollapsed)}
@@ -2063,30 +2057,9 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
           border: '1px solid #c4c9cf'
         }}>
-          <div className="flex items-baseline justify-between mb-4">
-            <label className="text-lg font-semibold flex-shrink-0" style={{color: 'rgb(14, 50, 60)'}}>
-              Desired Retirement Age: {retirementAge}
-            </label>
-            {(() => {
-              const notes = {
-                62: 'Earliest SS — reduced benefit',
-                63: 'SS available from age 62',
-                64: 'SS available from age 62',
-                65: 'Medicare eligibility begins',
-                66: 'Near full Social Security age',
-                67: 'Full Social Security age',
-                68: 'Delaying SS past 67 adds 8%/yr',
-                69: 'Delaying SS past 67 adds 8%/yr',
-                70: 'Maximum SS benefit',
-              };
-              const note = notes[retirementAge];
-              return note ? (
-                <span className="text-xs ml-4 flex-shrink-0" style={{color: '#6E8F7C', fontStyle: 'italic'}}>
-                  {note}
-                </span>
-              ) : null;
-            })()}
-          </div>
+          <label className="block text-lg font-semibold mb-4" style={{color: 'rgb(14, 50, 60)'}}>
+            Desired Retirement Age: {retirementAge}
+          </label>
           <input
             type="range"
             min="50"
@@ -2099,6 +2072,23 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           <p className="text-sm text-[#4B4B4B] mt-3">
             {retirementAge - currentAge} years until retirement
           </p>
+          {(() => {
+            const notes = {
+              62: 'Earliest Social Security age — benefit is permanently reduced',
+              63: 'Social Security available at a reduced rate from age 62',
+              64: 'Social Security available at a reduced rate from age 62',
+              65: 'Medicare eligibility begins at 65',
+              66: 'Near full Social Security age',
+              67: 'Full Social Security age for most people born after 1960',
+              68: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
+              69: 'Delaying past 67 increases your Social Security benefit by 8%/yr',
+              70: 'Maximum Social Security benefit — no gain from delaying further',
+            };
+            const note = notes[retirementAge];
+            return note ? (
+              <p className="text-xs mt-1" style={{color: '#6E8F7C', fontStyle: 'italic'}}>{note}</p>
+            ) : null;
+          })()}
         </div>
 
         {/* Module: Current Annual Income */}
@@ -3446,6 +3436,146 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
           <h2 className="text-2xl font-bold text-white" style={{fontWeight: 700, margin: 0}}>Your Retirement Outlook</h2>
         </div>
 
+        {/* Plain-language Summary Card */}
+        {totalAtRetirement > 0 && (() => {
+          const showFuture = showSummaryFuture;
+          const yearsToRet = Math.max(0, retirementAge - currentAge);
+          const inflFactor = Math.pow(1 + inflationRate / 100, yearsToRet);
+
+          // Income sources in today's dollars
+          const savingsIncomeToday = totalAtRetirement / inflFactor * (withdrawalRate / 100);
+          const ssIncomeToday = hasSocialSecurity ? socialSecurityAmount * 12 : 0;
+          const pensionIncomeToday = (hasPension && pensionAmount > 0) ? pensionAmount * 12 : 0;
+          const totalIncomeToday = savingsIncomeToday + ssIncomeToday + pensionIncomeToday;
+          const monthlyIncomeToday = totalIncomeToday / 12;
+
+          // Income sources in future dollars
+          const savingsIncomeFuture = totalAtRetirement * (withdrawalRate / 100);
+          const ssIncomeFuture = hasSocialSecurity ? socialSecurityAmount * inflFactor * 12 : 0;
+          const pensionIncomeFuture = (hasPension && pensionAmount > 0) ? pensionAmount * inflFactor * 12 : 0;
+          const totalIncomeFuture = savingsIncomeFuture + ssIncomeFuture + pensionIncomeFuture;
+          const monthlyIncomeFuture = totalIncomeFuture / 12;
+
+          const goalAnnual = annualIncome * (retirementIncomeGoal / 100);
+          const progressPct = goalAnnual > 0 ? Math.round((totalIncomeToday / goalAnnual) * 100) : 0;
+          const onTrack = progressPct >= 90;
+          const close = progressPct >= 70 && progressPct < 90;
+
+          const displayAnnual = showFuture ? totalIncomeFuture : totalIncomeToday;
+          const displayMonthly = showFuture ? monthlyIncomeFuture : monthlyIncomeToday;
+          const displaySavings = showFuture ? savingsIncomeFuture : savingsIncomeToday;
+          const displaySS = showFuture ? ssIncomeFuture : ssIncomeToday;
+          const displayPension = showFuture ? pensionIncomeFuture : pensionIncomeToday;
+
+          return (
+            <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
+              backgroundColor: 'white',
+              borderRadius: '4px',
+              boxShadow: '0 2px 4px -1px rgba(0, 0, 0, 0.35)',
+              border: '1px solid #c4c9cf'
+            }}>
+              {/* Header row */}
+              <div className="flex items-center justify-between mb-4">
+                <label className="text-lg font-semibold" style={{color: 'rgb(14,50,60)'}}>
+                  At {retirementAge}, here's your picture
+                </label>
+                <button
+                  onClick={() => setShowSummaryFuture(!showSummaryFuture)}
+                  className="text-xs px-3 py-1 rounded border transition-colors"
+                  style={{
+                    backgroundColor: showFuture ? 'rgb(14,50,60)' : 'white',
+                    color: showFuture ? 'white' : 'rgb(14,50,60)',
+                    borderColor: 'rgb(14,50,60)'
+                  }}>
+                  {showFuture ? "Future $'s" : "Today's $'s"}
+                </button>
+              </div>
+
+              {/* Main income figures */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                  <p className="text-xs text-[#4B4B4B] mb-1">Yearly retirement income</p>
+                  <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displayAnnual)}</p>
+                  <p className="text-sm text-[#4B4B4B]">{formatCurrency(displayMonthly)}/mo</p>
+                </div>
+                <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
+                  <p className="text-xs text-[#4B4B4B] mb-1">Nest egg at retirement</p>
+                  <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCompact(totalAtRetirement)}</p>
+                  <p className="text-xs text-[#4B4B4B] mt-1">{withdrawalRate}% withdrawal rate</p>
+                </div>
+              </div>
+
+              {/* Income breakdown */}
+              <div className="mb-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#4B4B4B]">From savings ({withdrawalRate}% withdrawal)</span>
+                  <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displaySavings)}/yr</span>
+                </div>
+                {hasSocialSecurity && socialSecurityAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#4B4B4B]">Social Security</span>
+                    <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displaySS)}/yr</span>
+                  </div>
+                )}
+                {hasPension && pensionAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#4B4B4B]">Pension</span>
+                    <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displayPension)}/yr</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm pt-2 border-t" style={{borderColor: '#e5e7eb'}}>
+                  <span className="font-semibold text-[#4B4B4B]">Your goal</span>
+                  <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(goalAnnual)}/yr ({retirementIncomeGoal}% of income)</span>
+                </div>
+              </div>
+
+              {/* Progress toward goal — two tone with legend */}
+              <div className="mb-4">
+                <div className="flex justify-between text-xs text-[#4B4B4B] mb-1">
+                  <span>Progress toward goal</span>
+                  <span style={{color: onTrack ? '#6E8F7C' : close ? '#C58B6A' : 'rgb(14,50,60)', fontWeight: 600}}>{progressPct}%</span>
+                </div>
+                <div className="rounded-full bg-gray-100 overflow-hidden relative" style={{height: 10}}>
+                  {/* Savings segment */}
+                  <div className="absolute top-0 left-0 h-full transition-all duration-500"
+                    style={{width: `${Math.min(100, savingsProgress)}%`, backgroundColor: 'rgb(14,50,60)', borderRadius: '99px 0 0 99px'}} />
+                  {/* SS/pension segment */}
+                  <div className="absolute top-0 h-full transition-all duration-500"
+                    style={{left: `${Math.min(100, savingsProgress)}%`, width: `${Math.min(100 - savingsProgress, ssProgress)}%`, backgroundColor: '#6E8F7C', borderRadius: savingsProgress + ssProgress >= 99 ? '0 99px 99px 0' : '0'}} />
+                </div>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                  <div className="flex items-center gap-1.5">
+                    <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: 'rgb(14,50,60)', flexShrink: 0}} />
+                    <span className="text-xs text-[#4B4B4B]">Savings — {formatCurrency(displaySavings)}/yr</span>
+                  </div>
+                  {(hasSocialSecurity && socialSecurityAmount > 0) || (hasPension && pensionAmount > 0) ? (
+                    <div className="flex items-center gap-1.5">
+                      <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: '#6E8F7C', flexShrink: 0}} />
+                      <span className="text-xs text-[#4B4B4B]">
+                        {hasSocialSecurity && hasPension ? 'SS & Pension' : hasSocialSecurity ? 'Social Security' : 'Pension'} — {formatCurrency(displaySS + displayPension)}/yr
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className="flex items-center gap-1.5">
+                    <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: '#e5e7eb', flexShrink: 0}} />
+                    <span className="text-xs text-[#4B4B4B]">Gap — {formatCurrency(Math.max(0, goalAnnual - displayAnnual))}/yr</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Forward-looking note */}
+              <p className="text-sm" style={{color: '#4B4B4B', margin: 0}}>
+                {onTrack
+                  ? `You're on track — your projected income meets your retirement goal. Keep building.`
+                  : close
+                  ? `You're close. Small adjustments to your savings rate or retirement age could close this gap.`
+                  : `There's still time to adjust. Even modest changes to your savings rate, retirement age, or income goal can meaningfully move this number.`}
+              </p>
+            </div>
+          );
+        })()}
+
         {/* Retirement Outlook Content */}
         <div className="rounded shadow-md mb-3 p-6 page-break-avoid" style={{
           backgroundColor: 'white',
@@ -4001,7 +4131,7 @@ const SonderSave = () => {
       {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
       <div style={{position: 'fixed', bottom: 8, right: 10, fontSize: '0.65rem', color: '#c4c9cf', pointerEvents: 'none', zIndex: 9999}}>
-        v437
+        v446
       </div>
     </div>
   );
