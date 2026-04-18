@@ -1436,7 +1436,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
     const ssAndPensionToday = hasSocialSecurity || (pensionActive) 
       ? ((hasSocialSecurity ? socialSecurityAmount * 12 : 0) + (pensionActive ? pensionAmount * 12 : 0)) / Math.max(progressGoalIncome, 1) * 100
       : 0;
-    const totalProgressPct = Math.min(100, savingsIncomeToday + ssAndPensionToday);
+    const totalProgressPct = savingsIncomeToday + ssAndPensionToday;
     setSavingsProgress(Math.min(100, savingsIncomeToday));
     setSsProgress(Math.min(100 - Math.min(100, savingsIncomeToday), ssAndPensionToday));
     setNestEggProgress(totalProgressPct);
@@ -2914,10 +2914,10 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
           {hasSocialSecurity && (<div>
 
-          {retirementAge < 62 && (
+          {retirementAge < ssClaimingAge && (
             <div className="rounded p-3 mb-4" style={{backgroundColor: '#f0f7f4', border: '1px solid #6E8F7C'}}>
               <p className="text-xs" style={{color: '#4B4B4B'}}>
-                <strong>Note:</strong> Social Security isn't available until age 62 (reduced) or 67 (full). Your plan from age {retirementAge} to 62 will rely entirely on savings and other income.
+                <strong>Note:</strong> Based on your claiming age of {ssClaimingAge}, your plan from age {retirementAge} to {ssClaimingAge} will rely entirely on savings and other income before Social Security kicks in.
               </p>
             </div>
           )}
@@ -3494,36 +3494,36 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
               {/* Main income figures */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-                  <p className="text-xs text-[#4B4B4B] mb-1">Yearly retirement income</p>
+                  <p className="text-sm text-[#4B4B4B] mb-1">Yearly retirement income</p>
                   <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displayAnnual)}</p>
-                  <p className="text-sm text-[#4B4B4B]">{formatCurrency(displayMonthly)}/mo</p>
+                  <p className="text-base text-[#4B4B4B]">{formatCurrency(displayMonthly)}/mo</p>
                 </div>
                 <div className="p-4 rounded border" style={{backgroundColor: '#f4f3ef', borderColor: '#e5e7eb'}}>
-                  <p className="text-xs text-[#4B4B4B] mb-1">Nest egg at retirement</p>
+                  <p className="text-sm text-[#4B4B4B] mb-1">Nest egg at retirement</p>
                   <p className="text-2xl font-bold" style={{color: 'rgb(14,50,60)'}}>{formatCompact(totalAtRetirement)}</p>
-                  <p className="text-xs text-[#4B4B4B] mt-1">{withdrawalRate}% withdrawal rate</p>
+                  <p className="text-sm text-[#4B4B4B] mt-1">{withdrawalRate}% withdrawal rate</p>
                 </div>
               </div>
 
               {/* Income breakdown */}
               <div className="mb-4 space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-base">
                   <span className="text-[#4B4B4B]">From savings ({withdrawalRate}% withdrawal)</span>
                   <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displaySavings)}/yr</span>
                 </div>
                 {hasSocialSecurity && socialSecurityAmount > 0 && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-base">
                     <span className="text-[#4B4B4B]">Social Security</span>
                     <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displaySS)}/yr</span>
                   </div>
                 )}
                 {hasPension && pensionAmount > 0 && (
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-base">
                     <span className="text-[#4B4B4B]">Pension</span>
                     <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(displayPension)}/yr</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm pt-2 border-t" style={{borderColor: '#e5e7eb'}}>
+                <div className="flex justify-between text-base pt-2 border-t" style={{borderColor: '#e5e7eb'}}>
                   <span className="font-semibold text-[#4B4B4B]">Your goal</span>
                   <span className="font-semibold" style={{color: 'rgb(14,50,60)'}}>{formatCurrency(goalAnnual)}/yr ({retirementIncomeGoal}% of income)</span>
                 </div>
@@ -3531,7 +3531,7 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
 
               {/* Progress toward goal — two tone with legend */}
               <div className="mb-4">
-                <div className="flex justify-between text-xs text-[#4B4B4B] mb-1">
+                <div className="flex justify-between text-sm text-[#4B4B4B] mb-1">
                   <span>Progress toward goal</span>
                   <span style={{color: onTrack ? '#6E8F7C' : close ? '#C58B6A' : 'rgb(14,50,60)', fontWeight: 600}}>{progressPct}%</span>
                 </div>
@@ -3547,19 +3547,19 @@ const Calculator = ({ currentPage, setCurrentPage, onDataChange }) => {
                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                   <div className="flex items-center gap-1.5">
                     <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: 'rgb(14,50,60)', flexShrink: 0}} />
-                    <span className="text-xs text-[#4B4B4B]">Savings — {formatCurrency(displaySavings)}/yr</span>
+                    <span className="text-sm text-[#4B4B4B]">Savings — {formatCurrency(displaySavings)}/yr</span>
                   </div>
                   {(hasSocialSecurity && socialSecurityAmount > 0) || (hasPension && pensionAmount > 0) ? (
                     <div className="flex items-center gap-1.5">
                       <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: '#6E8F7C', flexShrink: 0}} />
-                      <span className="text-xs text-[#4B4B4B]">
-                        {hasSocialSecurity && hasPension ? 'SS & Pension' : hasSocialSecurity ? 'Social Security' : 'Pension'} — {formatCurrency(displaySS + displayPension)}/yr
+                      <span className="text-sm text-[#4B4B4B]">
+                        {hasSocialSecurity && hasPension ? 'Social Security & Pension' : hasSocialSecurity ? 'Social Security' : 'Pension'} — {formatCurrency(displaySS + displayPension)}/yr
                       </span>
                     </div>
                   ) : null}
                   <div className="flex items-center gap-1.5">
                     <div style={{width: 10, height: 10, borderRadius: 2, backgroundColor: '#e5e7eb', flexShrink: 0}} />
-                    <span className="text-xs text-[#4B4B4B]">Gap — {formatCurrency(Math.max(0, goalAnnual - displayAnnual))}/yr</span>
+                    <span className="text-sm text-[#4B4B4B]">Gap — {formatCurrency(Math.max(0, goalAnnual - displayAnnual))}/yr</span>
                   </div>
                 </div>
               </div>
@@ -4131,7 +4131,7 @@ const SonderSave = () => {
       {currentPage === 'nestegg' && <QuickNestEggCalculator />}
       {currentPage === 'about' && <AboutPage />}
       <div style={{position: 'fixed', bottom: 8, right: 10, fontSize: '0.65rem', color: '#c4c9cf', pointerEvents: 'none', zIndex: 9999}}>
-        v446
+        v449
       </div>
     </div>
   );
